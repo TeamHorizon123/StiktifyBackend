@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "GrpcServiceUser.ShopRating";
+
+service ShopRatingGrpc{
+	rpc GetAllOfShop(Id) returns (ShopRatings);
+	rpc GetOne(Id) returns (ShopRating);
+	rpc Create(CreateRating) returns (Response);
+	rpc Update(ShopRating) returns (Response);
+	rpc Delete(Id) returns (Response);
+}
+
+message Id{
+	string SearchId = 1;
+}
+
+message CreateRating{
+	string UserId = 2;
+	string ShopId = 3;
+	int32 Point = 4;
+	string Content = 5;
+}
+
+message ShopRating{
+	google.protobuf.StringValue Id= 1;
+	google.protobuf.StringValue UserId = 2;
+	google.protobuf.StringValue ShopId = 3;
+	int32 Point = 4;
+	google.protobuf.StringValue Content = 5;
+	google.protobuf.Timestamp CreateAt = 6;
+	google.protobuf.Timestamp UpdateAt = 7;
+}
+
+message ShopRatings{
+	repeated ShopRating Item = 1;
+}
+
+message Response {
+	int32 StatusCode = 1;
+	google.protobuf.StringValue Message = 2;
+}
