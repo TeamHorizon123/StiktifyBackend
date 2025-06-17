@@ -29,14 +29,14 @@ namespace GrpcServiceProduct.Data
         {
             try
             {
-                var listCategory = new List<Category>();
+                var listCategory = new List<Domain.Entities.Category>();
                 foreach (var item in createProduct.CategoryId)
                 {
                     var category = await _context.Categories.FindAsync(item);
                     listCategory.Add(category!);
                 }
 
-                var product = new Product
+                var product = new Domain.Entities.Product
                 {
                     Name = createProduct.Name,
                     Description = createProduct.Description,
@@ -248,14 +248,14 @@ namespace GrpcServiceProduct.Data
                 if (await GetOne(updateProduct.Id) == null)
                     return new Response { StatusCode = 404, Message = "Product does not exist." };
 
-                var listCategory = new List<Category>();
+                var listCategory = new List<Domain.Entities.Category>();
                 foreach (var item in updateProduct.CategoryId)
                 {
                     var category = await _context.Categories.FindAsync(item);
                     listCategory.Add(category!);
                 }
 
-                var product = new Product
+                var product = new Domain.Entities.Product
                 {
                     Id = updateProduct.Id,
                     Name = updateProduct.Name,

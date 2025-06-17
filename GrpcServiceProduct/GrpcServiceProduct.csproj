@@ -7,6 +7,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Protos\category.proto" />
+	  <None Remove="Protos\product.proto" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Google.Protobuf.Tools" Version="3.31.1" />
 		<PackageReference Include="Grpc.AspNetCore" Version="2.57.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.16" />
@@ -20,7 +25,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Protos\" />
+	  <Protobuf Include="Protos\category.proto" GrpcServices="Server" />
+	  <Protobuf Include="Protos\product.proto" GrpcServices="Server" />
 	</ItemGroup>
 
 </Project>
