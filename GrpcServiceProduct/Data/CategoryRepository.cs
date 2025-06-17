@@ -179,7 +179,7 @@ namespace GrpcServiceProduct.Data
                 return new Response { Message = "Category does not exist.", StatusCode = 404 };
             try
             {
-                var category = new Category
+                var category = new Domain.Entities.Category
                 {
                     Id = updateCategory.Id,
                     Name = updateCategory.Name,
