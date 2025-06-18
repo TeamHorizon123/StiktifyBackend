@@ -33,6 +33,7 @@ namespace GrpcServiceProduct.Services
                     Order = item.Order,
                     Price = item.Price,
                     Rating = item.Rating,
+                    IsActive = item.IsActive,
                     CreateAt = Timestamp.FromDateTime(item.CreateAt!.Value.ToUniversalTime()),
                     UpdateAt = Timestamp.FromDateTime(item.UpdateAt!.Value.ToUniversalTime())
                 }));
@@ -55,6 +56,7 @@ namespace GrpcServiceProduct.Services
                     Order = item.Order,
                     Price = item.Price,
                     Rating = item.Rating,
+                    IsActive = item.IsActive,
                     CreateAt = Timestamp.FromDateTime(item.CreateAt!.Value.ToUniversalTime()),
                     UpdateAt = Timestamp.FromDateTime(item.UpdateAt!.Value.ToUniversalTime())
                 }));
@@ -77,6 +79,7 @@ namespace GrpcServiceProduct.Services
                     Order = item.Order,
                     Price = item.Price,
                     Rating = item.Rating,
+                    IsActive = item.IsActive,
                     CreateAt = Timestamp.FromDateTime(item.CreateAt!.Value.ToUniversalTime()),
                     UpdateAt = Timestamp.FromDateTime(item.UpdateAt!.Value.ToUniversalTime())
                 }));
@@ -111,6 +114,7 @@ namespace GrpcServiceProduct.Services
                 Order = product.Order,
                 Rating = product.Rating,
                 Price = product.Price,
+                IsActive = product.IsActive,
                 CreateAt = Timestamp.FromDateTime(product.CreateAt!.Value.ToUniversalTime()),
                 UpdateAt = Timestamp.FromDateTime(product.UpdateAt!.Value.ToUniversalTime())
             };
@@ -145,6 +149,7 @@ namespace GrpcServiceProduct.Services
                 Price = request.Price,
                 Thumbnail = request.Thumbnail,
                 CategoryId = JsonConvert.DeserializeObject<string[]>(request.CategoryIds) ?? [],
+                IsActive = request.IsActive,
                 CreateAt = request.CreateAt.ToDateTime(),
             };
 

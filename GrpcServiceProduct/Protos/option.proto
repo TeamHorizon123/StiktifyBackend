@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "GrpcServiceProduct.ProductOption";
+
+service ProductOptionGrpc{
+
+}
+
+message Empty{}
+
+message Option{
+
+}
+
+message Id{
+	string SearchID = 1;
+}
+
+Message Ids{
+	repeated Id Item = 1;
+}
+
+message Options{
+	repeated Option Item = 1;
+}
+
+message Response{
+	int32 StatusCode = 1;
+	google.protobuf.StringValue Message = 2;
+}

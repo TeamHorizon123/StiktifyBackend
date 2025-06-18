@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
@@ -26,6 +27,8 @@ namespace Domain.Entities
         [Column(TypeName = "numeric(3,2)")]
         public double Discount { get; set; }
 
+        [DefaultValue(true)]
+        public bool IsActive { get; set; }
         public virtual ICollection<Category> Categories { get; set; } = default!;
         public virtual ICollection<ProductOption> Options { get; set; } = default!;
     }

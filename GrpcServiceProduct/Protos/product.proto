@@ -31,8 +31,9 @@ message Product{
 	double Discount = 8;
 	int32 Order = 9;
 	string CategoryIds = 10;
-	google.protobuf.Timestamp CreateAt = 11;
-	google.protobuf.Timestamp UpdateAt = 12;
+	bool IsActive = 11;
+	google.protobuf.Timestamp CreateAt = 12;
+	google.protobuf.Timestamp UpdateAt = 13;
 }
 
 message CreateProduct{

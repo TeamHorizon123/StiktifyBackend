@@ -1,5 +1,4 @@
-﻿using Domain.Entities;
-using Domain.Requests;
+﻿using Domain.Requests;
 using Domain.Responses;
 using Grpc.Core;
 using GrpcServiceProduct.Interfaces;
@@ -116,6 +115,7 @@ namespace GrpcServiceProduct.Data
                         ShopId = product.ShopId,
                         Order = 0,
                         Rating = Math.Round(AverageProductRating(product.Id), 1),
+                        IsActive = product.IsActive,
                         CreateAt = product.CreateAt,
                         UpdateAt = product.UpdateAt,
                     })
@@ -169,6 +169,7 @@ namespace GrpcServiceProduct.Data
                         ShopId = product.ShopId,
                         Order = 0,
                         Rating = Math.Round(AverageProductRating(product.Id), 1),
+                        IsActive = product.IsActive,
                         CreateAt = product.CreateAt,
                         UpdateAt = product.UpdateAt,
                     })
@@ -199,6 +200,7 @@ namespace GrpcServiceProduct.Data
                         ShopId = product.ShopId,
                         Order = 0,
                         Rating = Math.Round(AverageProductRating(product.Id), 1),
+                        IsActive = product.IsActive,
                         CreateAt = product.CreateAt,
                         UpdateAt = product.UpdateAt,
                     })
@@ -265,6 +267,7 @@ namespace GrpcServiceProduct.Data
                     ShopId = updateProduct.ShopId,
                     Thumbnail = updateProduct.Thumbnail,
                     Categories = listCategory,
+                    IsActive = updateProduct.IsActive,
                 };
                 _context.Products.Update(product);
                 await _context.SaveChangesAsync();

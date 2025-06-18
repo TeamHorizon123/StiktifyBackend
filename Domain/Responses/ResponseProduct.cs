@@ -11,6 +11,7 @@
         public double Discount { get; set; }
         public double Rating { get; set; }
         public int Order { get; set; }
+        public bool IsActive { get; set; }
         public DateTime? CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }
     }
