@@ -1,6 +1,132 @@
-﻿namespace GrpcServiceProduct.Services
+﻿using Domain.Requests;
+using Google.Protobuf.WellKnownTypes;
+using Grpc.Core;
+using GrpcServiceProduct.Interfaces;
+using GrpcServiceProduct.ProductOption;
+
+namespace GrpcServiceProduct.Services
 {
-    public class ProductOptionGrpcServie
+    public class ProductOptionGrpcServie : ProductOptionGrpc.ProductOptionGrpcBase
     {
+        private IProductOptionRepository _repo;
+
+        public ProductOptionGrpcServie(IProductOptionRepository repo)
+        {
+            _repo = repo ?? throw new ArgumentException(nameof(_repo));
+        }
+
+        public override async Task<Options> GetAll(ProductOption.Empty request, ServerCallContext context)
+        {
+            var listOption = await _repo.GetAll();
+            Options grpcList = new Options();
+            grpcList.Item.AddRange(listOption.Select(option
+                => new ProductOption.Option
+                {
+                    Id = option.Id,
+                    ProductId = option.ProductId,
+                    Image = option.Image,
+                    Quantity = option.Quantity,
+                    Attribute = option.Attribute,
+                    Value = option.Value,
+                    CreateAt = Timestamp.FromDateTime(option.CreateAt!.Value.ToUniversalTime()),
+                    UpdateAt = Timestamp.FromDateTime(option.UpdateAt!.Value.ToUniversalTime()),
+                }));
+            return grpcList;
+        }
+
+        public override async Task<Options> GetAllOfProduct(Id request, ServerCallContext context)
+        {
+            var listOption = await _repo.GetAllOfProduct(request.SearchID);
+            Options grpcList = new Options();
+            grpcList.Item.AddRange(listOption.Select(option
+                => new ProductOption.Option
+                {
+                    Id = option.Id,
+                    ProductId = option.ProductId,
+                    Image = option.Image,
+                    Quantity = option.Quantity,
+                    Attribute = option.Attribute,
+                    Value = option.Value,
+                    CreateAt = Timestamp.FromDateTime(option.CreateAt!.Value.ToUniversalTime()),
+                    UpdateAt = Timestamp.FromDateTime(option.UpdateAt!.Value.ToUniversalTime()),
+                }));
+            return grpcList;
+        }
+
+        public override async Task<ProductOption.Option> GetOne(Id request, ServerCallContext context)
+        {
+            var option = await _repo.GetOne(request.SearchID);
+            if (option == null)
+                return new ProductOption.Option();
+            return new ProductOption.Option
+            {
+                Id = option.Id,
+                ProductId = option.ProductId,
+                Image = option.Image,
+                Attribute = option.Attribute,
+                Value = option.Value,
+                Quantity = option.Quantity,
+                CreateAt = Timestamp.FromDateTime(option.CreateAt!.Value.ToUniversalTime()),
+                UpdateAt = Timestamp.FromDateTime(option.UpdateAt!.Value.ToUniversalTime()),
+            };
+        }
+
+        public override async Task<Response> Create(CreateOption request, ServerCallContext context)
+        {
+            var option = new RequestCreateOption()
+            {
+                ProductId = request.ProductId,
+                Image = request.Image,
+                Attribute = request.Attribute,
+                Value = request.Value,
+                Quantity = request.Quantity
+            };
+            var response = await _repo.CreateProductOption(option);
+            return new Response { Message = response.Message, StatusCode = response.StatusCode };
+        }
+
+        public override async Task<Response> CreateManyOption(CreateOptions request, ServerCallContext context)
+        {
+            var createOptions = request.Item.Select(option
+                => new RequestCreateOption
+                {
+                    ProductId = option.ProductId,
+                    Image = option.Image,
+                    Attribute = option.Attribute,
+                    Value = option.Value,
+                    Quantity = option.Quantity
+                }).ToList();
+            var response = await _repo.CreateManyProductOption(createOptions);
+            return new Response { Message = response.Message, StatusCode = response.StatusCode };
+        }
+
+        public override async Task<Response> UpdateOption(ProductOption.Option request, ServerCallContext context)
+        {
+            var updateOption = new RequestUpdateOption()
+            {
+                Id = request.ProductId,
+                Image = request.Image,
+                Attribute = request.Attribute,
+                ProductId = request.ProductId,
+                Quantity = request.Quantity,
+                Value = request.Value
+            };
+            var response = await _repo.UpdateProductOption(updateOption);
+            return new Response { Message = response.Message, StatusCode = response.StatusCode };
+        }
+
+        public override async Task<Response> DeleteOption(Id request, ServerCallContext context)
+        {
+            var response = await _repo.DeleteProductOption(request.SearchID);
+            return new Response { Message = response.Message, StatusCode = response.StatusCode };
+        }
+
+        public override async Task<Response> DeleteManyOption(Ids request, ServerCallContext context)
+        {
+           var listRemove = request.Item.Select(optionId
+                => optionId.SearchID).ToList();
+            var response = await _repo.DeleteManyProductOption(listRemove);
+            return new Response { Message = response.Message, StatusCode = response.StatusCode };
+        }
     }
 }
