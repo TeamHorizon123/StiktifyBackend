@@ -13,6 +13,7 @@ namespace GrpcServiceProduct.Interfaces
         Task<Response> Create(RequestCreateProduct createProduct);
         Task<Response> Update(RequestUpdateProduct updateProduct);
         Task<Response> Delete(string productId);
+        Task<Response> DeleteAllOfShop(string shopId);
         Task<Response> DeleteMany(string[] listProductId);
     }
 }

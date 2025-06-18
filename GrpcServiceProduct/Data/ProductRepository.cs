@@ -279,5 +279,28 @@ namespace GrpcServiceProduct.Data
                 return new Response { StatusCode = 500, Message = "Fail to update a product" };
             }
         }
+
+        public async Task<Response> DeleteAllOfShop(string shopId)
+        {
+            try
+            {
+                var listProduct = await _context.Products
+                    .Where(product => product.ShopId == shopId)
+                    .ToListAsync();
+
+                foreach (var item in listProduct)
+                {
+                    item.IsActive = false;
+                }
+                _context.Products.UpdateRange(listProduct);
+                await _context.SaveChangesAsync();
+                return new Response { StatusCode = 204 };
+            }
+            catch (Exception err)
+            {
+                _logger.LogError($"Fail to update a product \nError: {err.Message}");
+                return new Response { StatusCode = 500, Message = "Fail to update a product" };
+            }
+        }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Domain.Entities;
-using Domain.Requests;
+﻿using Domain.Requests;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using GrpcServiceProduct.Interfaces;
@@ -173,6 +172,12 @@ namespace GrpcServiceProduct.Services
                 index++;
             }
             var response = await _repo.DeleteMany(listRemove);
+            return new Response { Message = response.Message, StatusCode = response.StatusCode };
+        }
+
+        public override async Task<Response> DeleteAllOfShop(Id request, ServerCallContext context)
+        {
+            var response = await _repo.DeleteAllOfShop(request.SearchId);
             return new Response { Message = response.Message, StatusCode = response.StatusCode };
         }
     }

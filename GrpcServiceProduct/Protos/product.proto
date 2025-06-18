@@ -15,6 +15,7 @@ service ProductGrpc{
 	rpc Create(CreateProduct) returns (Response);
 	rpc Update(Product) returns (Response);
 	rpc Delete(Id) returns (Response);
+	rpc DeleteAllOfShop(Id) returns (Response);
 	rpc DeleteMany(Ids) returns (Response);
 }
 
