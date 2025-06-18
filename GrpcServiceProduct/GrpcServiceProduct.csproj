@@ -10,6 +10,7 @@
 	  <None Remove="Protos\category.proto" />
 	  <None Remove="Protos\option.proto" />
 	  <None Remove="Protos\product.proto" />
+	  <None Remove="Protos\rating.proto" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -29,6 +30,7 @@
 	  <Protobuf Include="Protos\category.proto" GrpcServices="Server" />
 	  <Protobuf Include="Protos\option.proto" GrpcServices="Server" />
 	  <Protobuf Include="Protos\product.proto" GrpcServices="Server" />
+	  <Protobuf Include="Protos\rating.proto" GrpcServices="Server" />
 	</ItemGroup>
 
 </Project>
