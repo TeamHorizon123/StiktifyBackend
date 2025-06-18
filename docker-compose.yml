@@ -105,3 +105,17 @@ services:
       dockerfile: GrpcServiceUser/Dockerfile
     depends_on:
         - ssuserdata
+
+  grpcserviceproduct:
+    container_name: grpc-service-product
+    image: ${DOCKER_REGISTRY-}grpcserviceproduct
+    networks:
+        - backend
+    ports:
+        - "15001:8080"
+    build:
+      context: .
+      dockerfile: GrpcServiceProduct/Dockerfile
+    depends_on:
+        - ssproductdata
+

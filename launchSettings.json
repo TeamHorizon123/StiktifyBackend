@@ -5,7 +5,8 @@
       "commandVersion": "1.0",
       "serviceActions": {
         "stiktifyshopbackend": "StartDebugging",
-        "grpcserviceuser": "StartDebugging"
+        "grpcserviceuser": "StartDebugging",
+        "grpcserviceproduct": "StartDebugging"
       }
     }
   }
