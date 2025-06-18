@@ -18,7 +18,7 @@ namespace GrpcServiceProduct.Data
             _logger = logger ?? throw new ArgumentException(nameof(_logger));
         }
 
-        public async Task<Response> CreateManyProductOption(RequestCreateOption[] createOption)
+        public async Task<Response> CreateManyProductOption(ICollection<RequestCreateOption> createOption)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace GrpcServiceProduct.Data
         {
             try
             {
-                var option = new ProductOption
+                var option = new Domain.Entities.ProductOption
                 {
                     ProductId = createOption.ProductId,
                     Image = createOption.Image,
@@ -70,7 +70,7 @@ namespace GrpcServiceProduct.Data
             }
         }
 
-        public async Task<Response> DeleteManyProductOption(string[] listOptionId)
+        public async Task<Response> DeleteManyProductOption(ICollection<string> listOptionId)
         {
             try
             {

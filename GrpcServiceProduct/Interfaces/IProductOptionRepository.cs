@@ -9,9 +9,9 @@ namespace GrpcServiceProduct.Interfaces
         Task<IEnumerable<ResponseProductOption>> GetAllOfProduct(string productId);
         Task<ResponseProductOption?> GetOne(string optionId);
         Task<Response> CreateProductOption(RequestCreateOption createOption);
-        Task<Response> CreateManyProductOption(RequestCreateOption[] createOption);
+        Task<Response> CreateManyProductOption(ICollection<RequestCreateOption> createOption);
         Task<Response> UpdateProductOption(RequestUpdateOption updateOption);
         Task<Response> DeleteProductOption(string optionId);
-        Task<Response> DeleteManyProductOption(string[] listOptionId);
+        Task<Response> DeleteManyProductOption(ICollection<string> listOptionId);
     }
 }
