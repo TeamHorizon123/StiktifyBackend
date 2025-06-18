@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Protos\product.proto" />
     <None Remove="Protos\receiveAddress.proto" />
     <None Remove="Protos\shop.proto" />
     <None Remove="Protos\shopRating.proto" />
@@ -29,13 +30,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Protobuf Include="Protos\product.proto">
+      <GrpcServices>Client</GrpcServices>
+    </Protobuf>
     <Protobuf Include="Protos\receiveAddress.proto" GrpcServices="Server" />
     <Protobuf Include="Protos\shop.proto" GrpcServices="Server" />
     <Protobuf Include="Protos\shopRating.proto" GrpcServices="Server" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="External\" />
   </ItemGroup>
 
 </Project>

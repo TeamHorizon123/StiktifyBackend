@@ -8,10 +8,12 @@ namespace GrpcServiceUser.Data
     public class ShopRepository : IShopRepository
     {
         private AppDbContext _context;
+        private IProductService _productService;
 
-        public ShopRepository(AppDbContext context)
+        public ShopRepository(AppDbContext context, IProductService productService)
         {
             _context = context ?? throw new ArgumentException(nameof(_context));
+            _productService = productService ?? throw new ArgumentException(nameof(_productService));
         }
 
         private double AverageShopRating(string ShopId)
@@ -54,6 +56,9 @@ namespace GrpcServiceUser.Data
                 return new Response { Message = "Shop does not exist.", StatusCode = 404 };
             try
             {
+                var responseDeleteProduct = await _productService.DeleteAllOfShop(shopId);
+                if (responseDeleteProduct.StatusCode != 204)
+                    throw new Exception(responseDeleteProduct.Message);
                 var shopData = new Domain.Entities.Shop
                 {
                     Id = shop.Id!,

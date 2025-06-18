@@ -1,5 +1,8 @@
+using Grpc.Core;
 using GrpcServiceUser.Data;
+using GrpcServiceUser.External;
 using GrpcServiceUser.Interface;
+using GrpcServiceUser.Product;
 using GrpcServiceUser.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,9 +13,16 @@ builder.Services.AddDbContext<AppDbContext>(options
 // Add services to the container.
 builder.Services.AddGrpc();
 
+var productService = builder.Configuration["ConnectionStrings:GrpcServiceProduct"]!;
+builder.Services.AddGrpcClient<ProductGrpc.ProductGrpcClient>(o
+    => o.Address = new Uri(productService))
+    .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
+
 builder.Services.AddSingleton<IShopRepository, ShopRepository>();
 builder.Services.AddSingleton<IShopRatingRepository, ShopRatingRepository>();
 builder.Services.AddSingleton<IAddressRepository, AddressRepository>();
+
+builder.Services.AddScoped<IProductService, ProductService>();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
