@@ -13,7 +13,10 @@ namespace GrpcServiceOrder.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Domain.Entities.Cart>().ToTable("Cart");
+            modelBuilder.Entity<Domain.Entities.Order>().ToTable("Order");
+            modelBuilder.Entity<Domain.Entities.OrderDetail>().ToTable("OrderDetail");
+            modelBuilder.Entity<Domain.Entities.OrderTracking>().ToTable("OrderTracking");
         }
     }
 }
