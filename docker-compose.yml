@@ -2,6 +2,7 @@ networks:
   backend:
 
 volumes:
+  mongodb_data_container:
   sspgadmin:
   ssuserdata:
   ssproductdata:
@@ -9,6 +10,36 @@ volumes:
   sspurchasedata:
 
 services:
+
+  mongodb:
+    container_name: social_db
+    image: mongo:5.0.15
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 123456
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongodb_data_container:/data/db
+    networks:
+      - backend
+
+  stiktifybackend:
+    container_name: stiktify-backend
+    build:
+        context: ./Stiktify-backend
+        dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+    depends_on:
+      - mongodb
+    environment:
+      - NODE_ENV=production
+    command: npm run start:prod
+    env_file: Stiktify-backend/.env
+
   stiktifyshopbackend:
     container_name: stiktify-shop-backend
     image: ${DOCKER_REGISTRY-}stiktifyshopbackend
