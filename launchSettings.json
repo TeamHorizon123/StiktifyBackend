@@ -6,7 +6,8 @@
       "serviceActions": {
         "stiktifyshopbackend": "StartDebugging",
         "grpcserviceuser": "StartDebugging",
-        "grpcserviceproduct": "StartDebugging"
+        "grpcserviceproduct": "StartDebugging",
+        "grpcserviceorder": "StartDebugging"
       }
     }
   }

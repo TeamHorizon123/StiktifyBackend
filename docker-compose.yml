@@ -150,3 +150,17 @@ services:
     depends_on:
         - ssproductdata
 
+
+  grpcserviceorder:
+    container_name: grpc-service-order
+    image: ${DOCKER_REGISTRY-}grpcserviceorder
+    ports:
+        - "15002:8080"
+    networks:
+        - backend
+    build:
+      context: .
+      dockerfile: GrpcServiceOrder/Dockerfile
+    depends_on:
+        - ssorderdata
+
