@@ -11,6 +11,7 @@
 
 	<ItemGroup>
 	  <None Remove="Protos\cart.proto" />
+	  <None Remove="Protos\order.proto" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -32,6 +33,7 @@
 
 	<ItemGroup>
 	  <Protobuf Include="Protos\cart.proto" GrpcServices="Server" />
+	  <Protobuf Include="Protos\order.proto" GrpcServices="Server" />
 	</ItemGroup>
 
 </Project>
