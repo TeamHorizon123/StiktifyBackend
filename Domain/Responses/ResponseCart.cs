@@ -7,6 +7,7 @@ namespace Domain.Responses
         public string? Id { get; set; }
         public string? UserId { get; set; }
         public string? OptionId { get; set; }
+        public string? ProductId { get; set; }
         public int Quantity { get; set; }
         public DateTime? CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }

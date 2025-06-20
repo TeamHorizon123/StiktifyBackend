@@ -12,6 +12,10 @@ namespace Domain.Entities
         [StringLength(32)]
         public string OptionId { get; set; } = default!;
 
+        [Required]
+        [StringLength(32)]
+        public string ProductId { get; set; } = default!;
+
         public int Quantity { get; set; }
     }
 }
