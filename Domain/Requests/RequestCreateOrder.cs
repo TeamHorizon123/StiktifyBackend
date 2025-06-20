@@ -41,4 +41,11 @@ namespace Domain.Requests
         [StringLength(50)]
         public string Status { get; set; } = default!;
     }
+
+    public class RequestUpdateOrder : RequestCreateOrder
+    {
+        [Required]
+        [StringLength(32)]
+        public string Id { get; set; } = default!;
+    }
 }
