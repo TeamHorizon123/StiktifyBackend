@@ -9,11 +9,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options
     => options.UseNpgsql(builder.Configuration["ConnectionStrings:Db"]));
 builder.Services.AddGrpc();
+builder.Services.AddLogging();
 
-builder.Services.AddSingleton<ICategoryRepository, CategoryRepository>();
-builder.Services.AddSingleton<IProductRepository, ProductRepository>();
-builder.Services.AddSingleton<IProductOptionRepository, ProductOptionRepository>();
-builder.Services.AddSingleton<IProductRatingRepository, ProductRatingRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductOptionRepository, ProductOptionRepository>();
+builder.Services.AddScoped<IProductRatingRepository, ProductRatingRepository>();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())

@@ -12,15 +12,16 @@ builder.Services.AddDbContext<AppDbContext>(options
     => options.UseNpgsql(builder.Configuration["ConnectionStrings:Db"]));
 // Add services to the container.
 builder.Services.AddGrpc();
+builder.Services.AddLogging();
 
 var productService = builder.Configuration["ConnectionStrings:GrpcServiceProduct"]!;
 builder.Services.AddGrpcClient<ProductGrpc.ProductGrpcClient>(o
     => o.Address = new Uri(productService))
     .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
 
-builder.Services.AddSingleton<IShopRepository, ShopRepository>();
-builder.Services.AddSingleton<IShopRatingRepository, ShopRatingRepository>();
-builder.Services.AddSingleton<IAddressRepository, AddressRepository>();
+builder.Services.AddScoped<IShopRepository, ShopRepository>();
+builder.Services.AddScoped<IShopRatingRepository, ShopRatingRepository>();
+builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 
 builder.Services.AddScoped<IProductService, ProductService>();
 

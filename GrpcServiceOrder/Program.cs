@@ -9,8 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(option
     => option.UseNpgsql(builder.Configuration["ConnectionStrings:Db"]));
 builder.Services.AddGrpc();
+builder.Services.AddLogging();
 
-builder.Services.AddSingleton<ICartRepository, CartRepository>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
