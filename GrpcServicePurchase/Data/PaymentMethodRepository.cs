@@ -11,7 +11,7 @@ namespace GrpcServicePurchase.Data
         private AppDbContext _context;
         private ILogger _logger;
 
-        public PaymentMethodRepository(AppDbContext context, ILogger logger)
+        public PaymentMethodRepository(AppDbContext context, ILogger<PaymentMethodRepository> logger)
         {
             _context = context ?? throw new ArgumentException(nameof(_context));
             _logger = logger ?? throw new ArgumentException(nameof(_logger));

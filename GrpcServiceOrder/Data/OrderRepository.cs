@@ -11,7 +11,7 @@ namespace GrpcServiceOrder.Data
         private AppDbContext _context;
         private ILogger _logger;
 
-        public OrderRepository(AppDbContext context, ILogger logger)
+        public OrderRepository(AppDbContext context, ILogger<OrderRepository> logger)
         {
             _context = context ?? throw new ArgumentException(nameof(_context));
             _logger = logger ?? throw new ArgumentException(nameof(_logger));

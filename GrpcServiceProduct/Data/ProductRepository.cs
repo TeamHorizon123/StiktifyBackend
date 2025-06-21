@@ -11,7 +11,7 @@ namespace GrpcServiceProduct.Data
         private AppDbContext _context;
         private ILogger _logger;
 
-        public ProductRepository(AppDbContext context, ILogger logger)
+        public ProductRepository(AppDbContext context, ILogger<ProductRepository> logger)
         {
             _context = context ?? throw new ArgumentException(nameof(_context));
             _logger = logger ?? throw new ArgumentException(nameof(_logger));

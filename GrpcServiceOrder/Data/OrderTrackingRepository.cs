@@ -12,7 +12,7 @@ namespace GrpcServiceOrder.Data
         private AppDbContext _context;
         private ILogger _logger;
 
-        public OrderTrackingRepository(AppDbContext context, ILogger logger)
+        public OrderTrackingRepository(AppDbContext context, ILogger<OrderTrackingRepository> logger)
         {
             _context = context;
             _logger = logger;
