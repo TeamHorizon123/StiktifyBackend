@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "StiktifyShopBackend.PaymentMethod";
+
+service PaymentMethodGrpc{
+	rpc GetAll(Empty) returns (PaymentMethods);
+	rpc GetOne(Id) returns (PaymentMethod);
+	rpc Create(CreateMethod) returns (Response);
+	rpc Update(PaymentMethod) returns (Response);
+}
+
+message Empty{}
+
+message Id{
+	string SearchId = 1;
+}
+
+message CreateMethod{
+	string Name = 1;
+	bool Enable = 2;
+}
+
+message PaymentMethod{
+	google.protobuf.StringValue Id = 1;
+	google.protobuf.StringValue Name = 2;
+	bool Enable = 3;
+	google.protobuf.Timestamp CreateAt = 4;
+	google.protobuf.Timestamp UpdateAt = 5;
+}
+
+message PaymentMethods{
+	repeated PaymentMethod Item = 1;
+}
+
+message Response{
+	int32 StatusCode = 1;
+	google.protobuf.StringValue Message = 2;
+}

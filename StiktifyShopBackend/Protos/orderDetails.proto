@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "StiktifyShopBackend.OrderDetails";
+
+service OrderDetailGrpc{
+	rpc GetOne(Id) returns (OrderDetails);
+	rpc Create(CreateDetail) returns (Response);
+	rpc Update(OrderDetails) returns (Response);
+}
+
+message Id{
+	string SearchId = 1;
+}
+
+message CreateDetail{
+	string Id = 1;
+	string PurchaseMethod = 2;
+	google.protobuf.Timestamp DateOfPurchase = 3;
+	google.protobuf.Timestamp DateOfDelivery = 4;
+	google.protobuf.Timestamp DateOfShipping = 5;
+}
+
+message OrderDetails{
+	google.protobuf.StringValue Id = 1;
+	google.protobuf.StringValue PurchaseMethod = 2;
+	google.protobuf.Timestamp DateOfPurchase = 3;
+	google.protobuf.Timestamp DateOfDelivery = 4;
+	google.protobuf.Timestamp DateOfShipping = 5;
+}
+
+message Response {
+	int32 StatusCode = 1;
+	google.protobuf.StringValue Message = 2;
+}
