@@ -14,6 +14,7 @@ builder.Services.AddLogging();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderDetailRepository, OrderDetailsRepository>();
+builder.Services.AddScoped<IOrderTrackingRepository, OrderTrackingRepository>();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
@@ -27,6 +28,7 @@ using (var scope = app.Services.CreateScope())
 app.MapGrpcService<CartGrpcService>();
 app.MapGrpcService<OrderGrpcService>();
 app.MapGrpcService<OrderDetailsGrpcService>();
+app.MapGrpcService<OrderTrackingGrpcService>();
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
 
 app.Run();
