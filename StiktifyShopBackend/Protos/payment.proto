@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "StiktifyShopBackend.Payment";
+
+service PaymentGrpc{
+	rpc GetAll(Empty) returns (Payments);
+	rpc GetAllOfUser(Id) returns (Payments);
+	rpc GetAllOfProduct(Id) returns (Payments);
+	rpc GetOne(Id) returns (Payment);
+	rpc Create(CreatePayment) returns (Response);
+	rpc Update(Payment) returns (Response);
+}
+
+message Empty{}
+
+message Id{
+	string SearchId = 1;
+}
+
+message CreatePayment{
+	string OrderId = 1;
+	string UserId = 2;
+	double Amount = 3;
+	string Status = 4;
+	google.protobuf.StringValue TxnRef = 5;
+	google.protobuf.Timestamp PaidAt = 6;
+	string MethodId = 7;
+}
+
+message Payment{
+	google.protobuf.StringValue Id = 1;
+	google.protobuf.StringValue OrderId = 2;
+	google.protobuf.StringValue UserId = 3;
+	google.protobuf.StringValue MethodId = 4;
+	google.protobuf.StringValue Status = 5;
+	google.protobuf.StringValue TxnRef = 6;
+	google.protobuf.Timestamp PaidAt = 7;
+	double Amount = 8;
+	google.protobuf.Timestamp CreateAt = 9;
+	google.protobuf.Timestamp UpdateAt = 10;
+}
+
+message Payments{
+	repeated Payment Item = 1;
+}
+
+message Response{
+	int32 StatusCode = 1;
+	google.protobuf.StringValue Message = 2;
+}

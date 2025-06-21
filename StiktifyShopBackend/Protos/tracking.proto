@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "StiktifyShopBackend.Tracking";
+
+service OrderTrackingGrpc{
+	rpc GetAllOfOrder(Id) returns (Trackings);
+	rpc Create(CreateTracking) returns (Response);
+}
+
+message CreateTracking{
+	string OrderId = 1;
+	string Status = 2;
+	string Message = 3;
+	string Location = 4;
+	google.protobuf.StringValue CourierInfo = 5;
+	google.protobuf.Timestamp TimeTracking = 6;
+}
+
+message Tracking {
+	google.protobuf.StringValue Id = 1;
+	google.protobuf.StringValue OrderId = 2;
+	google.protobuf.StringValue Status = 3;
+	google.protobuf.StringValue Message = 4;
+	google.protobuf.StringValue Location = 5;
+	google.protobuf.StringValue CourierInfo = 6;
+	google.protobuf.Timestamp TimeTracking = 7;
+	google.protobuf.Timestamp CreateAt = 8;
+	google.protobuf.Timestamp UpdateAt = 9;
+}
+
+message Trackings{
+	repeated Tracking Item = 1;
+}
+
+message Id{
+	string SearchId = 1;
+}
+
+message Response {
+	int32 StatusCode = 1;
+	google.protobuf.StringValue Message = 2;
+}

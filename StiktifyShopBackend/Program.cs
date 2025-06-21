@@ -93,6 +93,7 @@ builder.Services.AddSingleton<ResolverFactory>(
     sp => new DnsResolverFactory(refreshInterval: TimeSpan.FromSeconds(30)));
 
 builder.Services.AddScoped<IShopProvider, ShopProvider>();
+builder.Services.AddScoped<IShopRatingProvider, ShopRatingProvider>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
