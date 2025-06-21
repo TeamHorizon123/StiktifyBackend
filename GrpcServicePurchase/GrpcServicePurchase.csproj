@@ -7,6 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Protos\method.proto" />
 	  <None Remove="Protos\payment.proto" />
 	</ItemGroup>
 
@@ -28,6 +29,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Protobuf Include="Protos\method.proto" GrpcServices="Server" />
 	  <Protobuf Include="Protos\payment.proto" GrpcServices="Server" />
 	</ItemGroup>
 
