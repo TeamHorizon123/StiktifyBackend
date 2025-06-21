@@ -94,6 +94,17 @@ builder.Services.AddSingleton<ResolverFactory>(
 
 builder.Services.AddScoped<IShopProvider, ShopProvider>();
 builder.Services.AddScoped<IShopRatingProvider, ShopRatingProvider>();
+builder.Services.AddScoped<IAddressProvider, AddressProvider>();
+builder.Services.AddScoped<ICategoryProvider, CategoryProvider>();
+builder.Services.AddScoped<IProductProvider, ProductProvider>();
+builder.Services.AddScoped<IProductRatingProvider, ProductRatingProvider>();
+builder.Services.AddScoped<IProductOptionProvider, ProductOptionProvider>();
+builder.Services.AddScoped<ICartProvider, CartProvider>();
+builder.Services.AddScoped<IOrderProvider, OrderProvider>();
+builder.Services.AddScoped<IOrderDetailProvider, OrderDetailProvider>();
+builder.Services.AddScoped<IOrderTrackingProvider, OrderTrackingProvider>();
+builder.Services.AddScoped<IPaymentProvider, PaymentProvider>();
+builder.Services.AddScoped<IPaymentMethodProvider, PaymentMethodProvider>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

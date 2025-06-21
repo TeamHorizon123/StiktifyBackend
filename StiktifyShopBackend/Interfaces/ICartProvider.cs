@@ -5,12 +5,13 @@ namespace StiktifyShopBackend.Interfaces
 {
     public interface ICartProvider
     {
-        IQueryable<ResponseProductRating> GetAll();
-        IQueryable<ResponseProductRating> GetAllOfProduct(string productId);
-        IQueryable<ResponseProductRating> GetAllOfOption(string optionId);
-        Task<ResponseProductRating?> GetOne(string ratingId);
-        Task<Response> CreateRating(RequestCreateRating createRating);
-        Task<Response> UpdateRating(RequestUpdateRating updateRating);
-        Task<Response> DeleteRating(string productId);
+        IQueryable<ResponseCart> GetAll();
+        IQueryable<ResponseCart> GetAllOfUser(string userID);
+        IQueryable<ResponseCart> GetAllOfProduct(string productID);
+        Task<ResponseCart?> GetOne(string cartId);
+        Task<Response> CreateCart(RequestCreateCart createCart);
+        Task<Response> UpdateCart(RequestUpdateCart updateCart);
+        Task<Response> DeleteCart(string cartId);
+        Task<Response> DeleteManyCart(ICollection<string> ids);
     }
 }
