@@ -164,3 +164,17 @@ services:
     depends_on:
         - ssorderdata
 
+
+  grpcservicepurchase:
+    container_name: grpc-service-purchase
+    image: ${DOCKER_REGISTRY-}grpcservicepurchase
+    ports:
+        - "15003:8080"
+    networks:
+        - backend
+    build:
+      context: .
+      dockerfile: GrpcServicePurchase/Dockerfile
+    depends_on:
+        - sspurchasedata
+

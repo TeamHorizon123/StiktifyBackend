@@ -12,6 +12,7 @@ builder.Services.AddGrpc();
 builder.Services.AddLogging();
 
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
@@ -23,6 +24,7 @@ using (var scope = app.Services.CreateScope())
 }
 // Configure the HTTP request pipeline.
 app.MapGrpcService<PaymentGrpcService>();
+app.MapGrpcService<PaymentMethodGrpcService>();
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
 
 app.Run();

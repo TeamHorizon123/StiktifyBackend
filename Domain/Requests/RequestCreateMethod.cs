@@ -11,7 +11,7 @@ namespace Domain.Requests
         public bool Enable { get; set; }
     }
 
-    public class RequestUpdateMethod : RequestCreateAddress
+    public class RequestUpdateMethod : RequestCreateMethod
     {
         [Required]
         [StringLength(32)]
