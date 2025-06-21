@@ -55,7 +55,7 @@ export class ShortVideosService {
     // private followService: FollowService,
     private notificationsService: NotificationsService,
     private notificationsGateway: NotificationsGateway,
-  ) {}
+  ) { }
 
   //Create a new short video - ThangLH
   async create(createShortVideoDto: CreateShortVideoDto): Promise<Video> {
@@ -283,15 +283,15 @@ export class ShortVideosService {
         .populate('musicId');
     }
 
-    const collaboratorVideoIdList =
-      await this.wishListService.getCollaborativeVideo(
-        data.userId,
-        resetScore.collaboration,
-      );
-    // const collaboratorVideoIdList = await this.getCollaboratorFilteringVideo(
-    //   data.userId,
-    //   resetScore.collaboration,
-    // );
+    // const collaboratorVideoIdList =
+    //   await this.wishListService.getCollaborativeVideo(
+    //     data.userId,
+    //     resetScore.collaboration,
+    //   );
+    const collaboratorVideoIdList = await this.getCollaboratorFilteringVideo(
+      data.userId,
+      resetScore.collaboration,
+    );
     let collaboratorVideoFound = [];
     if (collaboratorVideoIdList && collaboratorVideoIdList.length > 0) {
       countVideo += collaboratorVideoIdList.length;
@@ -765,83 +765,143 @@ export class ShortVideosService {
     }
   }
 
-  async addTagToVideo(userId: string, tagName: string, score: number) {
-    return this.queryRepository
+  async addTagToUser(userId: string, tagName: string, score: number) {
+    const result = await this.queryRepository
       .initQuery()
       .raw(
         `
-        MERGE (u:User {id: $userId})
-        WITH u
-        MATCH (u)-[w:WATCHED]->(v:Video)
-        MERGE (t:Tag {name: $tagName})
-        MERGE (v)-[:HAS_TAG {score: $score}]->(t)
-        SET v.score = v.score + $score
-        SET w.score = w.score + $score
+        MATCH (u:User {id: $userId})-[w:WATCHED]->(v:Video)
+        MATCH (v)-[:HAS_TAG]->(t:Tag {name: $tagName})
+        SET w.score = coalesce(w.score, 0) + $score
         RETURN v.id, w.score
       `,
         { userId, tagName, score },
       )
       .run();
+  
+    console.log(result); // Kiểm tra dữ liệu trả về
+    return result;
   }
-  async addMusicToVideo(userId: string, musicId: string, score: number) {
+  
+  
+  async addMusicToUser(userId: string, musicId: string, score: number) {
     return this.queryRepository
       .initQuery()
       .raw(
         `
-        MERGE (u:User {id: $userId})
-        WITH u
-        MATCH (u)-[w:WATCHED]->(v:Video)
-        MERGE (m:Music {id: $musicId})
-        MERGE (v)-[:HAS_MUSIC {score: $score}]->(m)
-        SET v.score = v.score + $score
-        SET w.score = w.score + $score
+        MATCH (u:User {id: $userId})-[w:WATCHED]->(v:Video)
+        MATCH (v)-[:HAS_MUSIC]->(m:Music {id: $musicId})
+        SET w.score = coalesce(w.score, 0) + $score
         RETURN v.id, w.score
       `,
         { userId, musicId, score },
       )
       .run();
   }
-  async addCreatorToVideo(userId: string, creatorId: string, score: number) {
+  
+  async addCreatorToUser(userId: string, creatorId: string, score: number) {
     return this.queryRepository
       .initQuery()
       .raw(
         `
-        MERGE (u:User {id: $userId})
-        WITH u
-        MATCH (u)-[w:WATCHED]->(v:Video)
-        MERGE (c:Creator {id: $creatorId})
-        MERGE (v)-[:CREATED_BY {score: $score}]->(c)
-        SET v.score = v.score + $score
-        SET w.score = w.score + $score
+        MATCH (u:User {id: $userId})-[w:WATCHED]->(v:Video)
+        MATCH (v)-[:CREATED_BY]->(c:Creator {id: $creatorId})
+        SET w.score = coalesce(w.score, 0) + $score
         RETURN v.id, w.score
       `,
         { userId, creatorId, score },
       )
       .run();
   }
-
-  async addCategoryToVideo(
-    userId: string,
-    categoryName: string,
-    score: number,
-  ) {
+  
+  async addCategoryToUser(userId: string, categoryName: string, score: number) {
     return this.queryRepository
       .initQuery()
       .raw(
         `
-        MERGE (u:User {id: $userId})
-        WITH u
-        MATCH (u)-[w:WATCHED]->(v:Video)
-        MERGE (cat:Category {name: $categoryName})
-        MERGE (v)-[:IN_CATEGORY {score: $score}]->(cat)
-        SET v.score = v.score + $score
-        SET w.score = w.score + $score
+        MATCH (u:User {id: $userId})-[w:WATCHED]->(v:Video)
+        MATCH (v)-[:IN_CATEGORY]->(cat:Category {name: $categoryName})
+        SET w.score = coalesce(w.score, 0) + $score
         RETURN v.id, w.score
       `,
         { userId, categoryName, score },
       )
       .run();
   }
+  
+  async addTagToVideo(videoId: string, tagName: string, score: number) {
+    return this.queryRepository
+      .initQuery()
+      .raw(
+        `
+        MATCH (v:Video {id: $videoId})
+        MERGE (t:Tag {name: $tagName})
+        MERGE (v)-[ht:HAS_TAG]->(t)
+        ON CREATE SET ht.score = $score
+        ON MATCH SET ht.score = ht.score + $score
+        SET v.score = v.score + $score
+        RETURN v.id, ht.score
+      `,
+        { videoId, tagName, score },
+      )
+      .run();
+  }
+  
+  async addMusicToVideo(videoId: string, musicId: string, score: number) {
+    return this.queryRepository
+      .initQuery()
+      .raw(
+        `
+        MATCH (v:Video {id: $videoId})
+        MERGE (m:Music {id: $musicId})
+        MERGE (v)-[hm:HAS_MUSIC]->(m)
+        ON CREATE SET hm.score = $score
+        ON MATCH SET hm.score = hm.score + $score
+        SET v.score = v.score + $score
+        RETURN v.id, hm.score
+      `,
+        { videoId, musicId, score },
+      )
+      .run();
+  }
+  
+  async addCreatorToVideo(videoId: string, creatorId: string, score: number) {
+    return this.queryRepository
+      .initQuery()
+      .raw(
+        `
+        MATCH (v:Video {id: $videoId})
+        MERGE (c:Creator {id: $creatorId})
+        MERGE (v)-[cb:CREATED_BY]->(c)
+        ON CREATE SET cb.score = $score
+        ON MATCH SET cb.score = cb.score + $score
+        SET v.score = v.score + $score
+        RETURN v.id, cb.score
+      `,
+        { videoId, creatorId, score },
+      )
+      .run();
+  }
+  
+
+  async addCategoryToVideo(videoId: string, categoryName: string, score: number) {
+    return this.queryRepository
+      .initQuery()
+      .raw(
+        `
+        MATCH (v:Video {id: $videoId})
+        MERGE (cat:Category {name: $categoryName})
+        MERGE (v)-[ic:IN_CATEGORY]->(cat)
+        ON CREATE SET ic.score = $score
+        ON MATCH SET ic.score = ic.score + $score
+        SET v.score = v.score + $score
+        RETURN v.id, ic.score
+      `,
+        { videoId, categoryName, score },
+      )
+      .run();
+  }
+  
   async getVideoDetails(videoId: string) {
     return this.queryRepository
       .initQuery()
@@ -930,7 +990,6 @@ RETURN u2.id AS otherUser,
     userId: string,
     numberChooseVideo: number = 2,
   ) {
-
     const similarities = await this.getUserSimilarities(userId);
     const totalSimilarity = similarities.reduce(
       (sum, user) => sum + user.similarity,
@@ -957,65 +1016,65 @@ RETURN u2.id AS otherUser,
   }
 
 
-  // async deleteAllVideos() {
-  //   try {
-  //     // Xóa tất cả mối quan hệ liên quan đến video
-  //     await this.queryRepository
-  //       .initQuery()
-  //       .raw(
-  //         `
-  //         MATCH (v:Video)
-  //         OPTIONAL MATCH (v)-[r:WATCHED]->(u:User)
-  //         OPTIONAL MATCH (v)-[r2:HAS_TAG]->(t:Tag)
-  //         OPTIONAL MATCH (v)-[r3:IN_CATEGORY]->(c:Category)
-  //         OPTIONAL MATCH (v)-[r4:CREATED_BY]->(cr:Creator)
-  //         OPTIONAL MATCH (v)-[r5:HAS_MUSIC]->(m:Music)
-  //         DELETE r, r2, r3, r4, r5
-  //         `,
-  //         {},
-  //       )
-  //       .run();
+  async deleteAllVideos() {
+    try {
+      // Xóa tất cả mối quan hệ liên quan đến video
+      await this.queryRepository
+        .initQuery()
+        .raw(
+          `
+          MATCH (v:Video)
+          OPTIONAL MATCH (v)-[r:WATCHED]->(u:User)
+          OPTIONAL MATCH (v)-[r2:HAS_TAG]->(t:Tag)
+          OPTIONAL MATCH (v)-[r3:IN_CATEGORY]->(c:Category)
+          OPTIONAL MATCH (v)-[r4:CREATED_BY]->(cr:Creator)
+          OPTIONAL MATCH (v)-[r5:HAS_MUSIC]->(m:Music)
+          DELETE r, r2, r3, r4, r5
+          `,
+          {},
+        )
+        .run();
 
-  //     // Xóa video cùng với các mối quan hệ của nó
-  //     await this.queryRepository
-  //       .initQuery()
-  //       .raw(
-  //         `
-  //         MATCH (v:Video)
-  //         DETACH DELETE v
-  //         `,
-  //         {},
-  //       )
-  //       .run();
+      // Xóa video cùng với các mối quan hệ của nó
+      await this.queryRepository
+        .initQuery()
+        .raw(
+          `
+          MATCH (v:Video)
+          DETACH DELETE v
+          `,
+          {},
+        )
+        .run();
 
-  //     console.log(
-  //       'Tất cả các video và mối quan hệ liên quan đã được xóa thành công.',
-  //     );
-  //   } catch (error) {
-  //     console.error('Lỗi khi xóa video:', error);
-  //   }
-  // }
+      console.log(
+        'Tất cả các video và mối quan hệ liên quan đã được xóa thành công.',
+      );
+    } catch (error) {
+      console.error('Lỗi khi xóa video:', error);
+    }
+  }
 
   async getTopVideos() {
- 
+
     const now = new Date();
-    
+
     const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
     startOfWeek.setHours(0, 0, 0, 0);
-  
+
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     startOfMonth.setHours(0, 0, 0, 0);
-  
+
     const startOfYear = new Date(now.getFullYear(), 0, 1);
     startOfYear.setHours(0, 0, 0, 0);
-  
+
     const timeFilters = {
       Weekly: { createdAt: { $gte: startOfWeek } },
       Monthly: { createdAt: { $gte: startOfMonth } },
       Yearly: { createdAt: { $gte: startOfYear } },
-      "AllTime": {}, 
+      "AllTime": {},
     };
-  
+
     const result = {
       Weekly: { topViews: null, topReactions: null },
       Monthly: { topViews: null, topReactions: null },
@@ -1025,33 +1084,33 @@ RETURN u2.id AS otherUser,
     for (const period in timeFilters) {
       result[period].topViews = await this.videoModel
         .find(timeFilters[period])
-        .sort({ totalViews: -1 }) 
-        .limit(1) 
+        .sort({ totalViews: -1 })
+        .limit(1)
         .exec();
       result[period].topReactions = await this.videoModel
         .find(timeFilters[period])
         .sort({ totalReactions: -1 })
-        .limit(1) 
+        .limit(1)
         .exec();
     }
     const formattedResult = {};
     for (const period in result) {
       formattedResult[period] = [
         {
-          title:"Top 50 - Views",
+          title: "Top 50 - Views",
           image: result[period].topViews[0]?.videoThumbnail || "",
         },
         {
-          title:"Top 50 - Reactions",
+          title: "Top 50 - Reactions",
           image: result[period].topReactions[0]?.videoThumbnail || "",
         },
       ];
     }
-  
+
     return formattedResult;
   }
 
-  
+
   async getTop50Videos(title: string): Promise<Video[]> {
     // Kiểm tra định dạng title
     if (!title.includes("-")) {
@@ -1059,26 +1118,26 @@ RETURN u2.id AS otherUser,
         "Invalid title format. Expected: type-timeframe (e.g., Views-alltime)"
       );
     }
-  
+
     // Tách title thành type và timeframe
     const [type, timeframe] = title.split("-");
-  
+
     // Xác định trường sắp xếp dựa trên type
     const sortField = this.getSortField(type);
-  
+
     // Xây dựng bộ lọc thời gian dựa trên timeframe
     const timeFilter = this.getTimeFilter(timeframe);
-  
+
     // Truy vấn MongoDB
     const top50Videos = await this.videoModel
       .find(timeFilter).populate('userId') // Lọc theo thời gian
       .sort({ [sortField]: -1 }) // Sắp xếp giảm dần theo trường tương ứng
       .limit(50) // Giới hạn 50 kết quả
       .exec();
-  
+
     return top50Videos;
   }
-  
+
   // Hàm helper để xác định trường sắp xếp dựa trên type
   private getSortField(type: string): string {
     switch (type.toLowerCase()) {
@@ -1090,12 +1149,12 @@ RETURN u2.id AS otherUser,
         throw new Error(`Invalid type: ${type}. Expected: Views or Reactions`);
     }
   }
-  
+
   // Hàm helper để tạo bộ lọc thời gian
   private getTimeFilter(timeframe: string): any {
     const now = new Date();
     let filter = {};
-  
+
     switch (timeframe.toLowerCase()) {
       case "weekly": {
         const oneWeekAgo = new Date(now);
@@ -1123,7 +1182,7 @@ RETURN u2.id AS otherUser,
           `Invalid timeframe: ${timeframe}. Expected: weekly, monthly, yearly, or alltime`
         );
     }
-  
+
     return filter;
   }
 }

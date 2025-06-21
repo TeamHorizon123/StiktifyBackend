@@ -1,13 +1,47 @@
-import { IsString, IsNumber, IsMongoId, IsEnum, IsNotEmpty, IsBoolean, IsOptional } from 'class-validator';
+import { 
+  IsString, 
+  IsNumber, 
+  IsMongoId, 
+  IsEnum, 
+  IsNotEmpty, 
+  IsBoolean, 
+  IsOptional,
+  ValidateNested,
+  ArrayNotEmpty
+} from 'class-validator';
+import { Type } from 'class-transformer';
+
+// Updated DTO for OrderProduct to match the schema
+export class OrderProductDto {
+  @IsMongoId()
+  @IsNotEmpty()
+  productId: string;
+  
+  @IsString()
+  @IsNotEmpty()
+  productName: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  price: number;
+
+  @IsString()
+  @IsNotEmpty()
+  image: string;
+
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+  
+  @IsNumber()
+  @IsNotEmpty()
+  quantity: number;
+}
 
 export class CreateOrderDto {
   @IsMongoId()
   @IsNotEmpty()
-  userId: string; // ⚠️ Đổi từ Types.ObjectId -> string để tránh lỗi
-
-  @IsMongoId()
-  @IsNotEmpty()
-  productId: string; // ⚠️ Đổi từ Types.ObjectId -> string để tránh lỗi
+  userId: string; 
 
   @IsNumber()
   @IsNotEmpty()
@@ -27,15 +61,20 @@ export class CreateOrderDto {
 
   @IsString()
   @IsNotEmpty()
-  address: string;
+  emailAddress: string;
 
   @IsString()
   @IsNotEmpty()
-  city: string;
+  shippingAddress: string;
   
   @IsBoolean()
   @IsOptional()
   isPaid?: boolean;
+
+  @ValidateNested({ each: true })
+  @Type(() => OrderProductDto)
+  @ArrayNotEmpty()
+  products: OrderProductDto[];
 }
 
 export class UpdateOrderStatusDto {
@@ -46,18 +85,18 @@ export class UpdateOrderStatusDto {
 
 export class UpdateShippingInfoDto {
   @IsString()
-  @IsNotEmpty()
-  fullName: string;
+  @IsOptional()
+  fullName?: string;
 
   @IsString()
-  @IsNotEmpty()
-  phoneNumber: string;
+  @IsOptional()
+  phoneNumber?: string;
 
   @IsString()
-  @IsNotEmpty()
-  address: string;
+  @IsOptional()
+  emailAddress?: string;
 
   @IsString()
-  @IsNotEmpty()
-  city: string;
+  @IsOptional()
+  shippingAddress?: string;
 }

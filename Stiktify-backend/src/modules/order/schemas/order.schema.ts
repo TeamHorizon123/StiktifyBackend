@@ -1,17 +1,37 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { User } from '@/modules/users/schemas/user.schema';
-import { Product } from '@/modules/products/schemas/product.schema';
 
 export type OrderDocument = Order & Document;
 
-@Schema({ timestamps: true })
-export class Order {
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  userId: Types.ObjectId;
-
+// Define a nested schema for product details
+@Schema({ _id: false })
+export class OrderProduct {
   @Prop({ type: Types.ObjectId, ref: 'Product', required: true })
   productId: Types.ObjectId;
+
+  @Prop({ required: true })
+  productName: string;
+
+  @Prop({ required: true })
+  price: number;
+
+  @Prop({ required: true })
+  image: string;
+
+  @Prop({ required: true })
+  description: string;
+  
+  @Prop({ required: true })
+  quantity: number;
+}
+
+@Schema({ timestamps: true })
+export class Order {
+  // Add this line to explicitly define _id
+  _id: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  userId: Types.ObjectId;
 
   @Prop({ required: true })
   amount: number;
@@ -33,10 +53,14 @@ export class Order {
   phoneNumber: string;
 
   @Prop({ required: true })
-  address: string;
+  emailAddress: string;
 
   @Prop({ required: true })
-  city: string;
+  shippingAddress: string;
+
+  // New products field with detailed product information
+  @Prop({ type: [OrderProduct], required: true })
+  products: OrderProduct[];
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
