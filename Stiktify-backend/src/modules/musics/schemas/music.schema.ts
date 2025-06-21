@@ -7,7 +7,7 @@ export type MusicDocument = HydratedDocument<Music>;
 @Schema({ timestamps: true })
 export class Music {
   @Prop()
-  MusicUrl: string;
+  musicUrl: string;
 
   @Prop({ default: 0, min: 0 })
   totalFavorite: number;
@@ -30,8 +30,32 @@ export class Music {
   @Prop({ default: 0, min: 0 })
   totalListener: number;
 
+  @Prop({ default: 0, min: 0 })
+  totalComment: number;
+
+  @Prop({ default: 0, min: 0 })
+  totalReactions: number;
+
+  @Prop({ default: 0, min: 0 })
+  totalShare: number;
+
   @Prop()
-  musicLyric: string;
+  musicLyric: { start: number, end: number, text: string }[];
+
+  @Prop({ default: false })
+  flag: boolean;
+
+  @Prop({ default: false })
+  isDelete: boolean;
+
+  @Prop()
+  listeningAt: Date
+
+  @Prop({ default: 0 })
+  totalListeningOnWeek: number
+
+  @Prop({ type: [String], default: [] })
+  musicSeparate: string[];
 }
 
 export const MusicSchema = SchemaFactory.createForClass(Music);

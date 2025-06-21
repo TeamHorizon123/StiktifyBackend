@@ -21,14 +21,39 @@ import { TransformInterceptor } from './auth/core/transform.interceptor';
 import { AuthModule } from './auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-import { UploadMiddleware } from './middlewares/upload.middleware';
 import { WishlistModule } from './modules/wishlist/wishlist.module';
 import { ViewingHistory } from './modules/viewinghistory/schemas/viewinghistory.entity';
 import { ViewinghistoryModule } from './modules/viewinghistory/viewinghistory.module';
 import { WishlistScoreModule } from './modules/wishlist-score/wishlist-score.module';
 import { ReportModule } from './modules/report/report.module';
+import { FollowModule } from './modules/follow/follow.module';
+import { PlaylistsModule } from './modules/playlists/playlists.module';
+import { StorePlaylistModule } from './modules/store-playlist/store-playlist.module';
+import { UploadModule } from './modules/upload/upload.module';
+import { MusicFavoriteModule } from './modules/music-favorite/music-favorite.module';
+import { FriendRequestModule } from './modules/friend-request/friend-request.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { ProductsModule } from './modules/products/products.module';
+import { ProductCategoriesModule } from './modules/product-categories/product-categories.module';
+import { CategoryProductsModule } from './modules/categories-products/category-products.module';
+import { ListeninghistoryModule } from './modules/listeninghistory/listeninghistory.module';
+import { SettingsModule } from './modules/settings/settings.module';
+import { Neo4jModule } from './modules/neo4j/neo4j.module';
+import { TickedUserModule } from './modules/ticked-user/ticked-user.module';
+import { OrderModule } from './modules/order/order.module';
+import { KafkaModule } from './modules/kafka/kafka.module';
+
 @Module({
   imports: [
+    OrderModule,
+    Neo4jModule.forRootAsync(),
+    UploadModule,
+    ProductsModule,
+    ProductCategoriesModule,
+    CategoryProductsModule,
+    StorePlaylistModule,
+    PlaylistsModule,
+    FollowModule,
     AuthModule,
     UsersModule,
     CategoriesModule,
@@ -46,6 +71,12 @@ import { ReportModule } from './modules/report/report.module';
     ViewinghistoryModule,
     WishlistScoreModule,
     ReportModule,
+    FriendRequestModule,
+    NotificationsModule,
+    KafkaModule,
+    SettingsModule,
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: ".env" }),
+    TickedUserModule,
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
@@ -68,7 +99,7 @@ import { ReportModule } from './modules/report/report.module';
           },
         },
         defaults: {
-          from: '"No Reply" <no-reply@localhost>',
+          from: '"Stiktify" <no-reply@localhost>',
         },
         // preview: true,
         template: {
@@ -81,6 +112,10 @@ import { ReportModule } from './modules/report/report.module';
       }),
       inject: [ConfigService],
     }),
+    StorePlaylistModule,
+    UploadModule,
+    MusicFavoriteModule,
+    ListeninghistoryModule,
   ],
   controllers: [AppController],
   providers: [
@@ -95,8 +130,4 @@ import { ReportModule } from './modules/report/report.module';
     },
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(UploadMiddleware).forRoutes('*'); // Áp dụng middleware cho tất cả các route (hoặc route cụ thể)
-  }
-}
+export class AppModule { }

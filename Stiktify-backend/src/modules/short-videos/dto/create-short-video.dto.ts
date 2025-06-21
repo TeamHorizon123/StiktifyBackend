@@ -1,9 +1,16 @@
-import { IsNotEmpty, IsString, IsOptional, IsArray, IsBoolean, IsInt, IsMongoId } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsArray,
+  IsBoolean,
+  IsInt,
+  IsMongoId,
+} from 'class-validator';
 import { Types } from 'mongoose';
 
 export class CreateShortVideoDto {
   @IsNotEmpty()
-  @IsString()
   videoUrl: string;
 
   @IsOptional()
@@ -16,8 +23,7 @@ export class CreateShortVideoDto {
   videoTag: string[];
 
   @IsNotEmpty()
-  @IsMongoId()
-  userId: Types.ObjectId;
+  userId: string;
 
   @IsOptional()
   @IsMongoId()
@@ -49,7 +55,9 @@ export class CreateShortVideoDto {
 
   @IsOptional()
   @IsInt()
-  totalReports: number; 
+  totalReports: number;
 
-
+  @IsOptional()
+  @IsArray()
+  categories: Types.ObjectId[];
 }

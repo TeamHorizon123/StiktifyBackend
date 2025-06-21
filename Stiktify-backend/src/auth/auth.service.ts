@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import {
   ChangePasswordAuthDto,
   CodeAuthDto,
@@ -8,6 +8,7 @@ import { UpdateAuthDto } from './dto/update-auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '@/modules/users/users.service';
 import { comparePasswordHelper } from '@/helpers/ultil';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class AuthService {
@@ -27,6 +28,10 @@ export class AuthService {
     return user;
   }
   async login(user: any) {
+    if (user.isBan) {
+      throw new UnauthorizedException('Your Account is Banned or Blocked.');
+    }
+
     const payload = { username: user.email, sub: user._id };
     return {
       user: {
@@ -56,6 +61,7 @@ export class AuthService {
   };
 
   async getUser(token: string) {
+    if (!token) return;
     try {
       const decoded = this.jwtService.verify(token);
 
@@ -70,9 +76,11 @@ export class AuthService {
         email: user.email,
         name: user.fullname,
         role: user.role,
+        image: user.image,
       };
     } catch (error) {
-      throw new Error('Invalid or expired token');
+      console.log('Invalid or expired token');
+      return null;
     }
   }
 }

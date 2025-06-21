@@ -1,4 +1,4 @@
-import { IsBoolean, IsDateString, IsMongoId, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsDateString, IsEmail, IsMongoId, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class UpdateUserDto {
     @IsMongoId({ message: "_id invalid!!!" })
@@ -34,3 +34,33 @@ export class UpdateUserDto {
     @IsOptional()
     image: string
 }
+
+
+export class SendMailDto {
+
+    @IsNotEmpty({ message: 'Email is required!' })
+    @IsEmail({}, { message: 'Email is not valid' })
+   email: string;
+
+   
+   @IsNotEmpty({ message: "content not empty!!!" })
+   content: string;
+}
+
+export class UpdateShopOwnerDto {
+    @IsOptional()
+    @IsString()
+    shopName?: string;
+  
+    @IsOptional()
+    @IsString()
+    taxCode?: string;
+  
+    @IsOptional()
+    @IsString()
+    shopBrandsAddress?: string;
+  
+    @IsOptional()
+    @IsString()
+    shopDescription?: string;
+  }
