@@ -21,7 +21,7 @@ using (var scope = app.Services.CreateScope())
 {
     var service = scope.ServiceProvider;
     var context = service.GetRequiredService<AppDbContext>();
-    context.Database.EnsureDeleted();
+    //context.Database.EnsureDeleted();
     context.Database.EnsureCreated();
 }
 // Configure the HTTP request pipeline.
