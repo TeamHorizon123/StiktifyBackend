@@ -24,6 +24,17 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 var odataBuilder = new ODataConventionModelBuilder();
 odataBuilder.EntitySet<ResponseShop>("shop");
+odataBuilder.EntitySet<ResponseShopRating>("shop-rating");
+odataBuilder.EntitySet<ResponseReceiveAddress>("address");
+odataBuilder.EntitySet<ResponseCategory>("category");
+odataBuilder.EntitySet<ResponseProduct>("product");
+odataBuilder.EntitySet<ResponseProductOption>("product-option");
+odataBuilder.EntitySet<ResponseProductRating>("product-rating");
+odataBuilder.EntitySet<ResponseCart>("cart");
+odataBuilder.EntitySet<ResponseOrder>("order");
+odataBuilder.EntitySet<ResponseOrderDetail>("order-detail");
+odataBuilder.EntitySet<ResponsePayment>("payment");
+odataBuilder.EntitySet<ResponsePaymentMethod>("payment-method");
 builder.Services.AddControllers()
     .AddOData(options => options
         .SetMaxTop(100)
