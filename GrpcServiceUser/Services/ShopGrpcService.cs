@@ -60,7 +60,7 @@ namespace GrpcServiceUser.Services
 
         public override async Task<Shop.Shop> GetOfUser(Id request, ServerCallContext context)
         {
-            var shop = await _repo.GetOne(request.SearchId);
+            var shop = await _repo.GetOfUser(request.SearchId);
             if (shop == null)
                 return new Shop.Shop();
             Shop.Shop grpcShop = new Shop.Shop

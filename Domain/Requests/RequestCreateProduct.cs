@@ -24,9 +24,12 @@ namespace Domain.Requests
         [DefaultValue(0)]
         public double Price { get; set; }
 
-        [Range(0, double.MaxValue)]
+        [Range(0, 1)]
         [DefaultValue(0)]
         public double Discount { get; set; }
+
+        [DefaultValue(true)]
+        public bool IsActive { get; set; }
 
         [Required]
         public string[] CategoryId { get; set; } = default!;
@@ -38,6 +41,7 @@ namespace Domain.Requests
         [StringLength(32)]
         public string Id { get; set; } = default!;
 
+        [DefaultValue(true)]
         public bool IsActive { get; set; }
         public DateTime CreateAt { get; set; }
     }

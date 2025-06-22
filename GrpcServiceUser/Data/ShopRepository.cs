@@ -2,6 +2,8 @@
 using Domain.Responses;
 using GrpcServiceUser.Interface;
 using Microsoft.EntityFrameworkCore;
+using static Google.Protobuf.Reflection.SourceCodeInfo.Types;
+using System.Runtime.CompilerServices;
 
 namespace GrpcServiceUser.Data
 {
@@ -29,6 +31,15 @@ namespace GrpcServiceUser.Data
         {
             try
             {
+                var exist = await _context.Shops
+                    .AnyAsync(s => s.ShopName.ToLower() == shop.ShopName.ToLower()
+                    && s.Location.ToLower() == s.Location.ToLower());
+                if (exist)
+                    return new Response { Message = "Shop name has been exist.", StatusCode = 400 };
+
+                exist = await _context.Shops.AnyAsync(s => s.UserId == shop.UserId);
+                if (exist)
+                    return new Response { Message = "This user account already has shop", StatusCode = 400 };
                 var shopData = new Domain.Entities.Shop
                 {
                     UserId = shop.UserId,
@@ -85,8 +96,9 @@ namespace GrpcServiceUser.Data
         {
             try
             {
-                return await _context.Shops
-                    .Where(s => s.IsBanned == false)
+                var list = await _context.Shops
+                    .ToListAsync();
+                return list
                     .Select(s => new ResponseShop
                     {
                         Id = s.Id,
@@ -100,7 +112,7 @@ namespace GrpcServiceUser.Data
                         UpdateAt = s.UpdateAt,
                         Rating = Math.Round(AverageShopRating(s.Id), 1),
                     })
-                    .ToListAsync();
+                    .ToList();
             }
             catch (Exception err)
             {
@@ -112,7 +124,7 @@ namespace GrpcServiceUser.Data
         {
             try
             {
-                return await _context.Shops
+                var shop = await _context.Shops
                     .Where(s => s.IsBanned == false && s.UserId == userId)
                     .Select(s => new ResponseShop
                     {
@@ -125,9 +137,12 @@ namespace GrpcServiceUser.Data
                         UserId = s.UserId,
                         CreateAt = s.CreateAt,
                         UpdateAt = s.UpdateAt,
-                        Rating = AverageShopRating(s.Id),
+                        Rating = 0,
                     })
                     .FirstOrDefaultAsync();
+                if (shop != null)
+                    shop.Rating = Math.Round(AverageShopRating(shop.Id!), 1);
+                return shop;
             }
             catch (Exception err)
             {
@@ -139,7 +154,7 @@ namespace GrpcServiceUser.Data
         {
             try
             {
-                return await _context.Shops
+                var shop = await _context.Shops
                     .Where(s => s.IsBanned == false && s.Id == shopId)
                     .Select(s => new ResponseShop
                     {
@@ -152,9 +167,12 @@ namespace GrpcServiceUser.Data
                         UserId = s.UserId,
                         CreateAt = s.CreateAt,
                         UpdateAt = s.UpdateAt,
-                        Rating = Math.Round(AverageShopRating(s.Id), 1),
+                        Rating = 0,
                     })
                     .FirstOrDefaultAsync();
+                if (shop != null)
+                    shop.Rating = Math.Round(AverageShopRating(shop.Id!), 1);
+                return shop;
             }
             catch (Exception err)
             {
@@ -168,18 +186,14 @@ namespace GrpcServiceUser.Data
                 return new Response { Message = "Shop does not exist.", StatusCode = 404 };
             try
             {
-                var updateShop = new Domain.Entities.Shop
-                {
-                    Id = shop.Id,
-                    ShopName = shop.ShopName,
-                    Avatar = shop.Avatar,
-                    IsBanned = shop.IsBanned,
-                    Location = shop.Location,
-                    ShopType = shop.ShopType,
-                    UserId = shop.UserId,
-                    CreateAt = shop.CreateAt
-                };
-                _context.Shops.Update(updateShop);
+
+                var exist = await _context.Shops.FindAsync(shop.Id);
+                exist!.ShopName = shop.ShopName;
+                exist!.Avatar = shop.Avatar;
+                exist!.IsBanned = shop.IsBanned;
+                exist!.Location = shop.Location;
+                exist!.ShopType = shop.ShopType;
+                _context.Shops.Update(exist);
                 await _context.SaveChangesAsync();
                 return new Response { Message = $"_id: {shop.Id}", StatusCode = 200 };
             }

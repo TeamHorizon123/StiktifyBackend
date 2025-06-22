@@ -21,7 +21,7 @@ message CreateShop{
 	string ShopName = 2;
 	string Location = 3;
 	string Avatar = 4;
-	string ShopType = 5;
+	google.protobuf.StringValue ShopType = 5;
 	bool IsBanned = 6;
 }
 

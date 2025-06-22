@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using StiktifyShopBackend.Interfaces;
+using System.Threading.Tasks;
 
 namespace StiktifyShopBackend.Controllers
 {
@@ -27,16 +28,16 @@ namespace StiktifyShopBackend.Controllers
         }
 
         [HttpGet("user/{id}")]
-        public IActionResult GetOfUser([FromRoute] string id)
+        public async Task<IActionResult> GetOfUser([FromRoute] string id)
         {
-            var shop = _provider.GetOfUser(id);
+            var shop = await _provider.GetOfUser(id);
             return shop == null ? NotFound() : Ok(shop);
         }
 
         [HttpGet("shop/{id}")]
-        public IActionResult GetOne([FromRoute] string id)
+        public async Task<IActionResult> GetOne([FromRoute] string id)
         {
-            var shop = _provider.GetOne(id);
+            var shop = await _provider.GetOne(id);
             return shop == null ? NotFound() : Ok(shop);
         }
 
