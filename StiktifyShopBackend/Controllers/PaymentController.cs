@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using StiktifyShopBackend.Interfaces;
-using StiktifyShopBackend.Payment;
 
 namespace StiktifyShopBackend.Controllers
 {
@@ -35,7 +34,7 @@ namespace StiktifyShopBackend.Controllers
             return Ok(list);
         }
 
-        [HttpGet]
+        [HttpGet("{id}/product")]
         [EnableQuery]
         public ActionResult<IEnumerable<ResponsePayment>> GetAllOfProduct([FromRoute] string id)
         {
