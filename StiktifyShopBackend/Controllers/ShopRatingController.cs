@@ -1,15 +1,16 @@
 ﻿using Domain.Requests;
 using Domain.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using StiktifyShopBackend.Interfaces;
-using System.Threading.Tasks;
 
 namespace StiktifyShopBackend.Controllers
 {
     [Route("odata/shop-rating")]
     [ApiController]
+    [Authorize]
     public class ShopRatingController : ODataController
     {
         private IShopRatingProvider _provider;

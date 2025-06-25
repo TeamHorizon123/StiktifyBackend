@@ -1,5 +1,6 @@
 ﻿using Domain.Requests;
 using Domain.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using StiktifyShopBackend.Interfaces;
@@ -8,6 +9,7 @@ namespace StiktifyShopBackend.Controllers
 {
     [Route("odata/product-option")]
     [ApiController]
+    [Authorize]
     public class ProductOptionController : ODataController
     {
         private IProductOptionProvider _provider;

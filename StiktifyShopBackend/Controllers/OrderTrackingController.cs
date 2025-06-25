@@ -1,5 +1,6 @@
 ﻿using Domain.Requests;
 using Domain.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
@@ -9,6 +10,7 @@ namespace StiktifyShopBackend.Controllers
 {
     [Route("odata/order-tracking")]
     [ApiController]
+    [Authorize]
     public class OrderTrackingController : ODataController
     {
         private IOrderTrackingProvider _provider;

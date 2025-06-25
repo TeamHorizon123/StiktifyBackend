@@ -1,4 +1,5 @@
 ﻿using Domain.Requests;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using StiktifyShopBackend.Interfaces;
@@ -7,6 +8,7 @@ namespace StiktifyShopBackend.Controllers
 {
     [Route("odata/order-detail")]
     [ApiController]
+    [Authorize]
     public class OrderDetailController : ODataController
     {
         private IOrderDetailProvider _provider;

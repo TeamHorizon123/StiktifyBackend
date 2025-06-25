@@ -1,8 +1,11 @@
-using Domain.Responses;
+﻿using Domain.Responses;
 using Grpc.Core;
 using Grpc.Net.Client.Balancer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OData;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OData.ModelBuilder;
+using Microsoft.OpenApi.Models;
 using StiktifyShopBackend.Cart;
 using StiktifyShopBackend.Category;
 using StiktifyShopBackend.Interfaces;
@@ -18,6 +21,7 @@ using StiktifyShopBackend.ReceiveAddress;
 using StiktifyShopBackend.Shop;
 using StiktifyShopBackend.ShopRating;
 using StiktifyShopBackend.Tracking;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,7 +51,59 @@ builder.Services.AddControllers()
         );
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    var jwtSecuritySchema = new OpenApiSecurityScheme
+    {
+        BearerFormat = "JWT",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = JwtBearerDefaults.AuthenticationScheme,
+        Description = "Enter your JWT Access Token",
+        Reference = new OpenApiReference
+        {
+            Id = JwtBearerDefaults.AuthenticationScheme,
+            Type = ReferenceType.SecurityScheme
+        }
+    };
+
+    options.AddSecurityDefinition("Bearer", jwtSecuritySchema);
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        { jwtSecuritySchema, Array.Empty<string>() }
+    });
+});
+
+var key = Encoding.UTF8.GetBytes(builder.Configuration["JwtConfig:Key"]!);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = true; 
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false, 
+        ValidateAudience = false, 
+        ValidateLifetime = true, 
+        ValidateIssuerSigningKey = true,
+
+        ValidIssuer = builder.Configuration["JwtConfig:Issuer"],
+        ValidAudience = builder.Configuration["JwtConfig:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+
+        ClockSkew = TimeSpan.Zero 
+    };
+});
+
+// Add Authorization
+builder.Services.AddAuthorization();
 
 // Config Grpc Client of User Grpc service
 var userGrpc = builder.Configuration["ConnectionStrings:UserGrpc"]!;
@@ -116,6 +172,7 @@ builder.Services.AddScoped<IOrderDetailProvider, OrderDetailProvider>();
 builder.Services.AddScoped<IOrderTrackingProvider, OrderTrackingProvider>();
 builder.Services.AddScoped<IPaymentProvider, PaymentProvider>();
 builder.Services.AddScoped<IPaymentMethodProvider, PaymentMethodProvider>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -125,8 +182,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

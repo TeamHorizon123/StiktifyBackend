@@ -43,6 +43,7 @@ import { OrderModule } from './modules/order/order.module';
 import { KafkaModule } from './modules/kafka/kafka.module';
 import { RatingModule } from './modules/ratings/ratings.module';
 import { ReactionTypesModule } from './modules/report/reaction-types/reaction-types.module';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -104,8 +105,10 @@ import { ReactionTypesModule } from './modules/report/reaction-types/reaction-ty
           from: '"Stiktify" <no-reply@localhost>',
         },
         // preview: true,
+        
         template: {
-          dir: process.cwd() + '/src/mail/templates/',
+          // dir: process.cwd() + '/src/mail/templates/',
+          dir: join(__dirname, "mail/templates"),
           adapter: new HandlebarsAdapter(), // or new PugAdapter() or new EjsAdapter()
           options: {
             strict: true,
@@ -132,4 +135,5 @@ import { ReactionTypesModule } from './modules/report/reaction-types/reaction-ty
     },
   ],
 })
+
 export class AppModule { }
