@@ -60,6 +60,15 @@ export class MusicsController {
     );
   }
 
+  @Get("filter-search-in-management")
+  findAllUserByFilterAndSearch(
+    @Query() query: string,
+    @Query("current") current: string,
+    @Query("pageSize") pageSize: string,
+  ) {
+    return this.musicsService.handleFilterAndSearch(query, +current, +pageSize)
+  }
+
   @Public()
   @Get("list-hot-music")
   listHotMusic() {

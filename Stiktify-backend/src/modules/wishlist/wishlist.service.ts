@@ -8,6 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { WishlistScoreService } from '../wishlist-score/wishlist-score.service';
 import { ViewinghistoryService } from '../viewinghistory/viewinghistory.service';
 import { SettingsService } from '../settings/settings.service';
+import { ShortVideosService } from '../short-videos/short-videos.service';
 
 @Injectable()
 export class WishlistService {
@@ -18,6 +19,8 @@ export class WishlistService {
     private wishListScoreService: WishlistScoreService,
     @Inject(forwardRef(() => SettingsService))
     private settingsService: SettingsService,
+     @Inject(forwardRef(() => ShortVideosService))
+    private shortVideosService: ShortVideosService,
     private viewingHistoryService: ViewinghistoryService,
   ) { }
   async create(createWishlistDto: CreateWishlistDto) {
@@ -26,13 +29,16 @@ export class WishlistService {
       createWishlistDto.id,
     );
     if (createWishlistDto.triggerAction != 'ScrollVideo') {
-      if (createWishlistDto.triggerAction == "WatchVideo") await this.wishListScoreService.createGraphDBWatchData(createWishlistDto.userId, createWishlistDto.id, suggestByVideo);
+      try {
+        if (createWishlistDto.triggerAction == "WatchVideo")  await this.wishListScoreService.createGraphDBWatchData(createWishlistDto.userId, createWishlistDto.id, suggestByVideo);
+      } catch (error) {
+         console.log('Neo4j error');
+      }
       await this.wishListScoreService.triggerWishListScore(createWishlistDto);
     }
 
 
     if (suggestByVideo) {
-     
       const wishListScores = await this.getScoreBySuggestIDAndType(
         suggestByVideo,
         createWishlistDto.userId,
@@ -40,8 +46,7 @@ export class WishlistService {
       let scoreChecks = [];
       for (let n = 0; n < wishListScores.length; n++) {
         scoreChecks[n] = true;
-      }
-      // Sắp xếp wishlistScores theo score tăng dần
+      }    
       wishListScores.sort((a, b) => a.score - b.score);
       const videoFound = await this.wishListScoreService.findBestVideo(
         wishListScores,
@@ -49,6 +54,7 @@ export class WishlistService {
         createWishlistDto.id,
         -1,
         0,
+        createWishlistDto.userId+'',
       );
       if (videoFound.length === 1) {
         return await this.createWishListVideo(
@@ -62,6 +68,9 @@ export class WishlistService {
         videoFound,
         createWishlistDto.userId,
       );
+      if(!bestVideo){
+         return { message: 'Not found any video suggest!' };
+      }
       return await this.createWishListVideo(
         bestVideo._id,
         createWishlistDto.userId,
@@ -82,11 +91,14 @@ export class WishlistService {
     videoList = filteredList.length > 0 ? filteredList : videoList;
     filteredList = [];
     for (const video of videoList) {
-      if (!(await this.findByVideoId(video._id, userId))) {
+      if (!(await this.shortVideosService.isVideoLegit(video._id+'', userId))) {
         filteredList.push(video);
       }
     }
-    videoList = filteredList.length > 0 ? filteredList : videoList;
+    if( filteredList.length === 0) {
+      return;
+    }
+    videoList = filteredList;
     if (videoList.length === 1) {
       return videoList[0];
     }
@@ -420,19 +432,32 @@ export class WishlistService {
 
     return Object.fromEntries(predictedScores);
   }
-  async getCollaborativeVideo(userId: string, numberChooseVideo: number = 1) {
-    const userWishListData = await this.wishListModel.find({ userId });
-    const userWishList = new Set(userWishListData.map((item) => item.videoId + ""));
+async getCollaborativeVideo(userId: string, numberChooseVideo: number = 1) {
+  const userWishListData = await this.wishListModel.find({ userId });
+  const userWishList = new Set(userWishListData.map((item) => item.videoId + ""));
 
-    const predictedScores = await this.getPredictedScores(userId);
-    const filteredVideos = Object.entries(predictedScores)
-      .filter(([videoId]) => !userWishList.has(videoId))
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, numberChooseVideo)
-      .map(([videoId]) => videoId);
+  const predictedScores = await this.getPredictedScores(userId);
 
-    return filteredVideos;
+  // Lọc những video không có trong wishlist
+  const filteredEntries = Object.entries(predictedScores)
+    .filter(([videoId]) => !userWishList.has(videoId));
+
+
+  const legitEntries: [string, number][] = [];
+  for (const [videoId, score] of filteredEntries) {
+    const isLegit = await this.shortVideosService.isVideoLegit(videoId, userId);
+    if (isLegit) legitEntries.push([videoId, score]);
   }
+
+  const sorted = legitEntries
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, numberChooseVideo)
+    .map(([videoId]) => videoId);
+
+  return sorted;
+}
+
+
   async getAverageCount() {
     const result = await this.wishListModel.aggregate([
       {
