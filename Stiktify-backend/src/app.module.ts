@@ -83,7 +83,7 @@ import { ReactionTypesModule } from './modules/report/reaction-types/reaction-ty
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_URI'),
+        uri: configService.get<string>('MONGODB_URI_DOCKER'),
       }),
       inject: [ConfigService],
     }),

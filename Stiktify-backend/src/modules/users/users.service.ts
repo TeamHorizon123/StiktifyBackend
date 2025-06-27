@@ -374,75 +374,91 @@ export class UsersService {
     };
   }
 
-  checkFilterAction(filter: string) {
-    if (filter === 'lock') {
-      return { isBan: true };
-    } else if (filter === 'unlock') {
-      return { isBan: false };
-    } else if (filter === 'USERS') {
-      return { role: filter };
-    } else if (filter === 'ADMIN') {
-      return { role: filter };
-    } else {
-      return {};
-    }
+  
+checkFilterAction(filter: string) {
+  console.log(">>> checkFilterAction:", filter);
+  if (filter === 'block') {
+    return { isBan: true };
+  } else if (filter === 'unblock') {
+    return {
+      $or: [{ isBan: false }, { isBan: { $exists: false } }],
+    };
+  } else if (filter === 'USERS' || filter === 'ADMIN') {
+    return { role: filter };
+  } else {
+    return {};
   }
+}
 
-  async handleFilterAndSearch(
-    query: string,
-    current: number,
-    pageSize: number,
-  ) {
-    const { filter, sort } = aqp(query);
+  async handleFilterAndSearch(query: string, current: number, pageSize: number) {
+  const { filter = {}, sort = {} } = aqp(query);
+  
+  // Xóa các tham số không cần thiết
+  delete filter.current;
+  delete filter.pageSize;
 
-    if (filter.current) delete filter.current;
-    if (filter.pageSize) delete filter.pageSize;
+  // Xử lý phân trang
+  current = Number(current) || 1;
+  pageSize = Number(pageSize) || 10;
+  const skip = (current - 1) * pageSize;
 
-    if (!current) current = 1;
-    if (!pageSize) pageSize = 10;
-
-    const handleFilter = this.checkFilterAction(filter.filterReq);
-    const searchRegex = new RegExp(`^${filter.search}`, 'i');
-
-    let handleSearch = [];
-    if (filter.search.length > 0) {
-      handleSearch = [
+  // Xử lý tìm kiếm
+  const rawSearch = String(filter.search || '').trim();
+  const searchRegex = new RegExp(rawSearch, 'i');
+  
+  const searchConditions = rawSearch
+    ? [
         { email: searchRegex },
         { userName: searchRegex },
         { fullname: searchRegex },
-      ];
-    }
+      ]
+    : [];
 
-    const totalItems = (
-      await this.userModel.find({
-        ...handleFilter,
-        $or: handleSearch,
-      })
-    ).length;
-    const totalPages = Math.ceil(totalItems / pageSize);
+  // Xử lý điều kiện lọc
+  const baseFilter = this.checkFilterAction(filter.filterReq);
+  const queryFilter: any = {};
 
-    const skip = (+current - 1) * +pageSize;
-
-    const result = await this.userModel
-      .find({
-        ...handleFilter,
-        $or: handleSearch,
-      })
-      .limit(pageSize)
-      .skip(skip)
-      .select('-password')
-      .sort(sort as any);
-
-    return {
-      meta: {
-        current: current,
-        pageSize: pageSize,
-        pages: totalPages,
-        total: totalItems,
-      },
-      result: result,
-    };
+  if (baseFilter.$or && searchConditions.length > 0) {
+    queryFilter.$and = [{ $or: baseFilter.$or }, { $or: searchConditions }];
+  } else if (baseFilter.$or) {
+    queryFilter.$or = baseFilter.$or;
+  } else if (Object.keys(baseFilter).length > 0 && searchConditions.length > 0) {
+    queryFilter.$and = [baseFilter, { $or: searchConditions }];
+  } else if (Object.keys(baseFilter).length > 0) {
+    Object.assign(queryFilter, baseFilter);
+  } else if (searchConditions.length > 0) {
+    queryFilter.$or = searchConditions;
   }
+
+  // Log kiểm tra (nên bật lúc debug)
+  // console.log("📦 finalQuery:", JSON.stringify(queryFilter, null, 2));
+
+  // Truy vấn DB
+  console.log(">>> filterReq:", filter.filterReq);
+console.log(">>> rawSearch:", rawSearch);
+console.log(">>> final Mongo query:", JSON.stringify(queryFilter, null, 2));
+
+  const totalItems = await this.userModel.countDocuments(queryFilter);
+  const result = await this.userModel
+    .find(queryFilter)
+    .limit(pageSize)
+    .skip(skip)
+    .select('-password')
+    .sort(sort as any);
+result.forEach(u => {
+  console.log(">>> result:", u.userName, "-", u.isBan);
+});
+
+  return {
+    meta: {
+      current,
+      pageSize,
+      total: totalItems,
+      pages: Math.ceil(totalItems / pageSize),
+    },
+    result,
+  };
+}
 
   async searchUserAndVideo(
     searchText: string,

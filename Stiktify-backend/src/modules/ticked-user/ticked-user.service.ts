@@ -189,12 +189,13 @@ export class TickedUserService {
     current = current || 1;
     pageSize = pageSize || 10;
     const handleFilter = this.checkStatusFilter(filter.filterReq || '');
-    const searchRegex = new RegExp(`^${filter.search}`, 'i');
+    const rawSearch = String(filter.search).trim();
+    const searchRegex = new RegExp(`${rawSearch}`, 'i');
     const skip = (+current - 1) * +pageSize;
 
     let handleSearch = [];
 
-    if (filter.search.length > 0) {
+    if (rawSearch.length > 0) {
       handleSearch = [
         { userName: searchRegex },
         { fullname: searchRegex },
