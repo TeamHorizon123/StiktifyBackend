@@ -32,15 +32,6 @@ export class ReportController {
     return this.reportService.createReportMusic(createReportDto);
   }
 
-  @Get('list-report')
-  findAll(
-    @Query() query: string,
-    @Query('current') current: string,
-    @Query('pageSize') pageSize: string,
-  ) {
-    return this.reportService.findAll(query, +current, +pageSize);
-  }
-
   @Get('list-report-music')
   getListMusicReport(
     @Query() query: string,
@@ -50,27 +41,28 @@ export class ReportController {
     return this.reportService.handleListMusicReport(query, +current, +pageSize);
   }
 
-  @Delete('delete-report/:_id')
+  @Delete('delete-video-report/:_id')
   @ResponseMessage('Deleted successfully')
-  remove(@Param('_id') _id: string): Promise<any> {
+  removeVideoReport(@Param('_id') _id: string): Promise<any> {
     if (!_id) throw new BadRequestException('id must not be empty');
-    return this.reportService.remove(_id);
+    return this.reportService.removeVideoReport(_id);
   }
 
-  @Get('search-music')
-  async searcMusicReport(
-    @Query('search') search: string,
-    @Query('startDate') startDate?: string,
-  ) {
-    return this.reportService.searchReportMusic(search, startDate);
+   @Delete('delete-music-report/:_id')
+  @ResponseMessage('Deleted successfully')
+  removeMusicReport(@Param('_id') _id: string): Promise<any> {
+    if (!_id) throw new BadRequestException('id must not be empty');
+    return this.reportService.removeMusicReport(_id);
   }
 
-  @Get('search-video')
+
+  @Get('list-report-video')
   async searchVideoReport(
-    @Query('search') search: string,
-    @Query('startDate') startDate?: string,
+      @Query() query: string,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
   ) {
-    return this.reportService.searchReportVideo(search, startDate);
+    return this.reportService.handleListVideoReport(query, +current, +pageSize);
   }
   
   @Get(':id')

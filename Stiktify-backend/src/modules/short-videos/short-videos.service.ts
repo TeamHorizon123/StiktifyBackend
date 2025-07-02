@@ -263,6 +263,21 @@ export class ShortVideosService {
       return null;
     }
   }
+    async checkVideoByIdCanDelete(id: string) {
+    try {
+      const result = await this.videoModel
+        .findById(id)
+        .populate('userId', 'userName')
+        .select('-totalComment -totalReaction')
+
+      if (result) {
+        return result;
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
   async getTrendingVideosByUser(data: TrendingVideoDto) {
     let videoFound;
     let countVideo = 0;
@@ -576,7 +591,6 @@ async isVideoLegit(videoId: string, userId: string) {
   pageSize: number,
 ) {
   const { filter, sort: rawSort } = aqp(query);
-  console.log('Filter:', filter);
 
   if (filter.current) delete filter.current;
   if (filter.pageSize) delete filter.pageSize;
@@ -775,7 +789,6 @@ async isVideoLegit(videoId: string, userId: string) {
   }
   async getTagVideoByAi(file: Express.Multer.File): Promise<any> {
     try {
-      console.log('Sending video to FastAPI:', file.originalname);
       const tags = [];
 
       // Hàm tạo FormData mới để tránh lỗi "stream already consumed"
@@ -787,10 +800,6 @@ async isVideoLegit(videoId: string, userId: string) {
         });
         return formData;
       };
-
-      console.log(
-        `${this.configService.get<string>('AI_GETSONG_URL')}/analyze-video/`,
-      );
 
       const faceResponsePromise = firstValueFrom(
         this.httpService.post(
@@ -848,9 +857,6 @@ async isVideoLegit(videoId: string, userId: string) {
         )
         .first();
       if (existingScore?.currentScore !== undefined) {
-        console.log(
-          `Quan hệ đã tồn tại với score = ${existingScore.currentScore}`,
-        );
 
         // Nếu score = 0, không cập nhật
         if (score === 0) {
@@ -1182,9 +1188,6 @@ RETURN u2.id AS otherUser,
         )
         .run();
 
-      console.log(
-        'Tất cả các video và mối quan hệ liên quan đã được xóa thành công.',
-      );
     } catch (error) {
       console.error('Lỗi khi xóa video:', error);
     }

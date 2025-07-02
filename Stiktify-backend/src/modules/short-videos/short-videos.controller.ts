@@ -66,14 +66,7 @@ export class ShortVideosController {
   getTopVideo(@Param('title') title: string) {
     return this.shortVideosService.getTop50Videos(title);
   }
-  @Get('list-video')
-  findAll(
-    @Query() query: string,
-    @Query('current') current: string,
-    @Query('pageSize') pageSize: string,
-  ) {
-    return this.shortVideosService.findAll(query, +current, +pageSize);
-  }
+
   @Get('get-top-one-videos')
   @Public()
   getTopOneVideos() {
@@ -124,7 +117,7 @@ export class ShortVideosController {
     );
   }
 
-  @Get('search-video')
+  @Get('list-video')
   searchVideoInManegement(
     @Query() query: string,
     @Query('current') current: string,
