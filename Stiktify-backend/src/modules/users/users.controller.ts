@@ -56,15 +56,6 @@ export class UsersController {
     return this.usersService.getTop50Creator(title);
   }
   @Get('list-user')
-  findAllUser(
-    @Query() query: string,
-    @Query('current') current: string,
-    @Query('pageSize') pageSize: string,
-  ) {
-    return this.usersService.handleGetListUser(query, +current, +pageSize);
-  }
-
-  @Get('filter-search')
   findAllUserByFilterAndSearch(
     @Query() query: string,
     @Query('current') current: string,

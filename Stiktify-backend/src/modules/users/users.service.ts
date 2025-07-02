@@ -376,7 +376,6 @@ export class UsersService {
 
   
 checkFilterAction(filter: string) {
-  console.log(">>> checkFilterAction:", filter);
   if (filter === 'block') {
     return { isBan: true };
   } else if (filter === 'unblock') {
@@ -430,13 +429,7 @@ checkFilterAction(filter: string) {
     queryFilter.$or = searchConditions;
   }
 
-  // Log kiểm tra (nên bật lúc debug)
-  // console.log("📦 finalQuery:", JSON.stringify(queryFilter, null, 2));
-
   // Truy vấn DB
-  console.log(">>> filterReq:", filter.filterReq);
-console.log(">>> rawSearch:", rawSearch);
-console.log(">>> final Mongo query:", JSON.stringify(queryFilter, null, 2));
 
   const totalItems = await this.userModel.countDocuments(queryFilter);
   const result = await this.userModel
@@ -445,10 +438,7 @@ console.log(">>> final Mongo query:", JSON.stringify(queryFilter, null, 2));
     .skip(skip)
     .select('-password')
     .sort(sort as any);
-result.forEach(u => {
-  console.log(">>> result:", u.userName, "-", u.isBan);
-});
-
+    
   return {
     meta: {
       current,

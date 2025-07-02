@@ -60,7 +60,7 @@ export class MusicsController {
     );
   }
 
-  @Get("filter-search-in-management")
+  @Get("list-music-admin")
   findAllUserByFilterAndSearch(
     @Query() query: string,
     @Query("current") current: string,
@@ -123,19 +123,6 @@ export class MusicsController {
   @Get()
   getAllMusic() {
     return this.musicsService.getAllMusic();
-  }
-
-  @Get('list-music-admin')
-  findAll(
-    @Query() query: string,
-    @Query('current') current: string,
-    @Query('pageSize') pageSize: string,
-  ) {
-    return this.musicsService.handleListAllMusicAdmin(
-      query,
-      +current,
-      +pageSize,
-    );
   }
 
   @Get('recommend-music/:userId')
