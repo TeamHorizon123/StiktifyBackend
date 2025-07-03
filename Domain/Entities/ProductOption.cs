@@ -19,10 +19,4 @@ namespace Domain.Entities
         [StringLength(50)]
         public string Type { get; set; } = default!;
     }
-
-    public class ProductItem : ProductOption
-    {
-        [StringLength(50)]
-        public string? Size { get; set; }
-    }
 }

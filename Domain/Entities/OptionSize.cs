@@ -9,6 +9,10 @@ namespace Domain.Entities
         [Required]
         [StringLength(50)]
         public string SizeValue { get; set; } = default!;
+
+        [Required]
+        [StringLength(32)]
+        public string CategoryMajor { get; set; } = default!;
     }
 
     public class OptionSizeColor
