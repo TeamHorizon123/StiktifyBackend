@@ -14,16 +14,30 @@ namespace Domain.Requests
 
         [Range(0, int.MaxValue)]
         [DefaultValue(0)]
-        public int Quantity { get; set; }
+        public int Color { get; set; }
 
         [StringLength(50)]
-        public string Attribute { get; set; } = default!;
+        public string Type { get; set; } = default!;
+    }
 
+    public class RequestCreateOptionSize
+    {
         [StringLength(50)]
-        public string Value { get; set; } = default!;
+        public string SizeValue { get; set; } = default!;
+
+        [Required]
+        [StringLength(32)]
+        public string CategoryMajor { get; set; } = default!;
     }
 
     public class RequestUpdateOption : RequestCreateOption
+    {
+        [Required]
+        [StringLength(32)]
+        public string Id { get; set; } = default!;
+    }
+
+    public class RequestUpdateOptionSize : RequestCreateOptionSize
     {
         [Required]
         [StringLength(32)]

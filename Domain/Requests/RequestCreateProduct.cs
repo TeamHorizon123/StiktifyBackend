@@ -43,6 +43,5 @@ namespace Domain.Requests
 
         [DefaultValue(true)]
         public bool IsActive { get; set; }
-        public DateTime CreateAt { get; set; }
     }
 }

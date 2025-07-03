@@ -19,7 +19,7 @@ namespace Domain.Requests
 
         [Required]
         [StringLength(32)]
-        public string OptionId { get; set; } = default!;
+        public string SizeColor { get; set; } = default!;
 
         [Range(1, int.MaxValue)]
         [DefaultValue(0)]
@@ -40,6 +40,7 @@ namespace Domain.Requests
         [Required]
         [StringLength(50)]
         public string Status { get; set; } = default!;
+
     }
 
     public class RequestUpdateOrder : RequestCreateOrder

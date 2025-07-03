@@ -29,7 +29,5 @@ namespace Domain.Requests
         [Required]
         [StringLength(32)]
         public string Id { get; set; } = default!;
-
-        public DateTime CreateAt { get; set; }
     }
 }
