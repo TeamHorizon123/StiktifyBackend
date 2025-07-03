@@ -8,10 +8,10 @@ namespace Domain.Responses
         public string? Id { get; set; }
         [JsonPropertyName("productId")]
         public string? ProductId { get; set; }
-        [JsonPropertyName("sizeColorId")]
-        public string? SizeColorId { get; set; }
-        [JsonPropertyName("sizeColor")]
-        public ResponseSizeColor? SizeColor { get; set; }
+        [JsonPropertyName("productItemId")]
+        public string? ProductItemId { get; set; }
+        [JsonPropertyName("productItem")]
+        public ReponseProductItem? ProductItem { get; set; }
         [JsonPropertyName("userId")]
         public string? UserId { get; set; }
         [JsonPropertyName("point")]

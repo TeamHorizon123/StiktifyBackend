@@ -15,8 +15,9 @@ namespace GrpcServiceUser.Data
         {
             modelBuilder.Entity<Domain.Entities.Shop>()
                 .ToTable("Shop")
-                .HasOne<Domain.Entities.Shop>()
-                .WithMany()
+                .HasMany(s => s.ShopRatings)
+                .WithOne(sr => sr.Shop)
+                .HasForeignKey(sr => sr.ShopId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Domain.Entities.ShopRating>().ToTable("ShopRating");

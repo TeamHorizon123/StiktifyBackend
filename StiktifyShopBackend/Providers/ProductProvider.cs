@@ -156,7 +156,7 @@ namespace StiktifyShopBackend.Providers
                 ShopId = updateProduct.ShopId,
                 Thumbnail = updateProduct.Thumbnail,
                 CategoryIds = JsonConvert.SerializeObject(updateProduct.CategoryId),
-                CreateAt = Timestamp.FromDateTime(updateProduct.CreateAt.ToUniversalTime()),
+                //CreateAt = Timestamp.FromDateTime(updateProduct.CreateAt.ToUniversalTime()),
             };
             var response = await _client.UpdateAsync(updateGrpc);
             return new Domain.Responses.Response { Message = response.Message, StatusCode = response.StatusCode };

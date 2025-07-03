@@ -24,11 +24,11 @@ namespace GrpcServiceProduct.Data
                 var createData = new Domain.Entities.ProductRating
                 {
                     ProductId = createRating.ProductId,
-                    OptionId = createRating.OptionId,
+                    ProductItemId = createRating.ProductItemId,
                     Content = createRating.Content,
                     UserId = createRating.UserId,
                     Image = createRating.Image,
-                    Point = createRating.Point,
+                    Point = createRating.Point
                 };
                 _context.ProductRatings.Add(createData);
                 await _context.SaveChangesAsync();
@@ -71,8 +71,8 @@ namespace GrpcServiceProduct.Data
                         Content = rating.Content,
                         UserId = rating.UserId,
                         Image = rating.Image,
-                        OptionId = rating.OptionId,
                         Point = rating.Point,
+                        ProductItemId = rating.ProductItemId,
                         ProductId = rating.ProductId,
                         CreateAt = rating.CreateAt,
                         UpdateAt = rating.UpdateAt
@@ -86,19 +86,19 @@ namespace GrpcServiceProduct.Data
             }
         }
 
-        public async Task<IEnumerable<ResponseProductRating>> GetAllOfOption(string optionId)
+        public async Task<IEnumerable<ResponseProductRating>> GetAllOfOption(string itemId)
         {
             try
             {
                 return await _context.ProductRatings
-                    .Where(rating => rating.OptionId == optionId)
+                    .Where(rating => rating.ProductItemId == itemId)
                     .Select(rating => new ResponseProductRating
                     {
                         Id = rating.Id,
                         Content = rating.Content,
                         UserId = rating.UserId,
                         Image = rating.Image,
-                        OptionId = rating.OptionId,
+                        ProductItemId = rating.ProductItemId,
                         Point = rating.Point,
                         ProductId = rating.ProductId,
                         CreateAt = rating.CreateAt,
@@ -108,7 +108,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get all product rating of option has id-{optionId} \nError: {err.Message}");
+                _logger.LogError($"Fail to get all product rating of option has id-{itemId} \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -125,7 +125,7 @@ namespace GrpcServiceProduct.Data
                         Content = rating.Content,
                         UserId = rating.UserId,
                         Image = rating.Image,
-                        OptionId = rating.OptionId,
+                        ProductItemId = rating.ProductItemId,
                         Point = rating.Point,
                         ProductId = rating.ProductId,
                         CreateAt = rating.CreateAt,
@@ -152,7 +152,7 @@ namespace GrpcServiceProduct.Data
                         Content = rating.Content,
                         UserId = rating.UserId,
                         Image = rating.Image,
-                        OptionId = rating.OptionId,
+                        ProductItemId = rating.ProductItemId,
                         Point = rating.Point,
                         ProductId = rating.ProductId,
                         CreateAt = rating.CreateAt,
@@ -177,7 +177,7 @@ namespace GrpcServiceProduct.Data
                 {
                     Id = updateRating.Id,
                     ProductId = updateRating.ProductId,
-                    OptionId = updateRating.OptionId,
+                    ProductItemId = updateRating.ProductItemId,
                     Content = updateRating.Content,
                     UserId = updateRating.UserId,
                     Image = updateRating.Image,

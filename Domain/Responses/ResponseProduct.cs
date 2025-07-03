@@ -8,6 +8,8 @@ namespace Domain.Responses
         public string? Id { get; set; }
         [JsonPropertyName("shopId")]
         public string? ShopId { get; set; }
+        [JsonPropertyName("shop")]
+        public ResponseShop? Shop { get; set; }
         [JsonPropertyName("name")]
         public string? Name { get; set; }
         [JsonPropertyName("thumbnail")]

@@ -1,7 +1,9 @@
-﻿using Domain.Requests;
+﻿using Domain.Entities;
+using Domain.Requests;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using GrpcServiceProduct.Interfaces;
+using GrpcServiceProduct.Product;
 using GrpcServiceProduct.ProductRating;
 using Newtonsoft.Json;
 
@@ -26,17 +28,17 @@ namespace GrpcServiceProduct.Services
                     Id = rating.Id,
                     UserId = rating.UserId,
                     ProductId = rating.ProductId,
-                    OptionId = rating.OptionId,
+                    ProductItemId = rating.ProductItemId,
                     Point = rating.Point,
                     Content = rating.Content,
-                    ImageList = JsonConvert.SerializeObject(rating.Point),
+                    ImageList = JsonConvert.SerializeObject(rating.Image),
                     CreateAt = Timestamp.FromDateTime(rating.CreateAt!.Value.ToUniversalTime()),
                     UpdateAt = Timestamp.FromDateTime(rating.UpdateAt!.Value.ToUniversalTime()),
                 }));
             return grpcRatings;
         }
 
-        public override async Task<Ratings> GetAllOfOption(Id request, ServerCallContext context)
+        public override async Task<Ratings> GetAllOfOption(ProductRating.Id request, ServerCallContext context)
         {
             var listRatings = await _repo.GetAllOfOption(request.SearchId);
             Ratings grpcRatings = new Ratings();
@@ -46,7 +48,7 @@ namespace GrpcServiceProduct.Services
                     Id = rating.Id,
                     UserId = rating.UserId,
                     ProductId = rating.ProductId,
-                    OptionId = rating.OptionId,
+                    ProductItemId = rating.ProductItemId,
                     Point = rating.Point,
                     Content = rating.Content,
                     ImageList = JsonConvert.SerializeObject(rating.Point),
@@ -56,7 +58,7 @@ namespace GrpcServiceProduct.Services
             return grpcRatings;
         }
 
-        public override async Task<Ratings> GetAllOfProduct(Id request, ServerCallContext context)
+        public override async Task<Ratings> GetAllOfProduct(ProductRating.Id request, ServerCallContext context)
         {
             var listRatings = await _repo.GetAllOfProduct(request.SearchId);
             Ratings grpcRatings = new Ratings();
@@ -66,7 +68,7 @@ namespace GrpcServiceProduct.Services
                     Id = rating.Id,
                     UserId = rating.UserId,
                     ProductId = rating.ProductId,
-                    OptionId = rating.OptionId,
+                    ProductItemId = rating.ProductItemId,
                     Point = rating.Point,
                     Content = rating.Content,
                     ImageList = JsonConvert.SerializeObject(rating.Point),
@@ -76,7 +78,7 @@ namespace GrpcServiceProduct.Services
             return grpcRatings;
         }
 
-        public override async Task<Rating> GetOne(Id request, ServerCallContext context)
+        public override async Task<Rating> GetOne(ProductRating.Id request, ServerCallContext context)
         {
             var rating = await _repo.GetOne(request.SearchId);
             if (rating == null)
@@ -86,7 +88,7 @@ namespace GrpcServiceProduct.Services
                 Id = rating.Id,
                 UserId = rating.UserId,
                 ProductId = rating.ProductId,
-                OptionId = rating.OptionId,
+                ProductItemId = rating.ProductItemId,
                 Point = rating.Point,
                 Content = rating.Content,
                 ImageList = JsonConvert.SerializeObject(rating.Image),
@@ -95,41 +97,41 @@ namespace GrpcServiceProduct.Services
             };
         }
 
-        public override async Task<Response> Create(CreateRating request, ServerCallContext context)
+        public override async Task<ProductRating.Response> Create(CreateRating request, ServerCallContext context)
         {
             var createRating = new RequestCreateRating
             {
                 UserId = request.UserId,
-                OptionId = request.OptionId,
+                ProductItemId = request.ProductItemId,
                 ProductId = request.ProductId,
                 Content = request.Content,
                 Point = request.Point,
-                Image = JsonConvert.DeserializeObject<ICollection<string>>(request.ImageList)
+                Image = JsonConvert.DeserializeObject<List<string>>(request.ImageList)
             };
             var response = await _repo.CreateRating(createRating);
-            return new Response { Message = response.Message, StatusCode = response.StatusCode };
+            return new ProductRating.Response { Message = response.Message, StatusCode = response.StatusCode };
         }
 
-        public override async Task<Response> Update(Rating request, ServerCallContext context)
+        public override async Task<ProductRating.Response> Update(Rating request, ServerCallContext context)
         {
             var updateRating = new RequestUpdateRating
             {
                 Id = request.UserId,
                 ProductId = request.ProductId,
-                OptionId = request.OptionId,
+                ProductItemId = request.ProductItemId,
                 UserId = request.UserId,
                 Content = request.Content,
-                Image = JsonConvert.DeserializeObject<ICollection<string>>(request.ImageList),
+                Image = JsonConvert.DeserializeObject<List<string>>(request.ImageList),
                 Point = request.Point,
             };
             var response = await _repo.UpdateRating(updateRating);
-            return new Response { Message = response.Message, StatusCode = response.StatusCode };
+            return new ProductRating.Response { Message = response.Message, StatusCode = response.StatusCode };
         }
 
-        public override async Task<Response> Delete(Id request, ServerCallContext context)
+        public override async Task<ProductRating.Response> Delete(ProductRating.Id request, ServerCallContext context)
         {
             var response = await _repo.DeleteRating(request.SearchId);
-            return new Response { Message = response.Message, StatusCode = response.StatusCode };
+            return new ProductRating.Response { Message = response.Message, StatusCode = response.StatusCode };
         }
     }
 }

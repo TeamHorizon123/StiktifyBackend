@@ -109,7 +109,7 @@ namespace StiktifyShopBackend.Providers
                 Location = shop.Location,
                 ShopName = shop.ShopName,
                 ShopType = shop.ShopType,
-                CreateAt = Timestamp.FromDateTime(shop.CreateAt.ToUniversalTime())
+                //CreateAt = Timestamp.FromDateTime(shop.CreateAt.ToUniversalTime())
             };
             var grpcResponse = await _client.UpdateAsync(grpcUpdateShop);
             return new Domain.Responses.Response { Message = grpcResponse.Message, StatusCode = grpcResponse.StatusCode };

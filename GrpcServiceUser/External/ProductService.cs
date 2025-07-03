@@ -1,6 +1,4 @@
-﻿using Domain.Responses;
-using GrpcServiceUser.Interface;
-using GrpcServiceUser.Product;
+﻿using GrpcServiceUser.Product;
 
 namespace GrpcServiceUser.External
 {
@@ -13,7 +11,7 @@ namespace GrpcServiceUser.External
             _client = client;
         }
 
-        public async Task<Product.Response> DeleteAllOfShop(string shopId)
+        public async Task<Response> DeleteAllOfShop(string shopId)
         {
             return await _client.DeleteAllOfShopAsync(new Id { SearchId = shopId });
         }

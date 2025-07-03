@@ -25,8 +25,7 @@ namespace GrpcServiceOrder.Data
                 {
                     UserId = createOrder.UserId,
                     AddressId = createOrder.AddressId,
-                    ProductId = createOrder.ProductId,
-                    OptionId = createOrder.OptionId,
+                    OptionSizeColorId = createOrder.SizeColor,
                     Quantity = createOrder.Quantity,
                     Price = createOrder.Price,
                     Discount = createOrder.Discount,
@@ -54,8 +53,7 @@ namespace GrpcServiceOrder.Data
                         Id = o.Id,
                         AddressId = o.AddressId,
                         UserId = o.UserId,
-                        ProductId = o.ProductId,
-                        OptionId = o.OptionId,
+                        SizeColorId = o.OptionSizeColorId,
                         Quantity = o.Quantity,
                         Discount = o.Discount,
                         Price = o.Price,
@@ -78,14 +76,13 @@ namespace GrpcServiceOrder.Data
             try
             {
                 return await _context.Orders
-                    .Where(o => o.ProductId == productId)
+                    .Where(o => o.OptionSizeColorId == productId)
                     .Select(o => new ResponseOrder
                     {
                         Id = o.Id,
                         AddressId = o.AddressId,
                         UserId = o.UserId,
-                        ProductId = o.ProductId,
-                        OptionId = o.OptionId,
+                        SizeColorId = o.OptionSizeColorId,
                         Quantity = o.Quantity,
                         Discount = o.Discount,
                         Price = o.Price,
@@ -119,8 +116,7 @@ namespace GrpcServiceOrder.Data
                         Id = o.Id,
                         AddressId = o.AddressId,
                         UserId = o.UserId,
-                        ProductId = o.ProductId,
-                        OptionId = o.OptionId,
+                        SizeColorId = o.OptionSizeColorId,
                         Quantity = o.Quantity,
                         Discount = o.Discount,
                         Price = o.Price,
@@ -149,8 +145,7 @@ namespace GrpcServiceOrder.Data
                         Id = o.Id,
                         AddressId = o.AddressId,
                         UserId = o.UserId,
-                        ProductId = o.ProductId,
-                        OptionId = o.OptionId,
+                        SizeColorId = o.OptionSizeColorId,
                         Quantity = o.Quantity,
                         Discount = o.Discount,
                         Price = o.Price,
@@ -179,8 +174,7 @@ namespace GrpcServiceOrder.Data
                     Id = updateOrder.Id,
                     UserId = updateOrder.UserId,
                     AddressId = updateOrder.AddressId,
-                    ProductId = updateOrder.ProductId,
-                    OptionId = updateOrder.OptionId,
+                    OptionSizeColorId = updateOrder.ProductId,
                     Quantity = updateOrder.Quantity,
                     Discount = updateOrder.Discount,
                     Price = updateOrder.Price,

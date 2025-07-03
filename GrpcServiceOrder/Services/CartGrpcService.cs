@@ -22,8 +22,7 @@ namespace GrpcServiceOrder.Services
             grpcList.Item.AddRange(listCart.Select(cart => new Cart.Cart
             {
                 Id = cart.Id,
-                ProductId = cart.ProductId,
-                OptionId = cart.OptionId,
+                OptionId = cart.SizeColoId,
                 UserId = cart.UserId,
                 Quantity = cart.Quantity,
                 CreateAt = Timestamp.FromDateTime(cart.CreateAt!.Value.ToUniversalTime()),
@@ -39,8 +38,7 @@ namespace GrpcServiceOrder.Services
             grpcList.Item.AddRange(listCart.Select(cart => new Cart.Cart
             {
                 Id = cart.Id,
-                ProductId = cart.ProductId,
-                OptionId = cart.OptionId,
+                OptionId = cart.SizeColoId,
                 UserId = cart.UserId,
                 Quantity = cart.Quantity,
                 CreateAt = Timestamp.FromDateTime(cart.CreateAt!.Value.ToUniversalTime()),
@@ -56,8 +54,7 @@ namespace GrpcServiceOrder.Services
             grpcList.Item.AddRange(listCart.Select(cart => new Cart.Cart
             {
                 Id = cart.Id,
-                ProductId = cart.ProductId,
-                OptionId = cart.OptionId,
+                OptionId = cart.SizeColoId,
                 UserId = cart.UserId,
                 Quantity = cart.Quantity,
                 CreateAt = Timestamp.FromDateTime(cart.CreateAt!.Value.ToUniversalTime()),
@@ -74,8 +71,7 @@ namespace GrpcServiceOrder.Services
             return new Cart.Cart
             {
                 Id = cart.Id,
-                ProductId = cart.ProductId,
-                OptionId = cart.OptionId,
+                OptionId = cart.SizeColoId,
                 UserId = cart.UserId,
                 Quantity = cart.Quantity,
                 CreateAt = Timestamp.FromDateTime(cart.CreateAt!.Value.ToUniversalTime()),
@@ -88,8 +84,7 @@ namespace GrpcServiceOrder.Services
             var createCart = new RequestCreateCart
             {
                 UserId = request.UserId,
-                OptionId = request.OptionId,
-                ProductId = request.ProductId,
+                SizeColor = request.OptionId,
                 Quantity = request.Quantity,
             };
             var response = await _repo.CreateCart(createCart);
@@ -101,8 +96,7 @@ namespace GrpcServiceOrder.Services
             var updateCart = new RequestUpdateCart
             {
                 Id = request.Id,
-                OptionId = request.OptionId,
-                ProductId = request.ProductId,
+                SizeColor = request.OptionId,
                 UserId = request.UserId,
                 Quantity = request.Quantity
             };

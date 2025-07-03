@@ -32,14 +32,16 @@ namespace StiktifyShopBackend.Controllers
         public async Task<IActionResult> GetOne([FromRoute] string id)
         {
             var address = await _provider.GetOne(id);
-            return address?.Id == null ? NotFound() : Ok(address);
+            return address?.Id == null ? NotFound() : Ok(new { address });
         }
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateAddress([FromBody] RequestCreateAddress request)
         {
             var response = await _provider.CreateAddress(request);
-            return StatusCode(response.StatusCode, response.Message);
+            if (response.StatusCode != 201)
+                return StatusCode(response.StatusCode, new { message = response.Message });
+            return StatusCode(response.StatusCode, new { id = response.Message });
         }
 
         [HttpPut("update/{id}")]
@@ -48,14 +50,18 @@ namespace StiktifyShopBackend.Controllers
             if (id != request.Id)
                 return BadRequest("Id does not match.");
             var response = await _provider.UpdateAddress(request);
-            return StatusCode(response.StatusCode, response.Message);
+            if (response.StatusCode != 200)
+                return StatusCode(response.StatusCode, new { message = response.Message });
+            return StatusCode(response.StatusCode, new { id = response.Message });
         }
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteAddress([FromRoute] string id)
         {
             var response = await _provider.DeleteAddress(id);
-            return StatusCode(response.StatusCode, response.Message);
+            if (response.StatusCode != 204)
+                return StatusCode(response.StatusCode, new { message = response.Message });
+            return StatusCode(response.StatusCode);
         }
     }
 }

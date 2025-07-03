@@ -4,6 +4,7 @@ using GrpcServiceUser.Interface;
 using Microsoft.EntityFrameworkCore;
 using static Google.Protobuf.Reflection.SourceCodeInfo.Types;
 using System.Runtime.CompilerServices;
+using GrpcServiceUser.External;
 
 namespace GrpcServiceUser.Data
 {
@@ -52,11 +53,15 @@ namespace GrpcServiceUser.Data
                 };
                 _context.Shops.Add(shopData);
                 await _context.SaveChangesAsync();
-                return new Response { Message = $"_id: {shopData.Id}", StatusCode = 201 };
+                return new Response { Message = $"{shopData.Id}", StatusCode = 201 };
             }
             catch (Exception err)
             {
-                return new Response { Message = err.Message, StatusCode = 500 };
+                return new Response
+                {
+                    Message = err.Message,
+                    StatusCode = 500
+                };
             }
         }
 
@@ -188,14 +193,16 @@ namespace GrpcServiceUser.Data
             {
 
                 var exist = await _context.Shops.FindAsync(shop.Id);
-                exist!.ShopName = shop.ShopName;
-                exist!.Avatar = shop.Avatar;
-                exist!.IsBanned = shop.IsBanned;
-                exist!.Location = shop.Location;
-                exist!.ShopType = shop.ShopType;
+                if (exist == null)
+                    return new Response { Message = "Shop does not exist.", StatusCode = 404 };
+                exist.ShopName = shop.ShopName;
+                exist.Avatar = shop.Avatar;
+                exist.IsBanned = shop.IsBanned;
+                exist.Location = shop.Location;
+                exist.ShopType = shop.ShopType;
                 _context.Shops.Update(exist);
                 await _context.SaveChangesAsync();
-                return new Response { Message = $"_id: {shop.Id}", StatusCode = 200 };
+                return new Response { Message = $"{shop.Id}", StatusCode = 200 };
             }
             catch (Exception err)
             {

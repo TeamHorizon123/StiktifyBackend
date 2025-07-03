@@ -107,7 +107,6 @@ namespace GrpcServiceUser.Services
                 Location = request.Location,
                 IsBanned = request.IsBanned,
                 Avatar = request.Avatar,
-                CreateAt = request.CreateAt.ToDateTime(),
             };
 
             var response = await _repo.UpdateShop(updateShop);

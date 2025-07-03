@@ -32,14 +32,16 @@ namespace StiktifyShopBackend.Controllers
         public async Task<IActionResult> GetOne([FromRoute] string id)
         {
             var rating = await _provider.GetOne(id);
-            return rating?.Id == null ? NotFound() : Ok(rating);
+            return rating?.Id == null ? NotFound() : Ok(new { rating });
         }
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateShopRating([FromBody] RequestCreateShopRating request)
         {
             var response = await _provider.CreateShopRating(request);
-            return StatusCode(response.StatusCode, response.Message);
+            if (response.StatusCode != 201)
+                return StatusCode(response.StatusCode, new { message = response.Message });
+            return StatusCode(response.StatusCode, new { id = response.Message });
         }
 
         [HttpPut("update/{id}")]
@@ -48,14 +50,18 @@ namespace StiktifyShopBackend.Controllers
             if (id != request.Id)
                 return BadRequest("Id does not match.");
             var response = await _provider.UpdateShopRating(request);
-            return StatusCode(response.StatusCode, response.Message);
+            if (response.StatusCode != 200)
+                return StatusCode(response.StatusCode, new { message = response.Message });
+            return StatusCode(response.StatusCode, new { id = response.Message });
         }
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteShopRating([FromRoute] string id)
         {
             var response = await _provider.DeleteShopRating(id);
-            return StatusCode(response.StatusCode, response.Message);
+            if (response.StatusCode != 204)
+                return StatusCode(response.StatusCode, new { message = response.Message });
+            return StatusCode(response.StatusCode);
         }
     }
 }

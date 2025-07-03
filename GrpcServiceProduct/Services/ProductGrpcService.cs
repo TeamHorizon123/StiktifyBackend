@@ -129,8 +129,7 @@ namespace GrpcServiceProduct.Services
                 Description = request.Description,
                 Discount = request.Discount,
                 Price = request.Price,
-                Thumbnail = request.Thumbnail,
-                CategoryId = JsonConvert.DeserializeObject<string[]>(request.CategoryIds) ?? []
+                Thumbnail = request.Thumbnail
             };
             var response = await _repo.Create(createProduct);
             return new Response { Message = response.Message, StatusCode = response.StatusCode };
@@ -147,9 +146,7 @@ namespace GrpcServiceProduct.Services
                 Discount = request.Discount,
                 Price = request.Price,
                 Thumbnail = request.Thumbnail,
-                CategoryId = JsonConvert.DeserializeObject<string[]>(request.CategoryIds) ?? [],
                 IsActive = request.IsActive,
-                CreateAt = request.CreateAt.ToDateTime(),
             };
 
             var response = await _repo.Update(updateProduct);

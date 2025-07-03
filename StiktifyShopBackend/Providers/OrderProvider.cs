@@ -20,7 +20,7 @@ namespace StiktifyShopBackend.Providers
             {
                 UserId = createOrder.UserId,
                 AddressId = createOrder.AddressId,
-                OptionId = createOrder.OptionId,
+                OptionId = createOrder.SizeColor,
                 ProductId = createOrder.ProductId,
                 Discount = createOrder.Discount,
                 Price = createOrder.Price,
@@ -39,8 +39,7 @@ namespace StiktifyShopBackend.Providers
             {
                 Id = item.Id,
                 AddressId = item.AddressId,
-                OptionId = item.OptionId,
-                ProductId = item.ProductId,
+                SizeColorId = item.OptionId,
                 ShippingFee = item.ShippingFee,
                 Discount = item.Discount,
                 Price = item.Price,
@@ -60,8 +59,7 @@ namespace StiktifyShopBackend.Providers
             {
                 Id = item.Id,
                 AddressId = item.AddressId,
-                OptionId = item.OptionId,
-                ProductId = item.ProductId,
+                SizeColorId = item.OptionId,
                 ShippingFee = item.ShippingFee,
                 Discount = item.Discount,
                 Price = item.Price,
@@ -81,8 +79,7 @@ namespace StiktifyShopBackend.Providers
             {
                 Id = item.Id,
                 AddressId = item.AddressId,
-                OptionId = item.OptionId,
-                ProductId = item.ProductId,
+                SizeColorId = item.OptionId,
                 ShippingFee = item.ShippingFee,
                 Discount = item.Discount,
                 Price = item.Price,
@@ -102,8 +99,7 @@ namespace StiktifyShopBackend.Providers
             {
                 Id = item.Id,
                 AddressId = item.AddressId,
-                OptionId = item.OptionId,
-                ProductId = item.ProductId,
+                SizeColorId = item.OptionId,
                 ShippingFee = item.ShippingFee,
                 Discount = item.Discount,
                 Price = item.Price,
@@ -123,8 +119,7 @@ namespace StiktifyShopBackend.Providers
             {
                 Id = orderGrpc.Id,
                 AddressId = orderGrpc.AddressId,
-                OptionId = orderGrpc.OptionId,
-                ProductId = orderGrpc.ProductId,
+                SizeColorId = orderGrpc.OptionId,
                 ShippingFee = orderGrpc.ShippingFee,
                 Discount = orderGrpc.Discount,
                 Price = orderGrpc.Price,
@@ -142,7 +137,7 @@ namespace StiktifyShopBackend.Providers
             {
                 Id = updateOrder.Id,
                 AddressId = updateOrder.AddressId,
-                OptionId = updateOrder.OptionId,
+                OptionId = updateOrder.SizeColor,
                 ProductId = updateOrder.ProductId,
                 ShippingFee = updateOrder.ShippingFee,
                 Discount = updateOrder.Discount,

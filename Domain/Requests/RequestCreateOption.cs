@@ -12,9 +12,9 @@ namespace Domain.Requests
         [Required]
         public string Image { get; set; } = default!;
 
-        [Range(0, int.MaxValue)]
-        [DefaultValue(0)]
-        public int Color { get; set; }
+        [Required]
+        [StringLength(50)]
+        public string Color { get; set; } = default!;
 
         [StringLength(50)]
         public string Type { get; set; } = default!;

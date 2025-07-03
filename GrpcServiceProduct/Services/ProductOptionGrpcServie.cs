@@ -25,9 +25,8 @@ namespace GrpcServiceProduct.Services
                     Id = option.Id,
                     ProductId = option.ProductId,
                     Image = option.Image,
-                    Quantity = option.Quantity,
-                    Attribute = option.Attribute,
-                    Value = option.Value,
+                    Color = option.Color,
+                    Type = option.Type,
                     CreateAt = Timestamp.FromDateTime(option.CreateAt!.Value.ToUniversalTime()),
                     UpdateAt = Timestamp.FromDateTime(option.UpdateAt!.Value.ToUniversalTime()),
                 }));
@@ -44,9 +43,8 @@ namespace GrpcServiceProduct.Services
                     Id = option.Id,
                     ProductId = option.ProductId,
                     Image = option.Image,
-                    Quantity = option.Quantity,
-                    Attribute = option.Attribute,
-                    Value = option.Value,
+                    Type = option.Type,
+                    Color = option.Color,
                     CreateAt = Timestamp.FromDateTime(option.CreateAt!.Value.ToUniversalTime()),
                     UpdateAt = Timestamp.FromDateTime(option.UpdateAt!.Value.ToUniversalTime()),
                 }));
@@ -63,9 +61,8 @@ namespace GrpcServiceProduct.Services
                 Id = option.Id,
                 ProductId = option.ProductId,
                 Image = option.Image,
-                Attribute = option.Attribute,
-                Value = option.Value,
-                Quantity = option.Quantity,
+                Color = option.Color,
+                Type = option.Type,
                 CreateAt = Timestamp.FromDateTime(option.CreateAt!.Value.ToUniversalTime()),
                 UpdateAt = Timestamp.FromDateTime(option.UpdateAt!.Value.ToUniversalTime()),
             };
@@ -77,9 +74,8 @@ namespace GrpcServiceProduct.Services
             {
                 ProductId = request.ProductId,
                 Image = request.Image,
-                Attribute = request.Attribute,
-                Value = request.Value,
-                Quantity = request.Quantity
+                Color = request.Color,
+                Type = request.Type,
             };
             var response = await _repo.CreateProductOption(option);
             return new Response { Message = response.Message, StatusCode = response.StatusCode };
@@ -92,9 +88,8 @@ namespace GrpcServiceProduct.Services
                 {
                     ProductId = option.ProductId,
                     Image = option.Image,
-                    Attribute = option.Attribute,
-                    Value = option.Value,
-                    Quantity = option.Quantity
+                    Color = option.Color,
+                    Type = option.Type,
                 }).ToList();
             var response = await _repo.CreateManyProductOption(createOptions);
             return new Response { Message = response.Message, StatusCode = response.StatusCode };
@@ -106,10 +101,9 @@ namespace GrpcServiceProduct.Services
             {
                 Id = request.ProductId,
                 Image = request.Image,
-                Attribute = request.Attribute,
                 ProductId = request.ProductId,
-                Quantity = request.Quantity,
-                Value = request.Value
+                Color = request.Color,
+                Type = request.Type,
             };
             var response = await _repo.UpdateProductOption(updateOption);
             return new Response { Message = response.Message, StatusCode = response.StatusCode };

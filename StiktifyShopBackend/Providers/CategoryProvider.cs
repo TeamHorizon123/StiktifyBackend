@@ -102,7 +102,6 @@ namespace StiktifyShopBackend.Providers
                 Id = updateCategory.Id,
                 Name = updateCategory.Name,
                 ParentId = updateCategory.ParentId,
-                CreateAt = Timestamp.FromDateTime(updateCategory.CreateAt.ToUniversalTime())
             };
             var response = await _client.UpdateAsync(updateCategoryGrpc);
             return new Domain.Responses.Response { Message = response.Message, StatusCode = response.StatusCode };

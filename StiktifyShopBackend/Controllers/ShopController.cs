@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using StiktifyShopBackend.Interfaces;
-using System.Threading.Tasks;
 
 namespace StiktifyShopBackend.Controllers
 {
@@ -29,41 +28,47 @@ namespace StiktifyShopBackend.Controllers
             return Ok(listShop.AsQueryable());
         }
 
-        [HttpGet("user/{id}")]
+        [HttpGet("owner/{id}")]
         public async Task<IActionResult> GetOfUser([FromRoute] string id)
         {
             var shop = await _provider.GetOfUser(id);
-            return shop == null ? NotFound() : Ok(shop);
+            return shop == null ? NotFound() : Ok(new { shop });
         }
 
-        [HttpGet("shop/{id}")]
+        [HttpGet("get/{id}")]
         public async Task<IActionResult> GetOne([FromRoute] string id)
         {
             var shop = await _provider.GetOne(id);
-            return shop == null ? NotFound() : Ok(shop);
+            return shop == null ? NotFound() : Ok(new { shop });
         }
 
-        [HttpPost("create-shop")]
+        [HttpPost("create")]
         public async Task<IActionResult> CreateShop([FromBody] RequestCreateShop createShop)
         {
             var response = await _provider.CreateShop(createShop);
-            return StatusCode(response.StatusCode, response.Message);
+            if (response.StatusCode != 201)
+                return StatusCode(response.StatusCode, new { message = response.Message });
+            return StatusCode(201, new { id = response.Message });
         }
 
-        [HttpPut("update-shop/{id}")]
+        [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateShop([FromRoute] string id, [FromBody] RequestUpdateShop updateShop)
         {
             if (id != updateShop.Id)
                 return BadRequest("Id does not match.");
             var response = await _provider.UpdateShop(updateShop);
-            return StatusCode(response.StatusCode, response.Message);
+            if (response.StatusCode != 200)
+                return StatusCode(response.StatusCode, new { message = response.Message });
+            return StatusCode(response.StatusCode, new { id = response.Message });
         }
 
-        [HttpPut("Delete-shop/{id}")]
+        [HttpPut("delete/{id}")]
         public async Task<IActionResult> DeleteShop([FromRoute] string id)
         {
             var response = await _provider.DeleteShop(id);
-            return StatusCode(response.StatusCode, response.Message);
+            if (response.StatusCode != 204)
+                return StatusCode(response.StatusCode, new { message = response.Message });
+            return StatusCode(response.StatusCode);
         }
     }
 }

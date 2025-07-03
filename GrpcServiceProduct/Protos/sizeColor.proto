@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "GrpcServiceProduct.SizeColor";
+
+service SizeColorGrpc {
+  rpc GetAll(Empty) returns (SizeColors);
+  rpc GetAllOfProductOption(Id) returns (SizeColors);
+  rpc GetAllOfProduct(Id) returns (SizeColors);
+  rpc GetOne(Key) returns (SizeColor);
+  rpc Create(CreateSizeColor) returns (Response);
+  rpc Update(SizeColor) returns (Response);
+  rpc Delete(Key) returns (Response);
+  rpc DeleteMany(Keys) returns (Response);
+}
+
+message Empty {}
+
+message CreateSizeColor {
+  string OptionId = 1;
+  string OptionSize = 2;
+  int32 Quantity = 3;
+  double Price = 4;
+}
+
+message SizeColor {
+  google.protobuf.StringValue OptionId = 2;
+  google.protobuf.StringValue OptionSize = 3;
+  int32 Quantity = 4;
+  double Price = 5;
+  google.protobuf.Timestamp CreateAt = 6;
+  google.protobuf.Timestamp UpdateAt = 7;
+}
+
+message Id {
+  string SearchId = 1;
+}
+
+message Ids {
+  repeated Id Item = 1;
+}
+
+message Key{
+	string OptionId = 1;
+	string OptionSize = 2;
+}
+
+message Keys {
+  repeated Key Item = 1;
+}
+
+message SizeColors {
+  repeated SizeColor Item = 1;
+}
+
+message Response {
+  int32 StatusCode = 1;
+  google.protobuf.StringValue Message = 2;
+}
