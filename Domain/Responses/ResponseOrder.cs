@@ -5,8 +5,7 @@
         public string? Id { get; set; }
         public string? UserId { get; set; }
         public string? AddressId { get; set; }
-        public string? ProductId { get; set; }
-        public string? OptionId { get; set; }
+        public string? SizeColorId { get; set; }
         public int Quantity { get; set; }
         public double Price { get; set; }
         public double Discount { get; set; }
