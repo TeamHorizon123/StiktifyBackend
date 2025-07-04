@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "GrpcServiceProduct.ProductItem";
+
+service ProductItemGrpc {
+  rpc GetAll(Empty) returns (ProductItems);
+  rpc GetAllOfProduct(Id) returns (ProductItems);
+  rpc GetOne(Id) returns (ProductItem);
+  rpc Create(CreateProductItem) returns (Response);
+  rpc Update(ProductItem) returns (Response);
+  rpc Delete(Id) returns (Response);
+  rpc DeleteMany(Ids) returns (Response);
+}
+
+message Empty {}
+
+message CreateProductItem {
+  string ProductId = 1;
+  string Size = 2;
+  string Color = 3;
+  string Type = 4;
+  double Price = 5;
+  int32 Quantity = 6;
+  string Image = 7;
+}

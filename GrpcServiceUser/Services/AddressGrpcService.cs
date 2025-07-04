@@ -75,8 +75,7 @@ namespace GrpcServiceUser.Services
                 Address = request.Address,
                 Note = request.Note,
                 PhoneReceive = request.PhoneReceive,
-                Receiver = request.Receiver,
-                CreateAt = request.CreateAt!.ToDateTime()
+                Receiver = request.Receiver
             };
             var response = await _repo.UpdateAddress(updateAddress);
             return new Response { Message = response.Message, StatusCode = response.StatusCode };

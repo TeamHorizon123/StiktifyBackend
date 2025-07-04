@@ -95,8 +95,7 @@ namespace GrpcServiceProduct.Services
             {
                 Id = request.Id,
                 Name = request.Name,
-                ParentId = request.ParentId,
-                CreateAt = request.CreateAt.ToDateTime()
+                ParentId = request.ParentId
             };
             var response = await _repo.UpdateCategory(updateCategory);
             return new Response { Message = response.Message, StatusCode = response.StatusCode };

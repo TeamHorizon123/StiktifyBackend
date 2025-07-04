@@ -1,8 +1,11 @@
-using Domain.Responses;
+﻿using Domain.Responses;
 using Grpc.Core;
 using Grpc.Net.Client.Balancer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OData;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OData.ModelBuilder;
+using Microsoft.OpenApi.Models;
 using StiktifyShopBackend.Cart;
 using StiktifyShopBackend.Category;
 using StiktifyShopBackend.Interfaces;
@@ -18,12 +21,24 @@ using StiktifyShopBackend.ReceiveAddress;
 using StiktifyShopBackend.Shop;
 using StiktifyShopBackend.ShopRating;
 using StiktifyShopBackend.Tracking;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var odataBuilder = new ODataConventionModelBuilder();
 odataBuilder.EntitySet<ResponseShop>("shop");
+odataBuilder.EntitySet<ResponseShopRating>("shop-rating");
+odataBuilder.EntitySet<ResponseReceiveAddress>("address");
+odataBuilder.EntitySet<ResponseCategory>("category");
+odataBuilder.EntitySet<ResponseProduct>("product");
+odataBuilder.EntitySet<ResponseProductOption>("product-option");
+odataBuilder.EntitySet<ResponseProductRating>("product-rating");
+odataBuilder.EntitySet<ResponseCart>("cart");
+odataBuilder.EntitySet<ResponseOrder>("order");
+odataBuilder.EntitySet<ResponseOrderDetail>("order-detail");
+odataBuilder.EntitySet<ResponsePayment>("payment");
+odataBuilder.EntitySet<ResponsePaymentMethod>("payment-method");
 builder.Services.AddControllers()
     .AddOData(options => options
         .SetMaxTop(100)
@@ -36,7 +51,59 @@ builder.Services.AddControllers()
         );
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    var jwtSecuritySchema = new OpenApiSecurityScheme
+    {
+        BearerFormat = "JWT",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = JwtBearerDefaults.AuthenticationScheme,
+        Description = "Enter your JWT Access Token",
+        Reference = new OpenApiReference
+        {
+            Id = JwtBearerDefaults.AuthenticationScheme,
+            Type = ReferenceType.SecurityScheme
+        }
+    };
+
+    options.AddSecurityDefinition("Bearer", jwtSecuritySchema);
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        { jwtSecuritySchema, Array.Empty<string>() }
+    });
+});
+
+var key = Encoding.UTF8.GetBytes(builder.Configuration["JwtConfig:Key"]!);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = true; 
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false, 
+        ValidateAudience = false, 
+        ValidateLifetime = true, 
+        ValidateIssuerSigningKey = true,
+
+        ValidIssuer = builder.Configuration["JwtConfig:Issuer"],
+        ValidAudience = builder.Configuration["JwtConfig:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+
+        ClockSkew = TimeSpan.Zero 
+    };
+});
+
+// Add Authorization
+builder.Services.AddAuthorization();
 
 // Config Grpc Client of User Grpc service
 var userGrpc = builder.Configuration["ConnectionStrings:UserGrpc"]!;
@@ -94,6 +161,18 @@ builder.Services.AddSingleton<ResolverFactory>(
 
 builder.Services.AddScoped<IShopProvider, ShopProvider>();
 builder.Services.AddScoped<IShopRatingProvider, ShopRatingProvider>();
+builder.Services.AddScoped<IAddressProvider, AddressProvider>();
+builder.Services.AddScoped<ICategoryProvider, CategoryProvider>();
+builder.Services.AddScoped<IProductProvider, ProductProvider>();
+builder.Services.AddScoped<IProductRatingProvider, ProductRatingProvider>();
+builder.Services.AddScoped<IProductOptionProvider, ProductOptionProvider>();
+builder.Services.AddScoped<ICartProvider, CartProvider>();
+builder.Services.AddScoped<IOrderProvider, OrderProvider>();
+builder.Services.AddScoped<IOrderDetailProvider, OrderDetailProvider>();
+builder.Services.AddScoped<IOrderTrackingProvider, OrderTrackingProvider>();
+builder.Services.AddScoped<IPaymentProvider, PaymentProvider>();
+builder.Services.AddScoped<IPaymentMethodProvider, PaymentMethodProvider>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -103,8 +182,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

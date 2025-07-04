@@ -7,64 +7,11 @@ option csharp_namespace = "GrpcServiceUser.Product";
 
 
 service ProductGrpc{
-	rpc GetAll(Empty) returns (Products);
-	rpc GetAllOfShop(Id) returns (Products);
-	rpc GetAllOfCategory(Id) returns (Products);
-	rpc GetAllImage(Id) returns (Links);
-	rpc GetOne(Id) returns (Product);
-	rpc Create(CreateProduct) returns (Response);
-	rpc Update(Product) returns (Response);
-	rpc Delete(Id) returns (Response);
 	rpc DeleteAllOfShop(Id) returns (Response);
-	rpc DeleteMany(Ids) returns (Response);
-}
-
-message Empty{}
-
-message Product{
-	google.protobuf.StringValue Id = 1;
-	google.protobuf.StringValue ShopId = 2;
-	google.protobuf.StringValue Name = 3;
-	google.protobuf.StringValue Thumbnail = 4;
-	google.protobuf.StringValue Description = 5;
-	double Price = 6;
-	double Rating = 7;
-	double Discount = 8;
-	int32 Order = 9;
-	string CategoryIds = 10;
-	bool IsActive = 11;
-	google.protobuf.Timestamp CreateAt = 12;
-	google.protobuf.Timestamp UpdateAt = 13;
-}
-
-message CreateProduct{
-	string ShopId = 1;
-	string Name = 2;
-	string Thumbnail = 3;
-	string Description = 4;
-	double Price = 5;
-	double Discount = 6;
-	string CategoryIds = 7;
 }
 
 message Id{
 	string SearchId = 1;
-}
-
-message Ids{
-	repeated Id Item = 1;
-}
-
-message Link{
-	string ImageUri = 1;
-}
-
-message Links{
-	repeated Link Item = 1;
-}
-
-message Products{
-	repeated Product Item = 1;
 }
 
 message Response{

@@ -29,10 +29,9 @@ namespace GrpcServiceProduct.Data
                     {
                         ProductId = item.ProductId,
                         Image = item.Image,
-                        Attribute = item.Attribute,
-                        Value = item.Value,
-                        Quantity = item.Quantity,
-                        CreateAt = DateTime.Now
+                        Color = item.Color,
+                        Type = item.Type,
+                        CreateAt = DateTime.Now,
                     });
                 }
                 _context.ProductOptions.AddRange(listCreateOptions);
@@ -54,9 +53,8 @@ namespace GrpcServiceProduct.Data
                 {
                     ProductId = createOption.ProductId,
                     Image = createOption.Image,
-                    Attribute = createOption.Attribute,
-                    Quantity = createOption.Quantity,
-                    Value = createOption.Value,
+                    Color = createOption.Color,
+                    Type = createOption.Type,
                     CreateAt = DateTime.Now,
                 };
                 _context.ProductOptions.Add(option);
@@ -125,10 +123,9 @@ namespace GrpcServiceProduct.Data
                     {
                         Id = option.Id,
                         ProductId = option.ProductId,
-                        Quantity = option.Quantity,
                         Image = option.Image,
-                        Attribute = option.Attribute,
-                        Value = option.Value,
+                        Color = option.Color,
+                        Type = option.Type,
                         CreateAt = option.CreateAt,
                         UpdateAt = option.UpdateAt
                     })
@@ -152,10 +149,9 @@ namespace GrpcServiceProduct.Data
                     {
                         Id = option.Id,
                         ProductId = option.ProductId,
-                        Quantity = option.Quantity,
                         Image = option.Image,
-                        Attribute = option.Attribute,
-                        Value = option.Value,
+                        Color = option.Color,
+                        Type = option.Type,
                         CreateAt = option.CreateAt,
                         UpdateAt = option.UpdateAt
                     })
@@ -179,10 +175,9 @@ namespace GrpcServiceProduct.Data
                     {
                         Id = option.Id,
                         ProductId = option.ProductId,
-                        Quantity = option.Quantity,
                         Image = option.Image,
-                        Attribute = option.Attribute,
-                        Value = option.Value,
+                        Color = option.Color,
+                        Type = option.Type,
                         CreateAt = option.CreateAt,
                         UpdateAt = option.UpdateAt
                     })
@@ -197,19 +192,16 @@ namespace GrpcServiceProduct.Data
 
         public async Task<Response> UpdateProductOption(RequestUpdateOption updateOption)
         {
-            if (await GetOne(updateOption.Id) == null)
-                return new Response { Message = "Product option does not exist.", StatusCode = 404 };
             try
             {
-                var option = new Domain.Entities.ProductOption
-                {
-                    Id = updateOption.Id,
-                    ProductId = updateOption.ProductId,
-                    Quantity = updateOption.Quantity,
-                    Image = updateOption.Image,
-                    Attribute = updateOption.Attribute,
-                    Value = updateOption.Value,
-                };
+                var option = await _context.ProductOptions.FindAsync(updateOption.Id);
+                if (option == null)
+                    return new Response { Message = "Product option does not exist.", StatusCode = 404 };
+
+                option.Image = updateOption.Image;
+                option.Color = updateOption.Color;
+                option.Type = updateOption.Type;
+                option.UpdateAt = DateTime.Now;
 
                 _context.ProductOptions.Update(option);
                 await _context.SaveChangesAsync();

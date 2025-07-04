@@ -28,7 +28,7 @@ namespace GrpcServiceUser.Data
                 };
                 _context.ReceiveAddresses.Add(addressData);
                 await _context.SaveChangesAsync();
-                return new Response { Message = $"_id: {addressData.Id}", StatusCode = 201 };
+                return new Response { Message = addressData.Id, StatusCode = 201 };
             }
             catch (Exception err)
             {
@@ -38,11 +38,11 @@ namespace GrpcServiceUser.Data
 
         public async Task<Response> DeleteAddress(string addressId)
         {
-            var address = await _context.ReceiveAddresses.FindAsync(addressId);
-            if (address == null)
-                return new Response { Message = "Address does not exist.", StatusCode = 404 };
             try
             {
+                var address = await _context.ReceiveAddresses.FindAsync(addressId);
+                if (address == null)
+                    return new Response { Message = "Address does not exist.", StatusCode = 404 };
                 _context.ReceiveAddresses.Remove(address);
                 await _context.SaveChangesAsync();
                 return new Response { StatusCode = 204 };
@@ -105,24 +105,20 @@ namespace GrpcServiceUser.Data
 
         public async Task<Response> UpdateAddress(RequestUpdateAddress address)
         {
-            if (await GetOne(address.Id) == null)
-                return new Response { Message = "Address does not exist.", StatusCode = 404 };
             try
             {
-                var addressUpdate = new Domain.Entities.ReceiveAddress
-                {
-                    Id = address.Id,
-                    Address = address.Address,
-                    PhoneReceive = address.PhoneReceive,
-                    Receiver = address.Receiver,
-                    Note = address.Note,
-                    UserId = address.UserId,
-                    CreateAt = address.CreateAt,
-                    UpdateAt = DateTime.Now,
-                };
+                var addressUpdate = await _context.ReceiveAddresses.FindAsync(address.Id);
+                if (addressUpdate == null)
+                    return new Response { Message = "Address does not exist.", StatusCode = 404 };
+                addressUpdate.Address = address.Address;
+                addressUpdate.PhoneReceive = address.PhoneReceive;
+                addressUpdate.Receiver = address.Receiver;
+                addressUpdate.Note = address.Note;
+                addressUpdate.UpdateAt = DateTime.Now;
+
                 _context.ReceiveAddresses.Update(addressUpdate);
                 await _context.SaveChangesAsync();
-                return new Response { Message = $"_id: {address.Id}", StatusCode = 200 };
+                return new Response { Message = address.Id, StatusCode = 200 };
             }
             catch (Exception err)
             {

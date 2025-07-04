@@ -59,6 +59,8 @@ namespace StiktifyShopBackend.Providers
         public async Task<ResponseShop?> GetOfUser(string userId)
         {
             var grpcShop = await _client.GetOfUserAsync(new Id { SearchId = userId });
+            if (grpcShop.Id == null)
+                return null;
             var shop = new ResponseShop
             {
                 Id = grpcShop.Id,
@@ -78,6 +80,8 @@ namespace StiktifyShopBackend.Providers
         public async Task<ResponseShop?> GetOne(string shopId)
         {
             var grpcShop = await _client.GetOneAsync(new Id { SearchId = shopId });
+            if (grpcShop.Id == null)
+                return null;
             var shop = new ResponseShop
             {
                 Id = grpcShop.Id,
@@ -105,7 +109,7 @@ namespace StiktifyShopBackend.Providers
                 Location = shop.Location,
                 ShopName = shop.ShopName,
                 ShopType = shop.ShopType,
-                CreateAt = Timestamp.FromDateTime(shop.CreateAt.ToUniversalTime())
+                //CreateAt = Timestamp.FromDateTime(shop.CreateAt.ToUniversalTime())
             };
             var grpcResponse = await _client.UpdateAsync(grpcUpdateShop);
             return new Domain.Responses.Response { Message = grpcResponse.Message, StatusCode = grpcResponse.StatusCode };

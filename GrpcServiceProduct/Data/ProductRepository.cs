@@ -1,8 +1,11 @@
-﻿using Domain.Requests;
+﻿using Domain.Entities;
+using Domain.Requests;
 using Domain.Responses;
 using Grpc.Core;
+using GrpcServiceProduct.External.IExternal;
 using GrpcServiceProduct.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace GrpcServiceProduct.Data
 {
@@ -10,11 +13,15 @@ namespace GrpcServiceProduct.Data
     {
         private AppDbContext _context;
         private ILogger _logger;
+        private IOrderService _orderService;
+        private IShopService _shopService;
 
-        public ProductRepository(AppDbContext context, ILogger<ProductRepository> logger)
+        public ProductRepository(AppDbContext context, ILogger<ProductRepository> logger, IOrderService orderService, IShopService shopService)
         {
             _context = context ?? throw new ArgumentException(nameof(_context));
             _logger = logger ?? throw new ArgumentException(nameof(_logger));
+            _orderService = orderService ?? throw new ArgumentException(nameof(_orderService));
+            _shopService = shopService ?? throw new ArgumentException(nameof(_shopService));
         }
 
         private double AverageProductRating(string productId)
@@ -22,6 +29,11 @@ namespace GrpcServiceProduct.Data
             return _context.ProductRatings.Any(rating => rating.ProductId == productId) ?
                 _context.ProductRatings.Where(rating => rating.ProductId == productId)
                 .Average(rating => rating.Point) : 0;
+        }
+
+        private int TotalOrders(string productId)
+        {
+            return 0;
         }
 
         public async Task<Response> Create(RequestCreateProduct createProduct)
@@ -102,7 +114,9 @@ namespace GrpcServiceProduct.Data
         {
             try
             {
-                return await _context.Products
+                var producs = await _context.Products
+                    .ToListAsync();
+                return producs
                     .Select(
                     product => new ResponseProduct
                     {
@@ -113,13 +127,12 @@ namespace GrpcServiceProduct.Data
                         Thumbnail = product.Thumbnail,
                         Price = product.Price,
                         ShopId = product.ShopId,
-                        Order = 0,
+                        Order = TotalOrders(product.Id),
                         Rating = Math.Round(AverageProductRating(product.Id), 1),
                         IsActive = product.IsActive,
                         CreateAt = product.CreateAt,
                         UpdateAt = product.UpdateAt,
-                    })
-                    .ToListAsync();
+                    });
             }
             catch (Exception err)
             {
@@ -155,8 +168,10 @@ namespace GrpcServiceProduct.Data
         {
             try
             {
-                return await _context.Products
+                var list = await _context.Products
                     .Where(product => product.Categories.Any(category => category.Id == categoryId))
+                    .ToListAsync();
+                return list
                     .Select(
                     product => new ResponseProduct
                     {
@@ -171,9 +186,8 @@ namespace GrpcServiceProduct.Data
                         Rating = Math.Round(AverageProductRating(product.Id), 1),
                         IsActive = product.IsActive,
                         CreateAt = product.CreateAt,
-                        UpdateAt = product.UpdateAt,
-                    })
-                    .ToListAsync();
+                        UpdateAt = product.UpdateAt
+                    });
             }
             catch (Exception err)
             {
@@ -186,8 +200,10 @@ namespace GrpcServiceProduct.Data
         {
             try
             {
-                return await _context.Products
-                    .Where(product => product.ShopId == shopId)
+                var list = await _context.Products
+                   .Where(product => product.ShopId == shopId)
+                   .ToListAsync();
+                return list
                     .Select(
                     product => new ResponseProduct
                     {
@@ -203,8 +219,7 @@ namespace GrpcServiceProduct.Data
                         IsActive = product.IsActive,
                         CreateAt = product.CreateAt,
                         UpdateAt = product.UpdateAt,
-                    })
-                    .ToListAsync();
+                    });
             }
             catch (Exception err)
             {
@@ -217,7 +232,7 @@ namespace GrpcServiceProduct.Data
         {
             try
             {
-                return await _context.Products
+                var product = await _context.Products
                     .Where(product => product.Id == productId)
                     .Select(
                     product => new ResponseProduct
@@ -230,11 +245,14 @@ namespace GrpcServiceProduct.Data
                         Price = product.Price,
                         ShopId = product.ShopId,
                         Order = 0,
-                        Rating = Math.Round(AverageProductRating(product.Id), 1),
+                        Rating = 0,
                         CreateAt = product.CreateAt,
                         UpdateAt = product.UpdateAt,
                     })
                     .FirstOrDefaultAsync();
+                if (product != null)
+                    product.Rating = Math.Round(AverageProductRating(product.Id!), 1);
+                return product;
             }
             catch (Exception err)
             {
@@ -257,21 +275,19 @@ namespace GrpcServiceProduct.Data
                     listCategory.Add(category!);
                 }
 
-                var product = new Domain.Entities.Product
-                {
-                    Id = updateProduct.Id,
-                    Name = updateProduct.Name,
-                    Description = updateProduct.Description,
-                    Discount = updateProduct.Discount,
-                    Price = updateProduct.Price,
-                    ShopId = updateProduct.ShopId,
-                    Thumbnail = updateProduct.Thumbnail,
-                    Categories = listCategory,
-                    IsActive = updateProduct.IsActive,
-                };
-                _context.Products.Update(product);
+                var exist = await _context.Products.FindAsync(updateProduct.Id);
+
+                exist!.Name = updateProduct.Name;
+                exist!.Description = updateProduct.Description;
+                exist!.Discount = updateProduct.Discount;
+                exist!.Price = updateProduct.Price;
+                exist!.ShopId = updateProduct.ShopId;
+                exist!.Thumbnail = updateProduct.Thumbnail;
+                //exist!.Categories = listCategory;
+                exist!.IsActive = updateProduct.IsActive;
+                _context.Products.Update(exist);
                 await _context.SaveChangesAsync();
-                return new Response { StatusCode = 200, Message = $"_id: {product.Id}" };
+                return new Response { StatusCode = 200, Message = $"_id: {exist.Id}" };
             }
             catch (Exception err)
             {

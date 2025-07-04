@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Entities
 {
@@ -10,12 +11,9 @@ namespace Domain.Entities
 
         [Required]
         [StringLength(32)]
-        public string OptionId { get; set; } = default!;
+        public string OptionSizeColorId { get; set; } = default!;
 
-        [Required]
-        [StringLength(32)]
-        public string ProductId { get; set; } = default!;
-
+        [DefaultValue(1)]
         public int Quantity { get; set; }
     }
 }

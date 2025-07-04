@@ -28,7 +28,7 @@ namespace GrpcServiceUser.Data
                 };
                 _context.ShopRatings.Add(shopRating);
                 await _context.SaveChangesAsync();
-                return new Response { Message = $"_id: {shopRating.Id}", StatusCode = 201 };
+                return new Response { Message = $"{shopRating.Id}", StatusCode = 201 };
             }
             catch (Exception err)
             {
@@ -107,21 +107,19 @@ namespace GrpcServiceUser.Data
 
         public async Task<Response> UpdateShopRating(RequestUpdateShopRating updateShopRating)
         {
-            if (await GetOne(updateShopRating.Id) == null)
-                return new Response { Message = "Shop rating does not exist.", StatusCode = 404 };
             try
             {
-                var shopRating = new Domain.Entities.ShopRating
-                {
-                    Id = updateShopRating.Id,
-                    ShopId = updateShopRating.ShopId,
-                    Content = updateShopRating.Content,
-                    Point = updateShopRating.Point,
-                    UpdateAt = DateTime.Now
-                };
+                var shopRating = await _context.ShopRatings.FindAsync(updateShopRating.Id);
+                if (shopRating == null)
+                    return new Response { Message = "Shop rating does not exist.", StatusCode = 404 };
+                shopRating.Content = updateShopRating.Content;
+                shopRating.Point = updateShopRating.Point;
+                shopRating.UpdateAt = DateTime.Now;
+                shopRating.UserId = updateShopRating.UserId;
+                shopRating.ShopId = updateShopRating.ShopId;
                 _context.ShopRatings.Update(shopRating);
                 await _context.SaveChangesAsync();
-                return new Response { Message = $"_id: {updateShopRating.Id}", StatusCode = 200 };
+                return new Response { Message = $"{updateShopRating.Id}", StatusCode = 200 };
             }
             catch (Exception err)
             {

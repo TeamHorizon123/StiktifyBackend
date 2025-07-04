@@ -1,4 +1,6 @@
 using GrpcServiceProduct.Data;
+using GrpcServiceProduct.External;
+using GrpcServiceProduct.External.IExternal;
 using GrpcServiceProduct.Interfaces;
 using GrpcServiceProduct.Services;
 using Microsoft.EntityFrameworkCore;
@@ -15,13 +17,16 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductOptionRepository, ProductOptionRepository>();
 builder.Services.AddScoped<IProductRatingRepository, ProductRatingRepository>();
+builder.Services.AddScoped<IOptionSizeRepository, OptionSizeRepository>();
+builder.Services.AddScoped<ISizeColorRepository, SizeColorRepository>();
+builder.Services.AddScoped<IShopService, ShopService>();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var service = scope.ServiceProvider;
     var context = service.GetRequiredService<AppDbContext>();
-    context.Database.EnsureDeleted();
+    //context.Database.EnsureDeleted();
     context.Database.EnsureCreated();
 }
 // Configure the HTTP request pipeline.

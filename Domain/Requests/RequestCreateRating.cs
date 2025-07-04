@@ -11,7 +11,7 @@ namespace Domain.Requests
 
         [Required]
         [StringLength(32)]
-        public string OptionId { get; set; } = default!;
+        public string ProductItemId { get; set; } = default!;
 
         [Required]
         [StringLength(32)]
@@ -24,7 +24,7 @@ namespace Domain.Requests
         [Required]
         public string Content { get; set; } = default!;
 
-        public ICollection<string>? Image { get; set; }
+        public List<string>? Image { get; set; }
     }
 
     public class RequestUpdateRating : RequestCreateRating

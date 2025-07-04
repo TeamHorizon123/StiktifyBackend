@@ -11,11 +11,7 @@ namespace Domain.Requests
 
         [Required]
         [StringLength(32)]
-        public string OptionId { get; set; } = default!;
-
-        [Required]
-        [StringLength(32)]
-        public string ProductId { get; set; } = default!;
+        public string SizeColor { get; set; } = default!;
 
         [Range(1, int.MaxValue)]
         [DefaultValue(0)]

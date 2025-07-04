@@ -13,7 +13,10 @@ namespace Domain.Entities
 
         [Required]
         [StringLength(32)]
-        public string OptionId { get; set; } = default!;
+        public string ProductItemId { get; set; } = default!;
+
+        [ForeignKey(nameof(ProductItemId))]
+        public virtual ProductItem ProductItem { get; set; } = default!;
 
         [Required]
         [StringLength(32)]
@@ -25,6 +28,6 @@ namespace Domain.Entities
         public string Content { get; set; } = default!;
 
         [Column(TypeName = "text[]")]
-        public ICollection<string>? Image { get; set; }
+        public List<string>? Image { get; set; }
     }
 }

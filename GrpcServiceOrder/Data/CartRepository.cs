@@ -22,7 +22,7 @@ namespace GrpcServiceOrder.Data
             try
             {
                 var exist = await _context.Carts
-                    .Where(cart => cart.UserId == createCart.UserId && cart.OptionId == createCart.OptionId)
+                    .Where(cart => cart.UserId == createCart.UserId && cart.OptionSizeColorId == createCart.SizeColor)
                     .FirstOrDefaultAsync();
 
                 if (exist != null)
@@ -32,8 +32,7 @@ namespace GrpcServiceOrder.Data
                     {
                         Id = exist.Id,
                         UserId = createCart.UserId,
-                        ProductId = createCart.ProductId,
-                        OptionId = createCart.OptionId,
+                        SizeColor = createCart.SizeColor,
                         Quantity = exist.Quantity
                     });
                 }
@@ -42,8 +41,7 @@ namespace GrpcServiceOrder.Data
                 {
                     UserId = createCart.UserId,
                     Quantity = createCart.Quantity,
-                    OptionId = createCart.OptionId,
-                    ProductId = createCart.ProductId,
+                    OptionSizeColorId = createCart.SizeColor,
                     CreateAt = DateTime.Now,
                 };
                 _context.Carts.Add(cart);
@@ -111,8 +109,7 @@ namespace GrpcServiceOrder.Data
                     {
                         Id = c.Id,
                         UserId = c.UserId,
-                        OptionId = c.OptionId,
-                        ProductId = c.ProductId,
+                        SizeColoId = c.OptionSizeColorId,
                         Quantity = c.Quantity,
                         CreateAt = c.CreateAt,
                         UpdateAt = c.UpdateAt,
@@ -131,14 +128,13 @@ namespace GrpcServiceOrder.Data
             try
             {
                 return await _context.Carts
-                    .Where(cart => cart.ProductId == productID)
+                    .Where(cart => cart.OptionSizeColorId == productID)
                     .Select(
                     c => new ResponseCart
                     {
                         Id = c.Id,
                         UserId = c.UserId,
-                        OptionId = c.OptionId,
-                        ProductId = c.ProductId,
+                        SizeColoId = c.OptionSizeColorId,
                         Quantity = c.Quantity,
                         CreateAt = c.CreateAt,
                         UpdateAt = c.UpdateAt,
@@ -163,8 +159,7 @@ namespace GrpcServiceOrder.Data
                     {
                         Id = c.Id,
                         UserId = c.UserId,
-                        OptionId = c.OptionId,
-                        ProductId = c.ProductId,
+                        SizeColoId = c.OptionSizeColorId,
                         Quantity = c.Quantity,
                         CreateAt = c.CreateAt,
                         UpdateAt = c.UpdateAt,
@@ -188,8 +183,7 @@ namespace GrpcServiceOrder.Data
                     {
                         Id = cart.Id,
                         UserId = cart.UserId,
-                        OptionId = cart.OptionId,
-                        ProductId = cart.ProductId,
+                        SizeColoId = cart.OptionSizeColorId,
                         Quantity = cart.Quantity,
                         CreateAt = cart.CreateAt,
                         UpdateAt = cart.UpdateAt,
@@ -213,9 +207,8 @@ namespace GrpcServiceOrder.Data
                 {
                     Id = updateCart.Id,
                     UserId = updateCart.UserId,
-                    ProductId= updateCart.ProductId,
+                    OptionSizeColorId = updateCart.SizeColor,
                     Quantity = updateCart.Quantity,
-                    OptionId = updateCart.OptionId
                 };
                 _context.Carts.Update(cart);
                 await _context.SaveChangesAsync();

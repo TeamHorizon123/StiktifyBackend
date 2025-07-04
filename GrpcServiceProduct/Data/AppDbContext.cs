@@ -10,6 +10,9 @@ namespace GrpcServiceProduct.Data
         public DbSet<Domain.Entities.Product> Products { get; set; }
         public DbSet<Domain.Entities.ProductOption> ProductOptions { get; set; }
         public DbSet<Domain.Entities.ProductRating> ProductRatings { get; set; }
+        public DbSet<Domain.Entities.OptionSize> OptionSizes { get; set; }
+        public DbSet<Domain.Entities.OptionSizeColor> OptionColors { get; set; }
+        public DbSet<Domain.Entities.ProductItem> ProductItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -37,14 +40,49 @@ namespace GrpcServiceProduct.Data
                 );
 
             modelBuilder.Entity<Domain.Entities.Product>()
+                .HasMany(c => c.Categories)
+                .WithMany(p => p.Products)
+                .UsingEntity<Dictionary<string, object>>
+                (
+                        "CategoryItem",
+                        j => j.HasOne<Domain.Entities.Category>()
+                               .WithMany()
+                               .HasForeignKey("CategoryId")
+                               .OnDelete(DeleteBehavior.Cascade),
+                         j => j.HasOne<Domain.Entities.Product>()
+                               .WithMany()
+                               .HasForeignKey("ProductId")
+                               .OnDelete(DeleteBehavior.Cascade)
+                );
+
+            modelBuilder.Entity<Domain.Entities.Product>()
                 .ToTable("Product")
                 .HasOne<Domain.Entities.Product>()
                 .WithMany()
                 .HasForeignKey(p => p.Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Domain.Entities.ProductOption>().ToTable("ProductOption");
+            modelBuilder.Entity<Domain.Entities.ProductOption>()
+                .ToTable("ProductOption")
+                .HasOne<Domain.Entities.ProductOption>()
+                .WithMany()
+                .HasForeignKey(po => po.Id)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Domain.Entities.ProductRating>().ToTable("ProductRating");
+            modelBuilder.Entity<Domain.Entities.OptionSize>()
+                .ToTable("OptionSize")
+                .HasOne<Domain.Entities.OptionSize>()
+                .WithMany()
+                .HasForeignKey(os => os.Id)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Domain.Entities.OptionSizeColor>()
+                .ToTable("OptionSizeColor")
+                .HasKey(sc => new { sc.OptionId, sc.OptionSize });
+
+            modelBuilder.Entity<Domain.Entities.ProductItem>()
+                .ToTable("ProductItem");
         }
     }
 }

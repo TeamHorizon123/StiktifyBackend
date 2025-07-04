@@ -1,4 +1,4 @@
-﻿namespace GrpcServiceUser.Interface
+﻿namespace GrpcServiceUser.External
 {
     public interface IProductService
     {
