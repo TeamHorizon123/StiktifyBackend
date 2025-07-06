@@ -11,12 +11,10 @@ namespace GrpcServiceOrder.Data
     public class OrderDetailsRepository : IOrderDetailRepository
     {
         private AppDbContext _context;
-        private ILogger _logger;
 
-        public OrderDetailsRepository(AppDbContext context, ILogger<OrderDetailsRepository> logger)
+        public OrderDetailsRepository(AppDbContext context)
         {
             _context = context ?? throw new ArgumentException(nameof(_context));
-            _logger = logger ?? throw new ArgumentException(nameof(_logger));
         }
 
         public async Task<Domain.Responses.Response> CreateDetail(RequestCreateOrderDetail createOrderDetail)
@@ -41,7 +39,7 @@ namespace GrpcServiceOrder.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to create order details \nError: {err.Message}");
+                Console.WriteLine($"Fail to create order details \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -68,7 +66,7 @@ namespace GrpcServiceOrder.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get a order detail \nError: {err.Message}");
+                Console.WriteLine($"Fail to get a order detail \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -92,7 +90,7 @@ namespace GrpcServiceOrder.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get a order detail \nError: {err.Message}");
+                Console.WriteLine($"Fail to get a order detail \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }

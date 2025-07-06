@@ -2,21 +2,19 @@
 
 namespace Domain.Requests
 {
-    public class RequestCreateSizeColor
+    public class RequestCreateProductVarriant
     {
         [Required]
         [StringLength(32)]
-        public string OptionId { get; set; } = default!;
+        public string ProductOptionId { get; set; } = default!;
+        [StringLength(50)]
+        public string SizeId { get; set; } = default!;
         [Required]
-        [StringLength(32)]
-        public string? OptionSize { get; set; } = default!;
-        [Required]
-        [Range(1, int.MaxValue)]
         public int Quantity { get; set; }
-        [Range(0, double.MaxValue)]
+        [Required]
         public double Price { get; set; }
     }
-    public class RequestUpdateSizeColor : RequestCreateSizeColor
+    public class RequestUpdateProductVarriant : RequestCreateProductVarriant
     {
         [Required]
         [StringLength(32)]

@@ -9,12 +9,10 @@ namespace GrpcServiceOrder.Data
     public class CartRepository : ICartRepository
     {
         private AppDbContext _context;
-        private ILogger _logger;
 
-        public CartRepository(AppDbContext context, ILogger<CartRepository> logger)
+        public CartRepository(AppDbContext context)
         {
             _context = context ?? throw new ArgumentException(nameof(_context));
-            _logger = logger ?? throw new ArgumentException(nameof(_logger));
         }
 
         public async Task<Response> CreateCart(RequestCreateCart createCart)
@@ -22,7 +20,7 @@ namespace GrpcServiceOrder.Data
             try
             {
                 var exist = await _context.Carts
-                    .Where(cart => cart.UserId == createCart.UserId && cart.OptionSizeColorId == createCart.SizeColor)
+                    .Where(cart => cart.UserId == createCart.UserId && cart.ProductItemId == createCart.ProductItemId)
                     .FirstOrDefaultAsync();
 
                 if (exist != null)
@@ -32,7 +30,7 @@ namespace GrpcServiceOrder.Data
                     {
                         Id = exist.Id,
                         UserId = createCart.UserId,
-                        SizeColor = createCart.SizeColor,
+                        ProductItemId = createCart.ProductItemId,
                         Quantity = exist.Quantity
                     });
                 }
@@ -41,16 +39,16 @@ namespace GrpcServiceOrder.Data
                 {
                     UserId = createCart.UserId,
                     Quantity = createCart.Quantity,
-                    OptionSizeColorId = createCart.SizeColor,
+                    ProductItemId = createCart.ProductItemId,
                     CreateAt = DateTime.Now,
                 };
                 _context.Carts.Add(cart);
                 await _context.SaveChangesAsync();
-                return new Response { Message = $"_id: {cart.Id}", StatusCode = 201 };
+                return new Response { Message = cart.Id, StatusCode = 201 };
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to add a cart \nError: {err.Message}");
+                Console.WriteLine($"Fail to add a cart \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -72,7 +70,7 @@ namespace GrpcServiceOrder.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to delete a cart \nError: {err.Message}");
+                Console.WriteLine($"Fail to delete a cart \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -94,7 +92,7 @@ namespace GrpcServiceOrder.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to delete a list of cart \nError: {err.Message}");
+                Console.WriteLine($"Fail to delete a list of cart \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -109,7 +107,7 @@ namespace GrpcServiceOrder.Data
                     {
                         Id = c.Id,
                         UserId = c.UserId,
-                        SizeColoId = c.OptionSizeColorId,
+                        ProductItemId = c.ProductItemId,
                         Quantity = c.Quantity,
                         CreateAt = c.CreateAt,
                         UpdateAt = c.UpdateAt,
@@ -118,32 +116,7 @@ namespace GrpcServiceOrder.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get all cart \nError: {err.Message}");
-                throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
-            }
-        }
-
-        public async Task<IEnumerable<ResponseCart>> GetAllOfProduct(string productID)
-        {
-            try
-            {
-                return await _context.Carts
-                    .Where(cart => cart.OptionSizeColorId == productID)
-                    .Select(
-                    c => new ResponseCart
-                    {
-                        Id = c.Id,
-                        UserId = c.UserId,
-                        SizeColoId = c.OptionSizeColorId,
-                        Quantity = c.Quantity,
-                        CreateAt = c.CreateAt,
-                        UpdateAt = c.UpdateAt,
-                    })
-                    .ToListAsync();
-            }
-            catch (Exception err)
-            {
-                _logger.LogError($"Fail to get all cart of user has id-{productID} \nError: {err.Message}");
+                Console.WriteLine($"Fail to get all cart \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -159,7 +132,7 @@ namespace GrpcServiceOrder.Data
                     {
                         Id = c.Id,
                         UserId = c.UserId,
-                        SizeColoId = c.OptionSizeColorId,
+                        ProductItemId = c.ProductItemId,
                         Quantity = c.Quantity,
                         CreateAt = c.CreateAt,
                         UpdateAt = c.UpdateAt,
@@ -168,7 +141,7 @@ namespace GrpcServiceOrder.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get all cart of user has id-{userID} \nError: {err.Message}");
+                Console.WriteLine($"Fail to get all cart of user has id-{userID} \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -183,7 +156,7 @@ namespace GrpcServiceOrder.Data
                     {
                         Id = cart.Id,
                         UserId = cart.UserId,
-                        SizeColoId = cart.OptionSizeColorId,
+                        ProductItemId = cart.ProductItemId,
                         Quantity = cart.Quantity,
                         CreateAt = cart.CreateAt,
                         UpdateAt = cart.UpdateAt,
@@ -192,7 +165,7 @@ namespace GrpcServiceOrder.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get a cart has id-{cartId} \nError: {err.Message}");
+                Console.WriteLine($"Fail to get a cart has id-{cartId} \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -201,22 +174,24 @@ namespace GrpcServiceOrder.Data
         {
             try
             {
-                if (await GetOne(updateCart.Id) == null)
-                    return new Response { Message = "Cart does not exist.", StatusCode = 404 };
-                var cart = new Domain.Entities.Cart
-                {
-                    Id = updateCart.Id,
-                    UserId = updateCart.UserId,
-                    OptionSizeColorId = updateCart.SizeColor,
-                    Quantity = updateCart.Quantity,
-                };
+                var cart = await _context.Carts
+                    .Where(c => c.Id == updateCart.Id)
+                    .FirstOrDefaultAsync();
+                if (cart == null)
+                    return new Response { StatusCode = 404, Message = "Cart does not exist" };
+
+                cart.UserId = updateCart.UserId;
+                cart.ProductItemId = updateCart.ProductItemId;
+                cart.Quantity = updateCart.Quantity;
+                cart.UpdateAt = DateTime.Now;
+
                 _context.Carts.Update(cart);
                 await _context.SaveChangesAsync();
-                return new Response { Message = $"_id: {cart.Id}", StatusCode = 200 };
+                return new Response { Message = cart.Id, StatusCode = 200 };
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to update a cart \nError: {err.Message}");
+                Console.WriteLine($"Fail to update a cart \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }

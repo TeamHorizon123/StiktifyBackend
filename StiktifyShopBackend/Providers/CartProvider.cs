@@ -8,17 +8,19 @@ namespace StiktifyShopBackend.Providers
     public class CartProvider : ICartProvider
     {
         private CartGrpc.CartGrpcClient _client;
+        private IProductItemProvider _productItemProvider;
 
-        public CartProvider(CartGrpc.CartGrpcClient client)
+        public CartProvider(CartGrpc.CartGrpcClient client, IProductItemProvider productItemProvider)
         {
             _client = client ?? throw new ArgumentException(nameof(_client));
+            _productItemProvider = productItemProvider ?? throw new ArgumentException(nameof(productItemProvider));
         }
 
         public async Task<Domain.Responses.Response> CreateCart(RequestCreateCart createCart)
         {
             var createGrpc = new CreateCart
             {
-                OptionId = createCart.SizeColor,
+                ProductItemId = createCart.ProductItemId,
                 Quantity = createCart.Quantity,
                 UserId = createCart.UserId
             };
@@ -46,9 +48,10 @@ namespace StiktifyShopBackend.Providers
             var list = listGrpc.Item.Select(item => new ResponseCart
             {
                 Id = item.Id,
-                SizeColoId = item.OptionId,
+                ProductItemId = item.ProductItemId,
                 Quantity = item.Quantity,
                 UserId = item.UserId,
+                ProductItem = _productItemProvider.GetOne(item.ProductItemId).Result,
                 CreateAt = item.CreateAt.ToDateTime(),
                 UpdateAt = item.UpdateAt.ToDateTime(),
             });
@@ -61,9 +64,10 @@ namespace StiktifyShopBackend.Providers
             var list = listGrpc.Item.Select(item => new ResponseCart
             {
                 Id = item.Id,
-                SizeColoId = item.OptionId,
+                ProductItemId = item.ProductItemId,
                 Quantity = item.Quantity,
                 UserId = item.UserId,
+                ProductItem = _productItemProvider.GetOne(item.ProductItemId).Result,
                 CreateAt = item.CreateAt.ToDateTime(),
                 UpdateAt = item.UpdateAt.ToDateTime(),
             });
@@ -76,9 +80,10 @@ namespace StiktifyShopBackend.Providers
             var list = listGrpc.Item.Select(item => new ResponseCart
             {
                 Id = item.Id,
-                SizeColoId = item.OptionId,
+                ProductItemId = item.ProductItemId,
                 Quantity = item.Quantity,
                 UserId = item.UserId,
+                ProductItem = _productItemProvider.GetOne(item.ProductItemId).Result,
                 CreateAt = item.CreateAt.ToDateTime(),
                 UpdateAt = item.UpdateAt.ToDateTime(),
             });
@@ -91,9 +96,10 @@ namespace StiktifyShopBackend.Providers
             return new ResponseCart
             {
                 Id = cartGrpc.Id,
-                SizeColoId = cartGrpc.OptionId,
+                ProductItemId = cartGrpc.ProductItemId,
                 Quantity = cartGrpc.Quantity,
                 UserId = cartGrpc.UserId,
+                ProductItem = await _productItemProvider.GetOne(cartGrpc.ProductItemId),
                 CreateAt = cartGrpc.CreateAt.ToDateTime(),
                 UpdateAt = cartGrpc.UpdateAt.ToDateTime(),
             };
@@ -106,7 +112,7 @@ namespace StiktifyShopBackend.Providers
                 Id = updateCart.Id,
                 UserId = updateCart.UserId,
                 Quantity = updateCart.Quantity,
-                OptionId = updateCart.SizeColor
+                ProductItemId = updateCart.ProductItemId
             };
             var response = await _client.UpdateAsync(updateGrpc);
             return new Domain.Responses.Response { Message = response.Message, StatusCode = response.StatusCode };

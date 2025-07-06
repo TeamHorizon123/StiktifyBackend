@@ -19,7 +19,7 @@ namespace Domain.Requests
 
         [Required]
         [StringLength(32)]
-        public string SizeColor { get; set; } = default!;
+        public string ProductItemId { get; set; } = default!;
 
         [Range(1, int.MaxValue)]
         [DefaultValue(0)]
@@ -28,10 +28,6 @@ namespace Domain.Requests
         [Range(0, double.MaxValue)]
         [DefaultValue(0)]
         public double Price { get; set; }
-
-        [Range(0, double.MaxValue)]
-        [DefaultValue(0)]
-        public double Discount { get; set; }
 
         [Range(0, double.MaxValue)]
         [DefaultValue(0)]

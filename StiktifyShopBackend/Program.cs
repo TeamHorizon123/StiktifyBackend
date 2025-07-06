@@ -8,14 +8,17 @@ using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
 using StiktifyShopBackend.Cart;
 using StiktifyShopBackend.Category;
+using StiktifyShopBackend.CategorySize;
 using StiktifyShopBackend.Interfaces;
 using StiktifyShopBackend.Order;
 using StiktifyShopBackend.OrderDetails;
 using StiktifyShopBackend.Payment;
 using StiktifyShopBackend.PaymentMethod;
 using StiktifyShopBackend.Product;
+using StiktifyShopBackend.ProductItem;
 using StiktifyShopBackend.ProductOption;
 using StiktifyShopBackend.ProductRating;
+using StiktifyShopBackend.ProductVarriant;
 using StiktifyShopBackend.Providers;
 using StiktifyShopBackend.ReceiveAddress;
 using StiktifyShopBackend.Shop;
@@ -31,8 +34,11 @@ odataBuilder.EntitySet<ResponseShop>("shop");
 odataBuilder.EntitySet<ResponseShopRating>("shop-rating");
 odataBuilder.EntitySet<ResponseReceiveAddress>("address");
 odataBuilder.EntitySet<ResponseCategory>("category");
+odataBuilder.EntitySet<ResponseCategorySize>("category-size");
 odataBuilder.EntitySet<ResponseProduct>("product");
 odataBuilder.EntitySet<ResponseProductOption>("product-option");
+odataBuilder.EntitySet<ResponseProductItem>("product-item");
+//odataBuilder.EntitySet<ResponseProductVarriant>("product-varriant");
 odataBuilder.EntitySet<ResponseProductRating>("product-rating");
 odataBuilder.EntitySet<ResponseCart>("cart");
 odataBuilder.EntitySet<ResponseOrder>("order");
@@ -110,9 +116,11 @@ var userGrpc = builder.Configuration["ConnectionStrings:UserGrpc"]!;
 builder.Services.AddGrpcClient<ShopGrpc.ShopGrpcClient>(o
     => o.Address = new Uri(userGrpc))
     .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
+
 builder.Services.AddGrpcClient<ShopRatingGrpc.ShopRatingGrpcClient>(o
     => o.Address = new Uri(userGrpc))
     .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
+
 builder.Services.AddGrpcClient<AddressGrpc.AddressGrpcClient>(o
     => o.Address = new Uri(userGrpc))
     .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
@@ -122,13 +130,28 @@ var productGrpc = builder.Configuration["ConnectionStrings:ProductGrpc"]!;
 builder.Services.AddGrpcClient<CategoryGrpc.CategoryGrpcClient>(o
     => o.Address = new Uri(productGrpc))
     .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
+
+builder.Services.AddGrpcClient<CategorySizeGrpc.CategorySizeGrpcClient>(o
+    => o.Address = new Uri(productGrpc))
+    .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
+
 builder.Services.AddGrpcClient<ProductGrpc.ProductGrpcClient>(o
     => o.Address = new Uri(productGrpc))
     .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
+
 builder.Services.AddGrpcClient<ProductOptionGrpc.ProductOptionGrpcClient>(o
     => o.Address = new Uri(productGrpc))
     .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
+
 builder.Services.AddGrpcClient<ProductRatingGrpc.ProductRatingGrpcClient>(o
+    => o.Address = new Uri(productGrpc))
+    .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
+
+builder.Services.AddGrpcClient<ProductItemGrpc.ProductItemGrpcClient>(o
+    => o.Address = new Uri(productGrpc))
+    .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
+
+builder.Services.AddGrpcClient<ProductVarriantGrpc.ProductVarriantGrpcClient>(o
     => o.Address = new Uri(productGrpc))
     .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
 
@@ -137,12 +160,15 @@ var orderGrpc = builder.Configuration["ConnectionStrings:OrderGrpc"]!;
 builder.Services.AddGrpcClient<OrderGrpc.OrderGrpcClient>(o
     => o.Address = new Uri(orderGrpc))
     .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
+
 builder.Services.AddGrpcClient<CartGrpc.CartGrpcClient>(o
     => o.Address = new Uri(orderGrpc))
     .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
+
 builder.Services.AddGrpcClient<OrderTrackingGrpc.OrderTrackingGrpcClient>(o
     => o.Address = new Uri(orderGrpc))
     .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
+
 builder.Services.AddGrpcClient<OrderDetailGrpc.OrderDetailGrpcClient>(o
     => o.Address = new Uri(orderGrpc))
     .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
@@ -152,6 +178,7 @@ var purchaseGrpc = builder.Configuration["ConnectionStrings:PurchaseGrpc"]!;
 builder.Services.AddGrpcClient<PaymentGrpc.PaymentGrpcClient>(o
     => o.Address = new Uri(purchaseGrpc))
     .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
+
 builder.Services.AddGrpcClient<PaymentMethodGrpc.PaymentMethodGrpcClient>(o
     => o.Address = new Uri(purchaseGrpc))
     .ConfigureChannel(o => o.Credentials = ChannelCredentials.Insecure);
@@ -163,9 +190,12 @@ builder.Services.AddScoped<IShopProvider, ShopProvider>();
 builder.Services.AddScoped<IShopRatingProvider, ShopRatingProvider>();
 builder.Services.AddScoped<IAddressProvider, AddressProvider>();
 builder.Services.AddScoped<ICategoryProvider, CategoryProvider>();
+builder.Services.AddScoped<ICategorySizeProvider, CategorySizeProvider>();
 builder.Services.AddScoped<IProductProvider, ProductProvider>();
 builder.Services.AddScoped<IProductRatingProvider, ProductRatingProvider>();
 builder.Services.AddScoped<IProductOptionProvider, ProductOptionProvider>();
+builder.Services.AddScoped<IProductItemProvider, ProductItemProvider>();
+builder.Services.AddScoped<IProductVarriantProvider, ProductVarriantProvider>();
 builder.Services.AddScoped<ICartProvider, CartProvider>();
 builder.Services.AddScoped<IOrderProvider, OrderProvider>();
 builder.Services.AddScoped<IOrderDetailProvider, OrderDetailProvider>();
@@ -183,6 +213,7 @@ if (app.Environment.IsDevelopment())
 }
 
 //app.UseHttpsRedirection();
+
 
 app.UseAuthentication();
 app.UseAuthorization();

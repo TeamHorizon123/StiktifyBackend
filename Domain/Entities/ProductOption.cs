@@ -18,5 +18,8 @@ namespace Domain.Entities
         public string Color { get; set; } = default!;
         [StringLength(50)]
         public string Type { get; set; } = default!;
+
+        public virtual ICollection<CategorySize> CategorySizes { get; set; } = default!;
+        public virtual ICollection<ProductVarriant> ProductVarriants { get; set; } = default!;
     }
 }

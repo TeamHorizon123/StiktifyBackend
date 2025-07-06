@@ -10,6 +10,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Protos\categorySize.proto" />
+	  <None Remove="Protos\productItem.proto" />
+	  <None Remove="Protos\productVarriant.proto" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Google.Protobuf.Tools" Version="3.31.1" />
 		<PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
 		<PackageReference Include="Grpc.Net.Client" Version="2.71.0" />
@@ -36,12 +42,21 @@
 	<ItemGroup>
 	  <Protobuf Include="Protos\cart.proto" GrpcServices="Client" />
 	  <Protobuf Include="Protos\category.proto" GrpcServices="Client" />
+	  <Protobuf Include="Protos\categorySize.proto">
+	    <GrpcServices>Client</GrpcServices>
+	  </Protobuf>
 	  <Protobuf Include="Protos\method.proto" GrpcServices="Client" />
 	  <Protobuf Include="Protos\option.proto" GrpcServices="Client" />
 	  <Protobuf Include="Protos\order.proto" GrpcServices="Client" />
 	  <Protobuf Include="Protos\orderDetails.proto" GrpcServices="Client" />
 	  <Protobuf Include="Protos\payment.proto" GrpcServices="Client" />
 	  <Protobuf Include="Protos\product.proto" GrpcServices="Client" />
+	  <Protobuf Include="Protos\productItem.proto">
+	    <GrpcServices>Client</GrpcServices>
+	  </Protobuf>
+	  <Protobuf Include="Protos\productVarriant.proto">
+	    <GrpcServices>Client</GrpcServices>
+	  </Protobuf>
 	  <Protobuf Include="Protos\rating.proto" GrpcServices="Client" />
 	  <Protobuf Include="Protos\receiveAddress.proto" GrpcServices="Client" />
 	  <Protobuf Include="Protos\shop.proto" GrpcServices="Client" />

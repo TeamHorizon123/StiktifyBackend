@@ -11,11 +11,12 @@
 
 	<ItemGroup>
 	  <None Remove="Protos\category.proto" />
+	  <None Remove="Protos\categorySize.proto" />
 	  <None Remove="Protos\option.proto" />
-	  <None Remove="Protos\optionSize.proto" />
 	  <None Remove="Protos\product.proto" />
+	  <None Remove="Protos\productItem.proto" />
+	  <None Remove="Protos\productVarriant.proto" />
 	  <None Remove="Protos\rating.proto" />
-	  <None Remove="Protos\sizeColor.proto" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -33,12 +34,14 @@
 
 	<ItemGroup>
 	  <Protobuf Include="Protos\category.proto" GrpcServices="Server" />
+	  <Protobuf Include="Protos\categorySize.proto" GrpcServices="Server" />
 	  <Protobuf Include="Protos\option.proto" GrpcServices="Server" />
-	  <Protobuf Include="Protos\optionSize.proto" GrpcServices="Server" />
+	  <Protobuf Include="Protos\order.proto" GrpcServices="Client" />
 	  <Protobuf Include="Protos\product.proto" GrpcServices="Server" />
+	  <Protobuf Include="Protos\productItem.proto" GrpcServices="Server" />
+	  <Protobuf Include="Protos\productVarriant.proto" GrpcServices="Server" />
 	  <Protobuf Include="Protos\rating.proto" GrpcServices="Server" />
 	  <Protobuf Include="Protos\shop.proto" GrpcServices="Both" />
-	  <Protobuf Include="Protos\sizeColor.proto" GrpcServices="Server" />
 	</ItemGroup>
 
 </Project>

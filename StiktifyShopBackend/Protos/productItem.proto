@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "StiktifyShopBackend.ProductItem";
+
+service ProductItemGrpc {
+  rpc GetAll(Empty) returns (ProductItems);
+  rpc GetAllOfProduct(Id) returns (ProductItems);
+  rpc GetOne(Id) returns (ProductItem);
+  rpc Create(CreateProductItem) returns (Response);
+  rpc Update(ProductItem) returns (Response);
+  rpc Delete(Id) returns (Response);
+  rpc DeleteMany(Ids) returns (Response);
+}
+
+message Empty {}
+
+message CreateProductItem {
+  string ProductId = 1;
+  google.protobuf.StringValue Size = 2;
+  google.protobuf.StringValue Color = 3;
+  google.protobuf.StringValue Type = 4;
+  double Price = 5;
+  int32 Quantity = 6;
+  string Image = 7;
+}
+
+message ProductItem {
+  google.protobuf.StringValue Id = 1;
+  google.protobuf.StringValue ProductId = 2;
+  google.protobuf.StringValue Size = 3;
+  google.protobuf.StringValue Color = 4;
+  google.protobuf.StringValue Type = 5;
+  double Price = 6;
+  int32 Quantity = 7;
+  google.protobuf.StringValue Image = 8;
+  google.protobuf.Timestamp CreatedAt = 9;
+  google.protobuf.Timestamp UpdatedAt = 10;
+}
+
+message ProductItems {
+  repeated ProductItem Items = 1;
+}
+
+message Id {
+  string SearchId = 1;
+}
+
+message Ids {
+  repeated string SearchIds = 1;
+}
+
+message Response {
+  int32 StatusCode = 1;
+  google.protobuf.StringValue Message = 2;
+}

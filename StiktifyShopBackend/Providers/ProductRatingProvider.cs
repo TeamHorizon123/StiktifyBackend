@@ -10,10 +10,12 @@ namespace StiktifyShopBackend.Providers
     public class ProductRatingProvider : IProductRatingProvider
     {
         private ProductRatingGrpc.ProductRatingGrpcClient _client;
+        private IProductItemProvider _productItemProvider;
 
-        public ProductRatingProvider(ProductRatingGrpc.ProductRatingGrpcClient client)
+        public ProductRatingProvider(ProductRatingGrpc.ProductRatingGrpcClient client, IProductItemProvider productItemProvider)
         {
             _client = client ?? throw new ArgumentException(nameof(_client));
+            _productItemProvider = productItemProvider ?? throw new ArgumentException(nameof(_productItemProvider));
         }
 
         public async Task<Domain.Responses.Response> CreateRating(RequestCreateRating createRating)
@@ -21,7 +23,7 @@ namespace StiktifyShopBackend.Providers
             var createGrpc = new CreateRating
             {
                 Content = createRating.Content,
-                //OptionId = createRating.OptionId,
+                ProductItemId = createRating.ProductItemId,
                 ImageList = JsonConvert.SerializeObject(createRating.Image),
                 Point = createRating.Point,
                 ProductId = createRating.ProductId,
@@ -45,10 +47,11 @@ namespace StiktifyShopBackend.Providers
                 Id = item.Id,
                 Content = item.Content,
                 UserId = item.UserId,
-                //OptionId = item.OptionId,
+                ProductItemId = item.ProductItemId,
                 Point = item.Point,
                 Image = JsonConvert.DeserializeObject<ICollection<string>>(item.ImageList),
                 ProductId = item.ProductId,
+                ProductItem = _productItemProvider.GetOne(item.ProductItemId).Result,
                 CreateAt = item.CreateAt.ToDateTime(),
                 UpdateAt = item.UpdateAt.ToDateTime(),
             });
@@ -63,10 +66,11 @@ namespace StiktifyShopBackend.Providers
                 Id = item.Id,
                 Content = item.Content,
                 UserId = item.UserId,
-                //OptionId = item.OptionId,
+                ProductItemId = item.ProductItemId,
                 Point = item.Point,
                 Image = JsonConvert.DeserializeObject<ICollection<string>>(item.ImageList),
                 ProductId = item.ProductId,
+                ProductItem = _productItemProvider.GetOne(item.ProductItemId).Result,
                 CreateAt = item.CreateAt.ToDateTime(),
                 UpdateAt = item.UpdateAt.ToDateTime(),
             });
@@ -81,9 +85,10 @@ namespace StiktifyShopBackend.Providers
                 Id = item.Id,
                 Content = item.Content,
                 UserId = item.UserId,
-                //OptionId = item.OptionId,
+                ProductItemId = item.ProductItemId,
                 Point = item.Point,
                 Image = JsonConvert.DeserializeObject<ICollection<string>>(item.ImageList),
+                ProductItem = _productItemProvider.GetOne(item.ProductItemId).Result,
                 ProductId = item.ProductId,
                 CreateAt = item.CreateAt.ToDateTime(),
                 UpdateAt = item.UpdateAt.ToDateTime(),
@@ -99,10 +104,11 @@ namespace StiktifyShopBackend.Providers
                 Id = ratingGrpc.Id,
                 Content = ratingGrpc.Content,
                 UserId = ratingGrpc.UserId,
-                //OptionId = ratingGrpc.OptionId,
+                ProductItemId = ratingGrpc.ProductItemId,
                 Point = ratingGrpc.Point,
                 Image = JsonConvert.DeserializeObject<ICollection<string>>(ratingGrpc.ImageList),
                 ProductId = ratingGrpc.ProductId,
+                ProductItem = await _productItemProvider.GetOne(ratingGrpc.ProductItemId),
                 CreateAt = ratingGrpc.CreateAt.ToDateTime(),
                 UpdateAt = ratingGrpc.UpdateAt.ToDateTime(),
             };

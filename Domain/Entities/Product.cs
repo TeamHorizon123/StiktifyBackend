@@ -21,12 +21,6 @@ namespace Domain.Entities
         [Column(TypeName = "text")]
         public string Description { get; set; } = default!;
 
-        [Column(TypeName = "money")]
-        public double Price { get; set; }
-
-        [Column(TypeName = "numeric(3,2)")]
-        public double Discount { get; set; }
-
         [DefaultValue(true)]
         public bool IsActive { get; set; }
         public virtual ICollection<Category> Categories { get; set; } = default!;

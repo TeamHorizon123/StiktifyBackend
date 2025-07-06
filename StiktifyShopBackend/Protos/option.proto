@@ -21,9 +21,9 @@ message Empty{}
 message CreateOption{
 	string ProductId = 1;
 	string Image = 2;
-	int32 Quantity = 3;
-	string Attribute = 4;
-	string Value = 5;
+	string Color = 3;
+	string Type = 4;
+	google.protobuf.StringValue Sizes = 5; 
 }
 
 message CreateOptions{
@@ -34,11 +34,11 @@ message Option{
 	google.protobuf.StringValue Id = 1;
 	google.protobuf.StringValue ProductId = 2;
 	google.protobuf.StringValue Image = 3;
-	int32 Quantity = 4;
-	google.protobuf.StringValue Attribute = 5;
-	google.protobuf.StringValue Value = 6;
-	google.protobuf.Timestamp CreateAt = 7;
-	google.protobuf.Timestamp UpdateAt = 8;
+	google.protobuf.StringValue Color = 5;
+	google.protobuf.StringValue Type = 6;
+	google.protobuf.StringValue Sizes = 7;
+	google.protobuf.Timestamp CreateAt = 8;
+	google.protobuf.Timestamp UpdateAt = 9;
 }
 
 message Id{

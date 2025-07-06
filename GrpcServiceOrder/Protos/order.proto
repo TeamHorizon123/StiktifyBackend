@@ -25,10 +25,9 @@ message CreateOrder{
 	string UserId = 1;
 	string AddressId = 2;
 	string ProductId = 3;
-	string OptionId = 4;
+	string ProductItemId = 4;
 	int32 Quantity = 5;
 	double Price = 6;
-	double Discount = 7;
 	double ShippingFee = 8;
 	string Status = 9;
 }
@@ -38,14 +37,13 @@ message Order{
 	google.protobuf.StringValue UserId = 2;
 	google.protobuf.StringValue AddressId = 3;
 	google.protobuf.StringValue ProductId = 4;
-	google.protobuf.StringValue OptionId = 5;
+	google.protobuf.StringValue ProductItemId = 5;
 	int32 Quantity = 6;
 	double Price = 7;
-	double Discount = 8;
-	double ShippingFee = 9;
-	google.protobuf.StringValue Status = 10;
-	google.protobuf.Timestamp CreateAt = 11;
-	google.protobuf.Timestamp UpdateAt = 12;
+	double ShippingFee = 8;
+	google.protobuf.StringValue Status = 9;
+	google.protobuf.Timestamp CreateAt = 10;
+	google.protobuf.Timestamp UpdateAt = 11;
 }
 
 message Orders{

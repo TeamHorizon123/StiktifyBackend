@@ -45,7 +45,7 @@ namespace StiktifyShopBackend.Controllers
         }
 
 
-        [HttpGet("category/{id}")]
+        [HttpGet("get/{id}")]
         public async Task<IActionResult> GetOne([FromRoute] string id)
         {
             var category = await _provider.GetOne(id);

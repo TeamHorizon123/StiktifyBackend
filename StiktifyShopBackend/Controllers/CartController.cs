@@ -58,7 +58,7 @@ namespace StiktifyShopBackend.Controllers
             return StatusCode(response.StatusCode, response.Message);
         }
 
-        [HttpDelete("delete")]
+        [HttpDelete("delete-many")]
         public async Task<IActionResult> DeleteManyCart([FromBody] ICollection<string> ids)
         {
             var response = await _provider.DeleteManyCart(ids);

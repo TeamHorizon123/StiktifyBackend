@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "StiktifyShopBackend.CategorySize";
+
+service CategorySizeGrpc {
+	rpc GetAll(Empty) returns (CategorySizes);
+	rpc GetAllOfProduct(Id) returns (CategorySizes);
+	rpc GetAllOfProductOption(Id) returns (CategorySizes);
+	rpc GetAllOfCategory(Id) returns (CategorySizes);
+	rpc GetOne(Id) returns (CategorySize);
+	rpc Create(CreateCategorySize) returns (Response);
+	rpc Update(CategorySize) returns (Response);
+	rpc Delete(Id) returns (Response);
+}
+
+message Empty {}
+
+
+message CreateCategorySize {
+	string Size = 1;
+	google.protobuf.StringValue CategoryId = 2;
+}
+
+message CategorySize {
+	google.protobuf.StringValue Id = 1;
+	google.protobuf.StringValue Size = 2;
+	google.protobuf.StringValue CategoryId = 3;
+	google.protobuf.Timestamp CreateAt = 4;
+	google.protobuf.Timestamp UpdateAt = 5;
+}
+
+message Id {
+	string SearchId = 1;
+}
+
+message Ids {
+	repeated Id Item = 1;
+}
+
+message CategorySizes {
+	repeated CategorySize Item = 1;
+}
+
+message Response {
+	int32 StatusCode = 1;
+	google.protobuf.StringValue Message = 2;
+}

@@ -7,7 +7,6 @@ namespace GrpcServiceOrder.Interfaces
     {
         Task<IEnumerable<ResponseCart>> GetAll();
         Task<IEnumerable<ResponseCart>> GetAllOfUser(string userID);
-        Task<IEnumerable<ResponseCart>> GetAllOfProduct(string productID);
         Task<ResponseCart?> GetOne(string cartId);
         Task<Response> CreateCart(RequestCreateCart createCart);
         Task<Response> UpdateCart(RequestUpdateCart updateCart);

@@ -22,7 +22,7 @@ namespace GrpcServiceOrder.Services
             grpcList.Item.AddRange(listCart.Select(cart => new Cart.Cart
             {
                 Id = cart.Id,
-                OptionId = cart.SizeColoId,
+                ProductItemId = cart.ProductItemId,
                 UserId = cart.UserId,
                 Quantity = cart.Quantity,
                 CreateAt = Timestamp.FromDateTime(cart.CreateAt!.Value.ToUniversalTime()),
@@ -31,20 +31,9 @@ namespace GrpcServiceOrder.Services
             return grpcList;
         }
 
-        public override async Task<Carts> GetAllOfProduct(Id request, ServerCallContext context)
+        public override Task<Carts> GetAllOfProduct(Id request, ServerCallContext context)
         {
-            var listCart = await _repo.GetAllOfProduct(request.SearchId);
-            Carts grpcList = new Carts();
-            grpcList.Item.AddRange(listCart.Select(cart => new Cart.Cart
-            {
-                Id = cart.Id,
-                OptionId = cart.SizeColoId,
-                UserId = cart.UserId,
-                Quantity = cart.Quantity,
-                CreateAt = Timestamp.FromDateTime(cart.CreateAt!.Value.ToUniversalTime()),
-                UpdateAt = Timestamp.FromDateTime(cart.UpdateAt!.Value.ToUniversalTime()),
-            }));
-            return grpcList;
+            throw new NotImplementedException("This method is not implemented yet.");
         }
 
         public override async Task<Carts> GetAllOfUser(Id request, ServerCallContext context)
@@ -54,7 +43,7 @@ namespace GrpcServiceOrder.Services
             grpcList.Item.AddRange(listCart.Select(cart => new Cart.Cart
             {
                 Id = cart.Id,
-                OptionId = cart.SizeColoId,
+                ProductItemId = cart.ProductItemId,
                 UserId = cart.UserId,
                 Quantity = cart.Quantity,
                 CreateAt = Timestamp.FromDateTime(cart.CreateAt!.Value.ToUniversalTime()),
@@ -71,7 +60,7 @@ namespace GrpcServiceOrder.Services
             return new Cart.Cart
             {
                 Id = cart.Id,
-                OptionId = cart.SizeColoId,
+                ProductItemId = cart.ProductItemId,
                 UserId = cart.UserId,
                 Quantity = cart.Quantity,
                 CreateAt = Timestamp.FromDateTime(cart.CreateAt!.Value.ToUniversalTime()),
@@ -84,7 +73,7 @@ namespace GrpcServiceOrder.Services
             var createCart = new RequestCreateCart
             {
                 UserId = request.UserId,
-                SizeColor = request.OptionId,
+                ProductItemId = request.ProductItemId,
                 Quantity = request.Quantity,
             };
             var response = await _repo.CreateCart(createCart);
@@ -96,7 +85,7 @@ namespace GrpcServiceOrder.Services
             var updateCart = new RequestUpdateCart
             {
                 Id = request.Id,
-                SizeColor = request.OptionId,
+                ProductItemId = request.ProductItemId,
                 UserId = request.UserId,
                 Quantity = request.Quantity
             };
