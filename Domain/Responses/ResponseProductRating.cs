@@ -11,7 +11,7 @@ namespace Domain.Responses
         [JsonPropertyName("productItemId")]
         public string? ProductItemId { get; set; }
         [JsonPropertyName("productItem")]
-        public ReponseProductItem? ProductItem { get; set; }
+        public ResponseProductItem? ProductItem { get; set; }
         [JsonPropertyName("userId")]
         public string? UserId { get; set; }
         [JsonPropertyName("point")]
