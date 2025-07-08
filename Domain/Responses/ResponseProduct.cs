@@ -16,14 +16,14 @@ namespace Domain.Responses
         public string? Thumbnail { get; set; }
         [JsonPropertyName("description")]
         public string? Description { get; set; }
-        [JsonPropertyName("price")]
-        public double Price { get; set; }
-        [JsonPropertyName("discount")]
-        public double Discount { get; set; }
-        [JsonPropertyName("rating")]
-        public double Rating { get; set; }
+        [JsonPropertyName("ratingPoint")]
+        public double RatingPoint { get; set; }
+        [JsonPropertyName("ratingTurn")]
+        public int RatingTurn { get; set; }
         [JsonPropertyName("order")]
         public int Order { get; set; }
+        [JsonPropertyName("rangePrice")]
+        public string? RangePrice { get; set; }
         [JsonPropertyName("isActive")]
         public bool IsActive { get; set; }
         [JsonPropertyName("createAt")]

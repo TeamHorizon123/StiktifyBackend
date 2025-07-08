@@ -11,7 +11,7 @@ namespace Domain.Entities
 
         [Required]
         [StringLength(32)]
-        public string OptionSizeColorId { get; set; } = default!;
+        public string ProductItemId { get; set; } = default!;
 
         [DefaultValue(1)]
         public int Quantity { get; set; }

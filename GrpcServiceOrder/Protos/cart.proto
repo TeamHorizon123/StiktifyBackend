@@ -20,19 +20,17 @@ message Empty{}
 
 message CreateCart{
 	string UserId = 1;
-	string OptionId = 2;
-	string ProductId = 3;
-	int32 Quantity = 4;
+	string ProductItemId = 2;
+	int32 Quantity = 3;
 }
 
 message Cart{
 	google.protobuf.StringValue Id = 1;
 	google.protobuf.StringValue UserId = 2;
-	google.protobuf.StringValue OptionId = 3;
-	google.protobuf.StringValue ProductId = 4;
-	int32 Quantity = 5;
-	google.protobuf.Timestamp CreateAt = 6;
-	google.protobuf.Timestamp UpdateAt = 7;
+	google.protobuf.StringValue ProductItemId = 3;
+	int32 Quantity = 4;
+	google.protobuf.Timestamp CreateAt = 5;
+	google.protobuf.Timestamp UpdateAt = 6;
 }
 
 message Id {

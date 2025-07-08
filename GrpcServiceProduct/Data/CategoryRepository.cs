@@ -10,12 +10,10 @@ namespace GrpcServiceProduct.Data
     public class CategoryRepository : ICategoryRepository
     {
         private AppDbContext _context;
-        private ILogger _logger;
 
-        public CategoryRepository(AppDbContext context, ILogger<CategoryRepository> logger)
+        public CategoryRepository(AppDbContext context)
         {
             _context = context ?? throw new ArgumentException(nameof(_context));
-            _logger = logger ?? throw new ArgumentException(nameof(logger));
         }
 
         public async Task<Response> CreateCategory(RequestCreateCategory createCategory)
@@ -34,7 +32,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to add a new category \nError: {err.Message}");
+                Console.WriteLine($"Fail to add a new category \nError: {err.Message}");
                 return new Response { Message = "Fail to add a new category", StatusCode = 500 };
             }
         }
@@ -52,7 +50,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to delete a category \nError: {err.Message}");
+                Console.WriteLine($"Fail to delete a category \nError: {err.Message}");
                 return new Response { Message = "Fail to delete a category", StatusCode = 500 };
             }
         }
@@ -73,7 +71,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to delete a list categories \nError: {err.Message}");
+                Console.WriteLine($"Fail to delete a list categories \nError: {err.Message}");
                 return new Response { Message = "Fail to delete a list categories", StatusCode = 500 };
             }
         }
@@ -96,7 +94,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get all category \nError: {err.Message}");
+                Console.WriteLine($"Fail to get all category \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -120,7 +118,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get all category children \nError: {err.Message}");
+                Console.WriteLine($"Fail to get all category children \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -144,7 +142,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get all category of product \nError: {err.Message}");
+                Console.WriteLine($"Fail to get all category of product \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -168,31 +166,26 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get a category has id-{categoryId} \nError: {err.Message}");
+                Console.WriteLine($"Fail to get a category has id-{categoryId} \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
 
         public async Task<Response> UpdateCategory(RequestUpdateCategory updateCategory)
         {
-            if (await GetOne(updateCategory.Id) == null)
-                return new Response { Message = "Category does not exist.", StatusCode = 404 };
             try
             {
-                var category = new Domain.Entities.Category
-                {
-                    Id = updateCategory.Id,
-                    Name = updateCategory.Name,
-                    ParentId = updateCategory.Id,
-                    UpdateAt = DateTime.Now
-                };
+                var category = await _context.Categories.FindAsync(updateCategory.Id);
+                if(category == null)
+                    return new Response { Message = "Category does not exist.", StatusCode = 404 };
+
                 _context.Categories.Update(category);
                 await _context.SaveChangesAsync();
-                return new Response { Message = $"_id: {category.Id}", StatusCode = 200 };
+                return new Response { Message = category.Id, StatusCode = 200 };
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to update a category \nError: {err.Message}");
+                Console.WriteLine($"Fail to update a category \nError: {err.Message}");
                 return new Response { Message = "Fail to update a category", StatusCode = 500 };
             }
         }

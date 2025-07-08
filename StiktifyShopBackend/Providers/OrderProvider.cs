@@ -8,10 +8,17 @@ namespace StiktifyShopBackend.Providers
     public class OrderProvider : IOrderProvider
     {
         private OrderGrpc.OrderGrpcClient _client;
+        private IAddressProvider _addressProvider;
+        private IProductItemProvider _productItemProvider;
 
-        public OrderProvider(OrderGrpc.OrderGrpcClient client)
+        public OrderProvider
+            (OrderGrpc.OrderGrpcClient client,
+            IAddressProvider addressProvider,
+            IProductItemProvider productItemProvider)
         {
             _client = client ?? throw new ArgumentException(nameof(_client));
+            _addressProvider = addressProvider ?? throw new ArgumentException(nameof(addressProvider));
+            _productItemProvider = productItemProvider ?? throw new ArgumentException(nameof(productItemProvider));
         }
 
         public async Task<Domain.Responses.Response> CreateOrder(RequestCreateOrder createOrder)
@@ -20,9 +27,8 @@ namespace StiktifyShopBackend.Providers
             {
                 UserId = createOrder.UserId,
                 AddressId = createOrder.AddressId,
-                OptionId = createOrder.SizeColor,
+                ProductItemId = createOrder.ProductItemId,
                 ProductId = createOrder.ProductId,
-                Discount = createOrder.Discount,
                 Price = createOrder.Price,
                 Quantity = createOrder.Quantity,
                 ShippingFee = createOrder.ShippingFee,
@@ -39,13 +45,15 @@ namespace StiktifyShopBackend.Providers
             {
                 Id = item.Id,
                 AddressId = item.AddressId,
-                SizeColorId = item.OptionId,
-                ShippingFee = item.ShippingFee,
-                Discount = item.Discount,
+                ProductId = item.ProductId,
+                ProductItemId = item.ProductItemId,
                 Price = item.Price,
                 Quantity = item.Quantity,
                 Status = item.Status,
                 UserId = item.UserId,
+                ShippingFee = item.ShippingFee,
+                Address = _addressProvider.GetOne(item.AddressId).Result,
+                ProductItem = _productItemProvider.GetOne(item.ProductItemId).Result,
                 CreateAt = item.CreateAt.ToDateTime(),
                 UpdateAt = item.UpdateAt.ToDateTime(),
             });
@@ -59,13 +67,15 @@ namespace StiktifyShopBackend.Providers
             {
                 Id = item.Id,
                 AddressId = item.AddressId,
-                SizeColorId = item.OptionId,
+                ProductId = item.ProductId,
+                ProductItemId = item.ProductItemId,
                 ShippingFee = item.ShippingFee,
-                Discount = item.Discount,
                 Price = item.Price,
                 Quantity = item.Quantity,
                 Status = item.Status,
                 UserId = item.UserId,
+                Address = _addressProvider.GetOne(item.AddressId).Result,
+                ProductItem = _productItemProvider.GetOne(item.ProductItemId).Result,
                 CreateAt = item.CreateAt.ToDateTime(),
                 UpdateAt = item.UpdateAt.ToDateTime(),
             });
@@ -79,13 +89,15 @@ namespace StiktifyShopBackend.Providers
             {
                 Id = item.Id,
                 AddressId = item.AddressId,
-                SizeColorId = item.OptionId,
+                ProductId = item.ProductId,
+                ProductItemId = item.ProductItemId,
                 ShippingFee = item.ShippingFee,
-                Discount = item.Discount,
                 Price = item.Price,
                 Quantity = item.Quantity,
                 Status = item.Status,
                 UserId = item.UserId,
+                Address = _addressProvider.GetOne(item.AddressId).Result,
+                ProductItem = _productItemProvider.GetOne(item.ProductItemId).Result,
                 CreateAt = item.CreateAt.ToDateTime(),
                 UpdateAt = item.UpdateAt.ToDateTime(),
             });
@@ -99,13 +111,15 @@ namespace StiktifyShopBackend.Providers
             {
                 Id = item.Id,
                 AddressId = item.AddressId,
-                SizeColorId = item.OptionId,
+                ProductId = item.ProductId,
+                ProductItemId = item.ProductItemId,
                 ShippingFee = item.ShippingFee,
-                Discount = item.Discount,
                 Price = item.Price,
                 Quantity = item.Quantity,
                 Status = item.Status,
                 UserId = item.UserId,
+                Address = _addressProvider.GetOne(item.AddressId).Result,
+                ProductItem = _productItemProvider.GetOne(item.ProductItemId).Result,
                 CreateAt = item.CreateAt.ToDateTime(),
                 UpdateAt = item.UpdateAt.ToDateTime(),
             });
@@ -119,13 +133,15 @@ namespace StiktifyShopBackend.Providers
             {
                 Id = orderGrpc.Id,
                 AddressId = orderGrpc.AddressId,
-                SizeColorId = orderGrpc.OptionId,
+                ProductId = orderGrpc.ProductId,
+                ProductItemId = orderGrpc.ProductItemId,
                 ShippingFee = orderGrpc.ShippingFee,
-                Discount = orderGrpc.Discount,
                 Price = orderGrpc.Price,
                 Quantity = orderGrpc.Quantity,
                 Status = orderGrpc.Status,
                 UserId = orderGrpc.UserId,
+                Address = await _addressProvider.GetOne(orderGrpc.AddressId),
+                ProductItem = await _productItemProvider.GetOne(orderGrpc.ProductItemId),
                 CreateAt = orderGrpc.CreateAt.ToDateTime(),
                 UpdateAt = orderGrpc.UpdateAt.ToDateTime(),
             };
@@ -137,10 +153,9 @@ namespace StiktifyShopBackend.Providers
             {
                 Id = updateOrder.Id,
                 AddressId = updateOrder.AddressId,
-                OptionId = updateOrder.SizeColor,
+                ProductItemId = updateOrder.ProductItemId,
                 ProductId = updateOrder.ProductId,
                 ShippingFee = updateOrder.ShippingFee,
-                Discount = updateOrder.Discount,
                 Price = updateOrder.Price,
                 Quantity = updateOrder.Quantity,
                 Status = updateOrder.Status,

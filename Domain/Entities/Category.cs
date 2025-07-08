@@ -15,5 +15,6 @@ namespace Domain.Entities
         public virtual Category Parent { get; set; } = default!;
         public virtual ICollection<Category> Children { get; set; } = default!;
         public virtual ICollection<Product> Products { get; set; } = default!;
+        public virtual ICollection<CategorySize> CategorySizes { get; set; } = default!;
     }
 }

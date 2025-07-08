@@ -1,5 +1,4 @@
-﻿using Domain.Entities;
-using Domain.Requests;
+﻿using Domain.Requests;
 using Domain.Responses;
 using Grpc.Core;
 using GrpcServiceProduct.Interfaces;
@@ -10,12 +9,10 @@ namespace GrpcServiceProduct.Data
     public class ProductOptionRepository : IProductOptionRepository
     {
         private AppDbContext _context;
-        private ILogger _logger;
 
-        public ProductOptionRepository(AppDbContext context, ILogger<ProductOptionRepository> logger)
+        public ProductOptionRepository(AppDbContext context)
         {
             _context = context ?? throw new ArgumentException(nameof(_context));
-            _logger = logger ?? throw new ArgumentException(nameof(_logger));
         }
 
         public async Task<Response> CreateManyProductOption(ICollection<RequestCreateOption> createOption)
@@ -40,7 +37,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to add a list new product option \nError: {err.Message}");
+                Console.WriteLine($"Fail to add a list new product option \nError: {err.Message}");
                 return new Response { Message = "Fail to add a list new product option", StatusCode = 500 };
             }
         }
@@ -63,7 +60,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to add a new product option \nError: {err.Message}");
+                Console.WriteLine($"Fail to add a new product option \nError: {err.Message}");
                 return new Response { Message = "Fail to add a new product option", StatusCode = 500 };
             }
         }
@@ -89,7 +86,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to remove a list product options  \nError: {err.Message}");
+                Console.WriteLine($"Fail to remove a list product options  \nError: {err.Message}");
                 return new Response { Message = "Fail to remove a list product options", StatusCode = 500 };
             }
         }
@@ -108,7 +105,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to remove a product option has id-{optionId} \nError: {err.Message}");
+                Console.WriteLine($"Fail to remove a product option has id-{optionId} \nError: {err.Message}");
                 return new Response { Message = $"Fail to remove a product option has id-{optionId}", StatusCode = 500 };
             }
         }
@@ -133,7 +130,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get all product option \nError: {err.Message}");
+                Console.WriteLine($"Fail to get all product option \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -159,7 +156,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get all product option of product has id-{productId} \nError: {err.Message}");
+                Console.WriteLine($"Fail to get all product option of product has id-{productId} \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -185,7 +182,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get a product option has id-{optionId} \nError: {err.Message}");
+                Console.WriteLine($"Fail to get a product option has id-{optionId} \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -209,7 +206,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to update a product option has id-{updateOption.Id} \nError: {err.Message}");
+                Console.WriteLine($"Fail to update a product option has id-{updateOption.Id} \nError: {err.Message}");
                 return new Response { Message = $"Fail to update a product option has id-{updateOption.Id}", StatusCode = 500 };
             }
         }

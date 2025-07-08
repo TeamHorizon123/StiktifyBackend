@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using Domain.Entities;
 
 namespace Domain.Requests
 {
@@ -18,16 +19,8 @@ namespace Domain.Requests
 
         [StringLength(50)]
         public string Type { get; set; } = default!;
-    }
 
-    public class RequestCreateOptionSize
-    {
-        [StringLength(50)]
-        public string SizeValue { get; set; } = default!;
-
-        [Required]
-        [StringLength(32)]
-        public string CategoryMajor { get; set; } = default!;
+        public ICollection<CategorySize>? CategorySizes { get; set; }
     }
 
     public class RequestUpdateOption : RequestCreateOption
@@ -37,10 +30,4 @@ namespace Domain.Requests
         public string Id { get; set; } = default!;
     }
 
-    public class RequestUpdateOptionSize : RequestCreateOptionSize
-    {
-        [Required]
-        [StringLength(32)]
-        public string Id { get; set; } = default!;
-    }
 }

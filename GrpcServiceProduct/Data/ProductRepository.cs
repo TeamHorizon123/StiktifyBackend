@@ -1,27 +1,21 @@
-﻿using Domain.Entities;
-using Domain.Requests;
+﻿using Domain.Requests;
 using Domain.Responses;
 using Grpc.Core;
 using GrpcServiceProduct.External.IExternal;
 using GrpcServiceProduct.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
-
 namespace GrpcServiceProduct.Data
 {
     public class ProductRepository : IProductRepository
     {
         private AppDbContext _context;
-        private ILogger _logger;
         private IOrderService _orderService;
-        private IShopService _shopService;
 
-        public ProductRepository(AppDbContext context, ILogger<ProductRepository> logger, IOrderService orderService, IShopService shopService)
+        public ProductRepository(AppDbContext context, IOrderService orderService)
         {
             _context = context ?? throw new ArgumentException(nameof(_context));
-            _logger = logger ?? throw new ArgumentException(nameof(_logger));
             _orderService = orderService ?? throw new ArgumentException(nameof(_orderService));
-            _shopService = shopService ?? throw new ArgumentException(nameof(_shopService));
         }
 
         private double AverageProductRating(string productId)
@@ -31,9 +25,29 @@ namespace GrpcServiceProduct.Data
                 .Average(rating => rating.Point) : 0;
         }
 
+        private string RangePrice(string productId)
+        {
+            var listOption = _context.ProductVarriants
+                .Where(option => option.ProductOption.ProductId == productId)
+                .Select(option => option.Price)
+                .ToList();
+
+            if (listOption.Count == 0)
+                return "NA";
+            var minPrice = listOption.Min();
+            var maxPrice = listOption.Max();
+            return minPrice == maxPrice ? $"{minPrice}" : $"{minPrice} - {maxPrice}";
+        }
+
+        private int TotalRatingTurn(string productId)
+        {
+            return _context.ProductRatings.Count(rating => rating.ProductId == productId);
+        }
+
         private int TotalOrders(string productId)
         {
-            return 0;
+            var listOrder = _orderService.GetAllOfProduct(productId);
+            return listOrder.Count();
         }
 
         public async Task<Response> Create(RequestCreateProduct createProduct)
@@ -51,8 +65,6 @@ namespace GrpcServiceProduct.Data
                 {
                     Name = createProduct.Name,
                     Description = createProduct.Description,
-                    Discount = createProduct.Discount,
-                    Price = createProduct.Price,
                     ShopId = createProduct.ShopId,
                     Thumbnail = createProduct.Thumbnail,
                     Categories = listCategory,
@@ -60,11 +72,11 @@ namespace GrpcServiceProduct.Data
                 };
                 _context.Products.Add(product);
                 await _context.SaveChangesAsync();
-                return new Response { StatusCode = 201, Message = $"_id: {product.Id}" };
+                return new Response { StatusCode = 201, Message = product.Id };
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to add a new product \nError: {err.Message}");
+                Console.WriteLine($"Fail to add a new product \nError: {err.Message}");
                 return new Response { StatusCode = 500, Message = "Fail to add a new product" };
             }
         }
@@ -83,7 +95,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to delete a product \nError: {err.Message}");
+                Console.WriteLine($"Fail to delete a product \nError: {err.Message}");
                 return new Response { StatusCode = 500, Message = "Fail to delete a product" };
             }
         }
@@ -105,7 +117,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to delete a product \nError: {err.Message}");
+                Console.WriteLine($"Fail to delete a product \nError: {err.Message}");
                 return new Response { StatusCode = 500, Message = "Fail to delete a product" };
             }
         }
@@ -123,12 +135,12 @@ namespace GrpcServiceProduct.Data
                         Id = product.Id,
                         Name = product.Name,
                         Description = product.Description,
-                        Discount = product.Discount,
                         Thumbnail = product.Thumbnail,
-                        Price = product.Price,
+                        RangePrice = RangePrice(product.Id),
                         ShopId = product.ShopId,
                         Order = TotalOrders(product.Id),
-                        Rating = Math.Round(AverageProductRating(product.Id), 1),
+                        RatingTurn = TotalRatingTurn(product.Id),
+                        RatingPoint = Math.Round(AverageProductRating(product.Id), 1),
                         IsActive = product.IsActive,
                         CreateAt = product.CreateAt,
                         UpdateAt = product.UpdateAt,
@@ -136,7 +148,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get all product \nError: {err.Message}");
+                Console.WriteLine($"Fail to get all product \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -159,7 +171,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get all product \nError: {err.Message}");
+                Console.WriteLine($"Fail to get all product \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -178,20 +190,20 @@ namespace GrpcServiceProduct.Data
                         Id = product.Id,
                         Name = product.Name,
                         Description = product.Description,
-                        Discount = product.Discount,
                         Thumbnail = product.Thumbnail,
-                        Price = product.Price,
+                        RangePrice = RangePrice(product.Id),
                         ShopId = product.ShopId,
-                        Order = 0,
-                        Rating = Math.Round(AverageProductRating(product.Id), 1),
+                        Order = TotalOrders(product.Id),
+                        RatingTurn = TotalRatingTurn(product.Id),
+                        RatingPoint = Math.Round(AverageProductRating(product.Id), 1),
                         IsActive = product.IsActive,
                         CreateAt = product.CreateAt,
-                        UpdateAt = product.UpdateAt
+                        UpdateAt = product.UpdateAt,
                     });
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get all product of a category has id-{categoryId} \nError: {err.Message}");
+                Console.WriteLine($"Fail to get all product of a category has id-{categoryId} \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -210,12 +222,12 @@ namespace GrpcServiceProduct.Data
                         Id = product.Id,
                         Name = product.Name,
                         Description = product.Description,
-                        Discount = product.Discount,
                         Thumbnail = product.Thumbnail,
-                        Price = product.Price,
+                        RangePrice = RangePrice(product.Id),
                         ShopId = product.ShopId,
-                        Order = 0,
-                        Rating = Math.Round(AverageProductRating(product.Id), 1),
+                        Order = TotalOrders(product.Id),
+                        RatingTurn = TotalRatingTurn(product.Id),
+                        RatingPoint = Math.Round(AverageProductRating(product.Id), 1),
                         IsActive = product.IsActive,
                         CreateAt = product.CreateAt,
                         UpdateAt = product.UpdateAt,
@@ -223,7 +235,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get all product of a shop has id-{shopId} \nError: {err.Message}");
+                Console.WriteLine($"Fail to get all product of a shop has id-{shopId} \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -240,23 +252,28 @@ namespace GrpcServiceProduct.Data
                         Id = product.Id,
                         Name = product.Name,
                         Description = product.Description,
-                        Discount = product.Discount,
                         Thumbnail = product.Thumbnail,
-                        Price = product.Price,
+                        RangePrice = RangePrice(product.Id),
                         ShopId = product.ShopId,
-                        Order = 0,
-                        Rating = 0,
+                        Order = TotalOrders(product.Id),
+                        RatingTurn = TotalRatingTurn(product.Id),
+                        RatingPoint = Math.Round(AverageProductRating(product.Id), 1),
+                        IsActive = product.IsActive,
                         CreateAt = product.CreateAt,
                         UpdateAt = product.UpdateAt,
                     })
                     .FirstOrDefaultAsync();
-                if (product != null)
-                    product.Rating = Math.Round(AverageProductRating(product.Id!), 1);
+                if (product != null){
+                    product.RangePrice = RangePrice(product.Id!);
+                    product.Order = TotalOrders(product.Id!);
+                    product.RatingTurn = TotalRatingTurn(product.Id!);
+                    product.RatingPoint = Math.Round(AverageProductRating(product.Id!), 1);
+                }
                 return product;
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get a product has id-{productId} \nError: {err.Message}");
+                Console.WriteLine($"Fail to get a product has id-{productId} \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -265,33 +282,21 @@ namespace GrpcServiceProduct.Data
         {
             try
             {
-                if (await GetOne(updateProduct.Id) == null)
+                var product = await _context.Products.FindAsync(updateProduct.Id);
+                if (product == null)
                     return new Response { StatusCode = 404, Message = "Product does not exist." };
-
-                var listCategory = new List<Domain.Entities.Category>();
-                foreach (var item in updateProduct.CategoryId)
-                {
-                    var category = await _context.Categories.FindAsync(item);
-                    listCategory.Add(category!);
-                }
-
-                var exist = await _context.Products.FindAsync(updateProduct.Id);
-
-                exist!.Name = updateProduct.Name;
-                exist!.Description = updateProduct.Description;
-                exist!.Discount = updateProduct.Discount;
-                exist!.Price = updateProduct.Price;
-                exist!.ShopId = updateProduct.ShopId;
-                exist!.Thumbnail = updateProduct.Thumbnail;
-                //exist!.Categories = listCategory;
-                exist!.IsActive = updateProduct.IsActive;
-                _context.Products.Update(exist);
+                product.Name = updateProduct.Name;
+                product.Description = updateProduct.Description;
+                product.Thumbnail = updateProduct.Thumbnail;
+                product.IsActive = updateProduct.IsActive;
+                product.UpdateAt = DateTime.Now;
+                _context.Products.Update(product);
                 await _context.SaveChangesAsync();
-                return new Response { StatusCode = 200, Message = $"_id: {exist.Id}" };
+                return new Response { StatusCode = 200, Message = product.Id };
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to update a product \nError: {err.Message}");
+                Console.WriteLine($"Fail to update a product \nError: {err.Message}");
                 return new Response { StatusCode = 500, Message = "Fail to update a product" };
             }
         }
@@ -314,7 +319,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to update a product \nError: {err.Message}");
+                Console.WriteLine($"Fail to update a product \nError: {err.Message}");
                 return new Response { StatusCode = 500, Message = "Fail to update a product" };
             }
         }

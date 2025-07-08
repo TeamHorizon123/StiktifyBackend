@@ -9,12 +9,10 @@ namespace GrpcServiceProduct.Data
     public class ProductRatingRepository : IProductRatingRepository
     {
         private AppDbContext _context;
-        private ILogger _logger;
 
-        public ProductRatingRepository(AppDbContext context, ILogger<ProductRatingRepository> logger)
+        public ProductRatingRepository(AppDbContext context)
         {
             _context = context ?? throw new ArgumentException(nameof(_context));
-            _logger = logger ?? throw new ArgumentException(nameof(_logger));
         }
 
         public async Task<Response> CreateRating(RequestCreateRating createRating)
@@ -32,11 +30,11 @@ namespace GrpcServiceProduct.Data
                 };
                 _context.ProductRatings.Add(createData);
                 await _context.SaveChangesAsync();
-                return new Response { Message = $"_id: {createData.Id}", StatusCode = 201 };
+                return new Response { Message = createData.Id, StatusCode = 201 };
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to add new product rating \nError: {err.Message}");
+                Console.WriteLine($"Fail to add new product rating \nError: {err.Message}");
                 return new Response { Message = "Internal Server Error", StatusCode = 500 };
             }
         }
@@ -55,7 +53,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to remove a product rating \nError: {err.Message}");
+                Console.WriteLine($"Fail to remove a product rating \nError: {err.Message}");
                 return new Response { Message = "Internal Server Error", StatusCode = 500 };
             }
         }
@@ -81,7 +79,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get all product rating \nError: {err.Message}");
+                Console.WriteLine($"Fail to get all product rating \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -108,7 +106,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get all product rating of option has id-{itemId} \nError: {err.Message}");
+                Console.WriteLine($"Fail to get all product rating of option has id-{itemId} \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -135,7 +133,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get all product rating of product has id-{productId} \nError: {err.Message}");
+                Console.WriteLine($"Fail to get all product rating of product has id-{productId} \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -162,7 +160,7 @@ namespace GrpcServiceProduct.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get a product rating has id-{ratingId} \nError: {err.Message}");
+                Console.WriteLine($"Fail to get a product rating has id-{ratingId} \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -171,25 +169,23 @@ namespace GrpcServiceProduct.Data
         {
             try
             {
-                if (await GetOne(updateRating.Id) == null)
+                var updateData = await _context.ProductRatings.FindAsync(updateRating.Id);
+                if (updateData == null)
                     return new Response { Message = "Product rating does not exist.", StatusCode = 404 };
-                var updateData = new Domain.Entities.ProductRating
-                {
-                    Id = updateRating.Id,
-                    ProductId = updateRating.ProductId,
-                    ProductItemId = updateRating.ProductItemId,
-                    Content = updateRating.Content,
-                    UserId = updateRating.UserId,
-                    Image = updateRating.Image,
-                    Point = updateRating.Point,
-                };
+                updateData.ProductId = updateRating.ProductId;
+                updateData.ProductItemId = updateRating.ProductItemId;
+                updateData.Content = updateRating.Content;
+                updateData.UserId = updateRating.UserId;
+                updateData.Image = updateRating.Image;
+                updateData.Point = updateRating.Point;
+                updateData.UpdateAt = DateTime.Now;
                 _context.ProductRatings.Update(updateData);
                 await _context.SaveChangesAsync();
-                return new Response { Message = $"_id: {updateData.Id}", StatusCode = 200 };
+                return new Response { Message = updateData.Id, StatusCode = 200 };
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to update product rating \nError: {err.Message}");
+                Console.WriteLine($"Fail to update product rating \nError: {err.Message}");
                 return new Response { Message = "Internal Server Error", StatusCode = 500 };
             }
         }

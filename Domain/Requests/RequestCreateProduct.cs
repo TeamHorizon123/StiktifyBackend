@@ -20,14 +20,6 @@ namespace Domain.Requests
         [Required]
         public string Description { get; set; } = default!;
 
-        [Range(0, double.MaxValue)]
-        [DefaultValue(0)]
-        public double Price { get; set; }
-
-        [Range(0, 1)]
-        [DefaultValue(0)]
-        public double Discount { get; set; }
-
         [DefaultValue(true)]
         public bool IsActive { get; set; }
 
@@ -40,8 +32,5 @@ namespace Domain.Requests
         [Required]
         [StringLength(32)]
         public string Id { get; set; } = default!;
-
-        [DefaultValue(true)]
-        public bool IsActive { get; set; }
     }
 }

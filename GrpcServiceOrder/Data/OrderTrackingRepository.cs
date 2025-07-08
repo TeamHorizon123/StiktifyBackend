@@ -10,12 +10,10 @@ namespace GrpcServiceOrder.Data
     public class OrderTrackingRepository : IOrderTrackingRepository
     {
         private AppDbContext _context;
-        private ILogger _logger;
 
-        public OrderTrackingRepository(AppDbContext context, ILogger<OrderTrackingRepository> logger)
+        public OrderTrackingRepository(AppDbContext context)
         {
-            _context = context;
-            _logger = logger;
+            _context = context ?? throw new ArgumentException(nameof(context));
         }
 
         public async Task<Response> CreateTracking(RequestCreateTracking createTracking)
@@ -36,11 +34,11 @@ namespace GrpcServiceOrder.Data
                 };
                 _context.OrderTrackings.Add(tracking);
                 await _context.SaveChangesAsync();
-                return new Response { Message = $"_id: {tracking.Id}", StatusCode = 201 };
+                return new Response { Message = tracking.Id, StatusCode = 201 };
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to create a order tracking \nError: {err.Message}");
+                Console.WriteLine($"Fail to create a order tracking \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }
@@ -67,7 +65,7 @@ namespace GrpcServiceOrder.Data
             }
             catch (Exception err)
             {
-                _logger.LogError($"Fail to get all tracking of a order - {orderId} \nError: {err.Message}");
+                Console.WriteLine($"Fail to get all tracking of a order - {orderId} \nError: {err.Message}");
                 throw new RpcException(new Status(StatusCode.Internal, "Internal Error"));
             }
         }

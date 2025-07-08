@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata.Ecma335;
 
 namespace GrpcServiceProduct.Data
 {
@@ -7,11 +8,11 @@ namespace GrpcServiceProduct.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<Domain.Entities.Category> Categories { get; set; }
+        public DbSet<Domain.Entities.CategorySize> CategorieSizes { get; set; }
         public DbSet<Domain.Entities.Product> Products { get; set; }
         public DbSet<Domain.Entities.ProductOption> ProductOptions { get; set; }
         public DbSet<Domain.Entities.ProductRating> ProductRatings { get; set; }
-        public DbSet<Domain.Entities.OptionSize> OptionSizes { get; set; }
-        public DbSet<Domain.Entities.OptionSizeColor> OptionColors { get; set; }
+        public DbSet<Domain.Entities.ProductVarriant> ProductVarriants { get; set; }
         public DbSet<Domain.Entities.ProductItem> ProductItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -38,6 +39,19 @@ namespace GrpcServiceProduct.Data
                                .HasForeignKey("CategoryId")
                                .OnDelete(DeleteBehavior.Cascade)
                 );
+
+            modelBuilder.Entity<Domain.Entities.CategorySize>()
+                .ToTable("CategorySize")
+                .HasOne<Domain.Entities.Category>()
+                .WithMany(c => c.CategorySizes)
+                .HasForeignKey(cs => cs.CategoryId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Domain.Entities.CategorySize>()
+                .HasOne<Domain.Entities.CategorySize>()
+                .WithMany()
+                .HasForeignKey(cs => cs.Id)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Domain.Entities.Product>()
                 .HasMany(c => c.Categories)
@@ -69,17 +83,27 @@ namespace GrpcServiceProduct.Data
                 .HasForeignKey(po => po.Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Domain.Entities.ProductRating>().ToTable("ProductRating");
-            modelBuilder.Entity<Domain.Entities.OptionSize>()
-                .ToTable("OptionSize")
-                .HasOne<Domain.Entities.OptionSize>()
+            modelBuilder.Entity<Domain.Entities.ProductRating>()
+                .ToTable("ProductRating")
+                .HasOne<Domain.Entities.ProductRating>()
                 .WithMany()
-                .HasForeignKey(os => os.Id)
+                .HasForeignKey(pr => pr.Id);
+
+            modelBuilder.Entity<Domain.Entities.ProductVarriant>()
+                .ToTable("ProductVarriant")
+                .HasKey(pv => new { pv.ProductOptionId, pv.SizeId });
+
+            modelBuilder.Entity<Domain.Entities.ProductVarriant>()
+                .HasOne<Domain.Entities.ProductOption>()
+                .WithMany(pv => pv.ProductVarriants)
+                .HasForeignKey(pv => pv.ProductOptionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Domain.Entities.OptionSizeColor>()
-                .ToTable("OptionSizeColor")
-                .HasKey(sc => new { sc.OptionId, sc.OptionSize });
+            modelBuilder.Entity<Domain.Entities.ProductVarriant>()
+                .HasOne<Domain.Entities.CategorySize>()
+                .WithMany(pv => pv.ProductVarriants)
+                .HasForeignKey(pv => pv.SizeId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Domain.Entities.ProductItem>()
                 .ToTable("ProductItem");

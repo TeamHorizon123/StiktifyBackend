@@ -12,6 +12,7 @@ service ProductGrpc{
 	rpc GetAllOfCategory(Id) returns (Products);
 	rpc GetAllImage(Id) returns (Links);
 	rpc GetOne(Id) returns (Product);
+	rpc GetRangePrice(Id) returns (RangePrice);
 	rpc Create(CreateProduct) returns (Response);
 	rpc Update(Product) returns (Response);
 	rpc Delete(Id) returns (Response);
@@ -27,14 +28,14 @@ message Product{
 	google.protobuf.StringValue Name = 3;
 	google.protobuf.StringValue Thumbnail = 4;
 	google.protobuf.StringValue Description = 5;
-	double Price = 6;
-	double Rating = 7;
-	double Discount = 8;
+	google.protobuf.StringValue RangePrice = 6;
+	double RatingPoint = 7;
+	int32 RatingTurn = 8;
 	int32 Order = 9;
-	string CategoryIds = 10;
-	bool IsActive = 11;
-	google.protobuf.Timestamp CreateAt = 12;
-	google.protobuf.Timestamp UpdateAt = 13;
+	bool IsActive = 10;
+	google.protobuf.Timestamp CreateAt = 11;
+	google.protobuf.Timestamp UpdateAt = 12;
+	google.protobuf.StringValue CategoryIds = 13;
 }
 
 message CreateProduct{
@@ -42,9 +43,7 @@ message CreateProduct{
 	string Name = 2;
 	string Thumbnail = 3;
 	string Description = 4;
-	double Price = 5;
-	double Discount = 6;
-	string CategoryIds = 7;
+	google.protobuf.StringValue CategoryIds = 5;
 }
 
 message Id{
@@ -61,6 +60,11 @@ message Link{
 
 message Links{
 	repeated Link Item = 1;
+}
+
+message RangePrice{
+	double Min = 1;
+	double Max = 2;
 }
 
 message Products{

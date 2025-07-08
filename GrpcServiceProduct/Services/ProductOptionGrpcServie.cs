@@ -3,6 +3,7 @@ using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using GrpcServiceProduct.Interfaces;
 using GrpcServiceProduct.ProductOption;
+using Newtonsoft.Json;
 
 namespace GrpcServiceProduct.Services
 {
@@ -27,6 +28,7 @@ namespace GrpcServiceProduct.Services
                     Image = option.Image,
                     Color = option.Color,
                     Type = option.Type,
+                    Sizes =JsonConvert.SerializeObject(option.Sizes),
                     CreateAt = Timestamp.FromDateTime(option.CreateAt!.Value.ToUniversalTime()),
                     UpdateAt = Timestamp.FromDateTime(option.UpdateAt!.Value.ToUniversalTime()),
                 }));
@@ -45,6 +47,7 @@ namespace GrpcServiceProduct.Services
                     Image = option.Image,
                     Type = option.Type,
                     Color = option.Color,
+                    Sizes = JsonConvert.SerializeObject(option.Sizes),
                     CreateAt = Timestamp.FromDateTime(option.CreateAt!.Value.ToUniversalTime()),
                     UpdateAt = Timestamp.FromDateTime(option.UpdateAt!.Value.ToUniversalTime()),
                 }));
@@ -63,6 +66,7 @@ namespace GrpcServiceProduct.Services
                 Image = option.Image,
                 Color = option.Color,
                 Type = option.Type,
+                Sizes = JsonConvert.SerializeObject(option.Sizes),
                 CreateAt = Timestamp.FromDateTime(option.CreateAt!.Value.ToUniversalTime()),
                 UpdateAt = Timestamp.FromDateTime(option.UpdateAt!.Value.ToUniversalTime()),
             };
@@ -76,6 +80,8 @@ namespace GrpcServiceProduct.Services
                 Image = request.Image,
                 Color = request.Color,
                 Type = request.Type,
+                CategorySizes = request.Sizes != null ?
+                JsonConvert.DeserializeObject<ICollection<Domain.Entities.CategorySize>>(request.Sizes) : null
             };
             var response = await _repo.CreateProductOption(option);
             return new Response { Message = response.Message, StatusCode = response.StatusCode };
@@ -90,6 +96,8 @@ namespace GrpcServiceProduct.Services
                     Image = option.Image,
                     Color = option.Color,
                     Type = option.Type,
+                    CategorySizes = option.Sizes != null ?
+                        JsonConvert.DeserializeObject<ICollection<Domain.Entities.CategorySize>>(option.Sizes) : null
                 }).ToList();
             var response = await _repo.CreateManyProductOption(createOptions);
             return new Response { Message = response.Message, StatusCode = response.StatusCode };
@@ -104,6 +112,8 @@ namespace GrpcServiceProduct.Services
                 ProductId = request.ProductId,
                 Color = request.Color,
                 Type = request.Type,
+                CategorySizes = request.Sizes != null ?
+                    JsonConvert.DeserializeObject<ICollection<Domain.Entities.CategorySize>>(request.Sizes) : null
             };
             var response = await _repo.UpdateProductOption(updateOption);
             return new Response { Message = response.Message, StatusCode = response.StatusCode };
@@ -117,8 +127,8 @@ namespace GrpcServiceProduct.Services
 
         public override async Task<Response> DeleteManyOption(Ids request, ServerCallContext context)
         {
-           var listRemove = request.Item.Select(optionId
-                => optionId.SearchID).ToList();
+            var listRemove = request.Item.Select(optionId
+                 => optionId.SearchID).ToList();
             var response = await _repo.DeleteManyProductOption(listRemove);
             return new Response { Message = response.Message, StatusCode = response.StatusCode };
         }
