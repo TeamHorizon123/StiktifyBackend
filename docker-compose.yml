@@ -2,9 +2,9 @@ networks:
   backend:
 
 volumes:
-  mongodb_data_container:
-  sspgadmin:
-  ssdb:
+  mongodb_data:
+  stspgadmin:
+  stsdb:
 
 services:
   kafka:
@@ -38,7 +38,7 @@ services:
     ports:
       - "27019:27017"
     volumes:
-      - mongodb_data_container:/data/db
+      - mongodb_data:/data/db
     networks:
       - backend
 
@@ -68,7 +68,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     volumes:
-      - sspgadmin:/var/lib/pgadmin
+      - stspgadmin:/var/lib/pgadmin
     ports:
       - "${PGADMIN_PORT:-5050}:80"
     networks:
@@ -88,7 +88,7 @@ services:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin@123
     volumes:
-      - ssdb:/var/lib/postgresql/data
+      - stsdb:/var/lib/postgresql/data
 
   stiktifyshop:
     container_name: stiktify-shop-backend
