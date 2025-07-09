@@ -1,8 +1,7 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Domain.Entities
+namespace StiktifyShop.Domain.Entity
 {
     public class ProductOption : BaseEntity
     {
@@ -19,7 +18,10 @@ namespace Domain.Entities
         [StringLength(50)]
         public string Type { get; set; } = default!;
 
-        //public virtual ICollection<CategorySize> CategorySizes { get; set; } = default!;
-        public virtual ICollection<ProductVarriant> ProductVarriants { get; set; } = default!;
+        [Column(TypeName = "money")]
+        public double? Price { get; set; }
+
+        public int? Quantity { get; set; }
+        public virtual ICollection<ProductVariant> ProductVariants { get; set; } = default!;
     }
 }
