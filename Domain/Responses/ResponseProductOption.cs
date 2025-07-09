@@ -17,7 +17,7 @@ namespace Domain.Responses
         [JsonPropertyName("type")]
         public string? Type { get; set; }
         [JsonPropertyName("sizes")]
-        public IEnumerable<ResponseCategorySize>? Sizes { get; set; }
+        public IEnumerable<ResponseProductVarriant>? Varriants { get; set; }
         [JsonPropertyName("createAt")]
         public DateTime? CreateAt { get; set; }
         [JsonPropertyName("updateAt")]

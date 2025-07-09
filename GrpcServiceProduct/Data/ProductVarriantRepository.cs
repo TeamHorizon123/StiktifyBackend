@@ -19,7 +19,7 @@ namespace GrpcServiceProduct.Data
             {
                 var productVarriant = new Domain.Entities.ProductVarriant
                 {
-                    ProductOptionId = createProductVarriant.ProductOptionId,
+                    ProductOptionId = createProductVarriant.ProductOptionId!,
                     SizeId = createProductVarriant.SizeId,
                     Quantity = createProductVarriant.Quantity,
                     Price = createProductVarriant.Price
@@ -157,12 +157,13 @@ namespace GrpcServiceProduct.Data
             }
         }
 
-        public async Task<Response> UpdateProductVarriant(RequestUpdateProductVarriant updateProductVarriant)
+        public async Task<Response> UpdateProductVarriant(RequestCreateProductVarriant updateProductVarriant)
         {
             try
             {
                 var productVarriant = await _context.ProductVarriants
-                    .FirstOrDefaultAsync(pv => pv.ProductOptionId == updateProductVarriant.Id);
+                    .FirstOrDefaultAsync(pv => pv.ProductOptionId == updateProductVarriant.ProductOptionId
+                    && pv.SizeId == updateProductVarriant.SizeId);
                 if (productVarriant == null)
                 {
                     return new Response

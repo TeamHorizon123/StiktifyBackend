@@ -23,7 +23,7 @@ message CreateOption{
 	string Image = 2;
 	string Color = 3;
 	string Type = 4;
-	google.protobuf.StringValue Sizes = 5; 
+	string Varriants = 5;
 }
 
 message CreateOptions{
@@ -36,7 +36,7 @@ message Option{
 	google.protobuf.StringValue Image = 3;
 	google.protobuf.StringValue Color = 5;
 	google.protobuf.StringValue Type = 6;
-	google.protobuf.StringValue Sizes = 7;
+	google.protobuf.StringValue Varriants = 7;
 	google.protobuf.Timestamp CreateAt = 8;
 	google.protobuf.Timestamp UpdateAt = 9;
 }

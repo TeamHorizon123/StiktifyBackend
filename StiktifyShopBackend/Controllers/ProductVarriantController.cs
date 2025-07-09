@@ -55,7 +55,7 @@ namespace StiktifyShopBackend.Controllers
         }
 
         [HttpPut("update/{optionId}&{sizeId}")]
-        public async Task<IActionResult> UpdateVarriant([FromRoute] string optionId, [FromRoute] string sizeId, [FromBody] RequestUpdateProductVarriant request)
+        public async Task<IActionResult> UpdateVarriant([FromRoute] string optionId, [FromRoute] string sizeId, [FromBody] RequestCreateProductVarriant request)
         {
             if (optionId != request.ProductOptionId || sizeId != request.SizeId)
                 return BadRequest("OptionId or SizeId does not match.");

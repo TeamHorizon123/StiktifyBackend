@@ -7,7 +7,7 @@ namespace GrpcServiceProduct.Interfaces
     {
         Task<Response> CreateProductVarriant(RequestCreateProductVarriant createProductVarriant);
         Task<Response> DeleteProductVarriant(string productVarriantId);
-        Task<Response> UpdateProductVarriant(RequestUpdateProductVarriant updateProductVarriant);
+        Task<Response> UpdateProductVarriant(RequestCreateProductVarriant updateProductVarriant);
         Task<ResponseProductVarriant?> GetProductVarriant(string optionId, string sizeId);
         Task<IEnumerable<ResponseProductVarriant>> GetAllProductVarriants();
         Task<IEnumerable<ResponseProductVarriant>> GetAllOfProduct(string productId);

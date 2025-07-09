@@ -28,6 +28,11 @@ namespace GrpcServiceProduct.Data
                         Image = item.Image,
                         Color = item.Color,
                         Type = item.Type,
+                        ProductVarriants = item.Varriants.Select(varriant => new Domain.Entities.ProductVarriant
+                        {
+                            Price = varriant.Price,
+                            Quantity = varriant.Quantity
+                        }).ToList(),
                         CreateAt = DateTime.Now,
                     });
                 }
@@ -52,6 +57,11 @@ namespace GrpcServiceProduct.Data
                     Image = createOption.Image,
                     Color = createOption.Color,
                     Type = createOption.Type,
+                    ProductVarriants = createOption.Varriants.Select(varriant => new Domain.Entities.ProductVarriant
+                    {
+                        Price = varriant.Price,
+                        Quantity = varriant.Quantity
+                    }).ToList(),
                     CreateAt = DateTime.Now,
                 };
                 _context.ProductOptions.Add(option);

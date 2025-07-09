@@ -100,7 +100,7 @@ namespace StiktifyShopBackend.Providers
             };
         }
 
-        public async Task<Domain.Responses.Response> UpdateProductVarriant(RequestUpdateProductVarriant requestUpdate)
+        public async Task<Domain.Responses.Response> UpdateProductVarriant(RequestCreateProductVarriant requestUpdate)
         {
             var grpcRequest = new ProductVariant
             {

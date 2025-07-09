@@ -67,7 +67,7 @@ namespace GrpcServiceProduct.Services
 
         public override async Task<Response> Update(ProductVariant request, ServerCallContext context)
         {
-            var updateProductVarriant = new Domain.Requests.RequestUpdateProductVarriant
+            var updateProductVarriant = new Domain.Requests.RequestCreateProductVarriant
             {
                 Price = request.Price,
                 ProductOptionId = request.ProductOptionId,

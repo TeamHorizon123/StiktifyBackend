@@ -10,7 +10,7 @@ namespace StiktifyShopBackend.Interfaces
         IQueryable<ResponseProductVarriant> GetAllOfProductOption(string optionId);
         Task<ResponseProductVarriant?> GetOne(string optionId, string sizeId);
         Task<Response> AddProductVarriant(RequestCreateProductVarriant requestCreate);
-        Task<Response> UpdateProductVarriant(RequestUpdateProductVarriant requestUpdate);
+        Task<Response> UpdateProductVarriant(RequestCreateProductVarriant requestUpdate);
         Task<Response> DeleteProductVarriant(string optionId, string sizeId);
     }
 }

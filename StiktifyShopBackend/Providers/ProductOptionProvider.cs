@@ -24,7 +24,7 @@ namespace StiktifyShopBackend.Providers
                 Image = option.Image,
                 Color = option.Color,
                 Type = option.Type,
-                Sizes = JsonConvert.SerializeObject(option.CategorySizes)
+                Varriants = JsonConvert.SerializeObject(option.Varriants)
             }));
             var response = await _client.CreateManyOptionAsync(listCreate);
             return new Domain.Responses.Response { Message = response.Message, StatusCode = response.StatusCode };
@@ -38,7 +38,7 @@ namespace StiktifyShopBackend.Providers
                 Image = createOption.Image,
                 Color = createOption.Color,
                 Type = createOption.Type,
-                Sizes = JsonConvert.SerializeObject(createOption.CategorySizes)
+                Varriants = JsonConvert.SerializeObject(createOption.Varriants)
             };
             var response = await _client.CreateAsync(createGrpc);
             return new Domain.Responses.Response { Message = response.Message, StatusCode = response.StatusCode };
@@ -68,7 +68,7 @@ namespace StiktifyShopBackend.Providers
                 Color = item.Color,
                 Type = item.Type,
                 ProductId = item.ProductId,
-                Sizes = JsonConvert.DeserializeObject<IEnumerable<ResponseCategorySize>>(item.Sizes),
+                Varriants = JsonConvert.DeserializeObject<IEnumerable<ResponseProductVarriant>>(item.Varriants),
                 CreateAt = item.CreateAt.ToDateTime(),
                 UpdateAt = item.UpdateAt.ToDateTime(),
             });
@@ -85,7 +85,7 @@ namespace StiktifyShopBackend.Providers
                 ProductId = item.ProductId,
                 Color = item.Color,
                 Type = item.Type,
-                Sizes = JsonConvert.DeserializeObject<IEnumerable<ResponseCategorySize>>(item.Sizes),
+                Varriants = JsonConvert.DeserializeObject<IEnumerable<ResponseProductVarriant>>(item.Varriants),
                 CreateAt = item.CreateAt.ToDateTime(),
                 UpdateAt = item.UpdateAt.ToDateTime(),
             });
@@ -102,7 +102,7 @@ namespace StiktifyShopBackend.Providers
                 Type = optionGrpc.Type,
                 Image = optionGrpc.Image,
                 ProductId = optionGrpc.ProductId,
-                Sizes = JsonConvert.DeserializeObject<IEnumerable<ResponseCategorySize>>(optionGrpc.Sizes),
+                Varriants = JsonConvert.DeserializeObject<IEnumerable<ResponseProductVarriant>>(optionGrpc.Varriants),
                 CreateAt = optionGrpc.CreateAt.ToDateTime(),
                 UpdateAt = optionGrpc.UpdateAt.ToDateTime(),
             };
@@ -116,8 +116,7 @@ namespace StiktifyShopBackend.Providers
                 Color = updateOption.Color,
                 Type = updateOption.Type,
                 Image = updateOption.Image,
-                ProductId = updateOption.ProductId,
-                Sizes = JsonConvert.SerializeObject(updateOption.CategorySizes)
+                ProductId = updateOption.ProductId
             };
             var response = await _client.UpdateOptionAsync(updateGrpc);
             return new Domain.Responses.Response { Message = response.Message, StatusCode = response.StatusCode };
