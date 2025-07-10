@@ -18,7 +18,7 @@ namespace StiktifyShop.Domain.Entity
         public required string Description { get; set; }
 
         [Column(TypeName = "text")]
-        public required string AvartarUri { get; set; }
+        public required string AvatarUri { get; set; }
 
         [Required]
         [EmailAddress]
@@ -38,6 +38,7 @@ namespace StiktifyShop.Domain.Entity
 
         public string? ShopType { get; set; }
 
+        public virtual ICollection<ShopRating> ShopRatings { get; set; } = default!;
         public virtual ICollection<Product> Products { get; set; } = default!;
     }
 }

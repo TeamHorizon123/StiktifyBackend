@@ -12,7 +12,7 @@ namespace StiktifyShop.Application.Mapper
             {
                 Address = createShop.Address,
                 Description = createShop.Description,
-                AvartarUri = createShop.AvartarUri,
+                AvatarUri = createShop.AvatarUri,
                 Email = createShop.Email,
                 Phone = createShop.Phone,
                 ShopName = createShop.ShopName,
@@ -29,7 +29,7 @@ namespace StiktifyShop.Application.Mapper
                 Id = shop.Id,
                 Address = shop.Address,
                 Description = shop.Description,
-                AvartarUri = shop.AvartarUri,
+                AvatarUri = shop.AvatarUri,
                 Email = shop.Email,
                 Phone = shop.Phone,
                 ShopName = shop.ShopName,

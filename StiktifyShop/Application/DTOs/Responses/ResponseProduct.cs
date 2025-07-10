@@ -9,6 +9,11 @@
         public string? ImageUri { get; set; }
         public bool IsHidden { get; set; }
         public string? CategoryId { get; set; }
+        public string? PriceRange { get; set; }
+        public double? Price { get; set; }
+        public double AveragePoint { get; set; }
+        public int RateTurn { get; set; }
+        public int Order { get; set; }
         public virtual ResponseCategory? Category { get; set; }
         public virtual ICollection<ResponseProductOption>? ProductOptions { get; set; }
     }

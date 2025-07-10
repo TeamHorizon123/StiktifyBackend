@@ -21,5 +21,7 @@ namespace StiktifyShop.Domain.Entity
         public string PhoneReceive { get; set; } = default!;
 
         public string? Note { get; set; }
+
+        public virtual ICollection<Order> Orders { get; set; } = default!;
     }
 }

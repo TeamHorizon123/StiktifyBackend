@@ -7,6 +7,7 @@ using StiktifyShop.Application.DTOs.Responses;
 using StiktifyShop.Application.Interfaces;
 using StiktifyShop.Infrastructure;
 using StiktifyShop.Infrastructure.Repository;
+using System.Net;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,7 +58,12 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
          .AllowCredentials();
     });
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
 });
+
 // Config JWT Authentication
 var key = Encoding.UTF8.GetBytes(builder.Configuration["JwtConfig:Key"]!);
 builder.Services.AddAuthentication(options =>
@@ -107,10 +113,22 @@ builder.Services.AddScoped<IShopRepo, ShopRepo>();
 builder.Services.AddScoped<IShopRatingRepo, ShopRatingRepo>();
 builder.Services.AddScoped<IUserAddressRepo, UserAddressRepo>();
 
+
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var service = scope.ServiceProvider;
+    var context = service.GetRequiredService<AppDbContext>();
+    //context.Database.EnsureDeleted();
+    context.Database.EnsureCreated();
+}
 
 // Configure the HTTP request pipeline.
+app.UseHttpsRedirection();
+
+app.UseODataRouteDebug();
 app.UseCors("AllowFrontend");
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 

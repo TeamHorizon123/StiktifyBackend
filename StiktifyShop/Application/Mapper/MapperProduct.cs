@@ -49,7 +49,7 @@ namespace StiktifyShop.Application.Mapper
                     Id = product.Shop.Id,
                     ShopName = product.Shop.ShopName,
                     Description = product.Shop.Description,
-                    AvartarUri = product.Shop.AvartarUri,
+                    AvatarUri = product.Shop.AvatarUri,
                     ShopType = product.Shop.ShopType,
                     UpdateAt = product.Shop.UpdatedAt,
                 },

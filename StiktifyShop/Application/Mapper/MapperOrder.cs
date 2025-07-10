@@ -32,7 +32,7 @@ namespace StiktifyShop.Application.Mapper
                 Shop = new ResponseShop
                 {
                     Id = order.Shop.Id,
-                    AvartarUri = order.Shop.AvartarUri,
+                    AvatarUri = order.Shop.AvatarUri,
                     ShopName = order.Shop.ShopName,
                     ShopType = order.Shop.ShopType,
                     Description = order.Shop.Description,

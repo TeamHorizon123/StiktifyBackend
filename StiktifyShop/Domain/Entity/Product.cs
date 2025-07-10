@@ -28,5 +28,7 @@ namespace StiktifyShop.Domain.Entity
         public virtual Category Category { get; set; } = default!;
 
         public virtual ICollection<ProductOption> ProductOptions { get; set; } = default!;
+        public virtual ICollection<ProductRating> ProductRatings { get; set; } = default!;
+        public virtual ICollection<ProductItem> ProductItems { get; set; } = default!;
     }
 }

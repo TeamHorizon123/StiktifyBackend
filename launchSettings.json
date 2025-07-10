@@ -4,12 +4,12 @@
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "serviceActions": {
-        "stiktifyshopbackend": "StartDebugging",
-        "grpcserviceuser": "StartDebugging",
-        "grpcserviceproduct": "StartDebugging",
-        "grpcserviceorder": "StartDebugging",
-        "grpcservicepurchase": "StartDebugging",
-        "stiktifyshop": "StartDebugging"
+        "stiktifyshop": "StartWithoutDebugging",
+        "kafka": "StartWithoutDebugging",
+        "mongodb": "StartWithoutDebugging",
+        "pgadmin": "StartWithoutDebugging",
+        "ssdb": "StartWithoutDebugging",
+        "stiktifybackend": "StartWithoutDebugging"
       }
     }
   }

@@ -1,18 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace StiktifyShop.Application.DTOs.Requests
 {
     public class CreateProductOption
     {
-        [Required]
         [StringLength(32)]
-        public string ProductId { get; set; } = default!;
+        public string? ProductId { get; set; }
         [Required]
         public string Image { get; set; } = default!;
         [StringLength(50)]
-        public string Color { get; set; } = default!;
+        public string? Color { get; set; }
         [StringLength(50)]
-        public string Type { get; set; } = default!;
+        public string? Type { get; set; } = "None";
 
         [Range(0, double.MaxValue)]
         public double? Price { get; set; }

@@ -39,4 +39,12 @@ namespace StiktifyShop.Application.DTOs.Requests
         [Range(0, double.MaxValue, ErrorMessage = "Shipping fee must be greater than or equal zero.")]
         public double ShippingFee { get; set; }
     }
+
+    public class UpdateOrder : CreateOrder
+    {
+        [Required]
+        [StringLength(32)]
+        public string Id { get; set; } = default!;
+    }
+
 }

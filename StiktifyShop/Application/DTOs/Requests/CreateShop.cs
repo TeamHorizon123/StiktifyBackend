@@ -14,7 +14,7 @@ namespace StiktifyShop.Application.DTOs.Requests
 
         [Required]
         public string Description { get; set; } = default!;
-        public string AvartarUri { get; set; } = default!;
+        public string AvatarUri { get; set; } = default!;
 
         [Required]
         [EmailAddress]

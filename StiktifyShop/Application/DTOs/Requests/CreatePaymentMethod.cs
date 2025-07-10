@@ -11,7 +11,7 @@ namespace StiktifyShop.Application.DTOs.Requests
         public bool Enable { get; set; }
     }
 
-    public class UpdatePaymentMethod : CreatePayment
+    public class UpdatePaymentMethod : CreatePaymentMethod
     {
         [Required]
         [StringLength(32)]

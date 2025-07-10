@@ -20,13 +20,7 @@ namespace StiktifyShop.Application.Mapper
             {
                 Id = category.Id,
                 Name = category.Name,
-                ParentId = category.ParentId,
-                Children = category.Children.Select(c => new ResponseCategory
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    ParentId = c.ParentId,
-                }).ToList()
+                ParentId = category.ParentId
             };
         }
     }
