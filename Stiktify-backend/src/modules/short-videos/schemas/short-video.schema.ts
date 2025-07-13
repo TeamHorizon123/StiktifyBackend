@@ -35,6 +35,12 @@ export class Video {
   videoTag: string[];
 
   @Prop()
+  segments: string[];
+
+  @Prop()
+  m3u8_png: string;
+
+  @Prop()
   totalComment: number;
 
   @Prop()
