@@ -283,6 +283,13 @@ export class ShortVideosService {
     let countVideo = 0;
     const setting = await this.settingsService.findAll();
     const resetScore = setting.algorithmConfig.numberVideoSuggest;
+      if (data.videoId && data.videoId.length > 0) {
+      countVideo += 1;
+      videoFound = await this.videoModel
+        .find({ _id: { $in: data.videoId } })
+        .populate('userId')
+        .populate('musicId');
+    }
 
     const wishList = await this.wishListService.getWishListByUserId(
       data,
@@ -290,13 +297,7 @@ export class ShortVideosService {
     );
     const wishListVideoIds = wishList.map((item) => item.videoId);
     countVideo += wishListVideoIds.length;
-    if (data.videoId && data.videoId.length > 0) {
-      countVideo += 1;
-      videoFound = await this.videoModel
-        .find({ _id: { $in: data.videoId } })
-        .populate('userId')
-        .populate('musicId');
-    }
+ 
 
     const collaboratorVideoIdList =
       await this.wishListService.getCollaborativeVideo(

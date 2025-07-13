@@ -1,0 +1,6 @@
+@StiktifyShop_HostAddress = http://localhost:5160
+
+GET {{StiktifyShop_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
