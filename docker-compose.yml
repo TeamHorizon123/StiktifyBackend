@@ -1,6 +1,7 @@
 networks:
   backend:
 
+
 volumes:
   mongodb_data_container:
   sspgadmin:
@@ -8,6 +9,7 @@ volumes:
   ssproductdata:
   ssorderdata:
   sspurchasedata:
+
 
 services:
   kafka:
@@ -21,7 +23,7 @@ services:
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_LOG_DIRS=/tmp/kraft-combined-logs
       - ALLOW_PLAINTEXT_LISTENER=yes
@@ -46,8 +48,8 @@ services:
   stiktifybackend:
     container_name: stiktify-backend
     build:
-        context: ./Stiktify-backend
-        dockerfile: Dockerfile
+      context: ./Stiktify-backend
+      dockerfile: Dockerfile
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -65,18 +67,18 @@ services:
     container_name: stiktify-shop-backend
     image: ${DOCKER_REGISTRY-}stiktifyshopbackend
     ports:
-        - "8000:8081"
+      - "8000:8081"
     build:
       context: .
       dockerfile: StiktifyShopBackend/Dockerfile
     restart: unless-stopped
     depends_on:
-        - grpcserviceuser
-        - grpcserviceproduct
-        - grpcserviceorder
-        - grpcservicepurchase
+      - grpcserviceuser
+      - grpcserviceproduct
+      - grpcserviceorder
+      - grpcservicepurchase
     networks:
-        - backend
+      - backend
 
   pgadmin:
     container_name: stiktify-shop-pgadmin
@@ -148,58 +150,55 @@ services:
       - POSTGRES_PASSWORD=admin@123
     volumes:
       - sspurchasedata:/var/lib/postgresql/data
-  
+
   grpcserviceuser:
     container_name: grpc-service-user
     image: ${DOCKER_REGISTRY-}grpcserviceuser
     networks:
-        - backend
+      - backend
     ports:
-        - "15000:8080"
+      - "15000:8080"
     build:
       context: .
       dockerfile: GrpcServiceUser/Dockerfile
     depends_on:
-        - ssuserdata
+      - ssuserdata
 
   grpcserviceproduct:
     container_name: grpc-service-product
     image: ${DOCKER_REGISTRY-}grpcserviceproduct
     networks:
-        - backend
+      - backend
     ports:
-        - "15001:8080"
+      - "15001:8080"
     build:
       context: .
       dockerfile: GrpcServiceProduct/Dockerfile
     depends_on:
-        - ssproductdata
-
+      - ssproductdata
 
   grpcserviceorder:
     container_name: grpc-service-order
     image: ${DOCKER_REGISTRY-}grpcserviceorder
     ports:
-        - "15002:8080"
+      - "15002:8080"
     networks:
-        - backend
+      - backend
     build:
       context: .
       dockerfile: GrpcServiceOrder/Dockerfile
     depends_on:
-        - ssorderdata
-
+      - ssorderdata
 
   grpcservicepurchase:
     container_name: grpc-service-purchase
     image: ${DOCKER_REGISTRY-}grpcservicepurchase
     ports:
-        - "15003:8080"
+      - "15003:8080"
     networks:
-        - backend
+      - backend
     build:
       context: .
       dockerfile: GrpcServicePurchase/Dockerfile
     depends_on:
-        - sspurchasedata
-
+      - sspurchasedata

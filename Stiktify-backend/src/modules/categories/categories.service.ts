@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Category } from './schemas/category.schema';
@@ -10,10 +10,19 @@ export class CategoriesService {
   constructor(
     @InjectModel(Category.name)
     private categoryModel: Model<Category>,
-  ) {}
+  ) { }
 
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+  async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
+    const existingCategory = await this.categoryModel.findOne({
+      categoryName: { $regex: new RegExp(`^${createCategoryDto.categoryName}$`, 'i') },
+    });
+
+    if (existingCategory) {
+      throw new BadRequestException('Category already exists');
+    }
+
+    const createdCategory = new this.categoryModel(createCategoryDto);
+    return createdCategory.save();
   }
 
   async checkCategoryById(id: string) {
