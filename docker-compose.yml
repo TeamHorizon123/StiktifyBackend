@@ -2,17 +2,15 @@ networks:
   backend:
 
 volumes:
-  mongodb_data_container:
-  sspgadmin:
-  ssuserdata:
-  ssproductdata:
-  ssorderdata:
-  sspurchasedata:
+  mongodb_data:
+  stspgadmin:
+  stsdb:
 
 services:
   kafka:
     image: bitnami/kafka:latest
     container_name: kafka
+    restart: unless-stopped
     networks:
       - backend
     environment:
@@ -33,13 +31,14 @@ services:
   mongodb:
     container_name: social_db
     image: mongo:5.0.15
+    restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: 123456
     ports:
       - "27019:27017"
     volumes:
-      - mongodb_data_container:/data/db
+      - mongodb_data:/data/db
     networks:
       - backend
 
@@ -61,23 +60,6 @@ services:
     command: npm run start:prod
     env_file: Stiktify-backend/.env
 
-  stiktifyshopbackend:
-    container_name: stiktify-shop-backend
-    image: ${DOCKER_REGISTRY-}stiktifyshopbackend
-    ports:
-        - "8000:8081"
-    build:
-      context: .
-      dockerfile: StiktifyShopBackend/Dockerfile
-    restart: unless-stopped
-    depends_on:
-        - grpcserviceuser
-        - grpcserviceproduct
-        - grpcserviceorder
-        - grpcservicepurchase
-    networks:
-        - backend
-
   pgadmin:
     container_name: stiktify-shop-pgadmin
     image: dpage/pgadmin4
@@ -86,120 +68,40 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     volumes:
-      - sspgadmin:/var/lib/pgadmin
+      - stspgadmin:/var/lib/pgadmin
     ports:
       - "${PGADMIN_PORT:-5050}:80"
     networks:
       - backend
     restart: unless-stopped
 
-  ssuserdata:
-    container_name: user-data
+  ssdb:
+    container_name: shop-data
     image: postgres
+    restart: unless-stopped
     ports:
       - "5432:5432"
     networks:
       - backend
     environment:
-      - POSTGRES_DB=userdb
+      - POSTGRES_DB=shopdb
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin@123
     volumes:
-      - ssuserdata:/var/lib/postgresql/data
+      - stsdb:/var/lib/postgresql/data
 
-  ssproductdata:
-    container_name: product-data
-    image: postgres
+  stiktifyshop:
+    container_name: stiktify-shop-backend
+    image: ${DOCKER_REGISTRY-}stiktifyshop
     ports:
-      - "5433:5432"
-    networks:
-      - backend
-    environment:
-      - POSTGRES_DB=productdb
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin@123
-    volumes:
-      - ssproductdata:/var/lib/postgresql/data
-
-  ssorderdata:
-    container_name: order-data
-    image: postgres
-    ports:
-      - "5434:5432"
-    networks:
-      - backend
-    environment:
-      - POSTGRES_DB=orderdb
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin@123
-    volumes:
-      - ssorderdata:/var/lib/postgresql/data
-
-  sspurchasedata:
-    container_name: purchase-data
-    image: postgres
-    ports:
-      - "5435:5432"
-    networks:
-      - backend
-    environment:
-      - POSTGRES_DB=purchasedb
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin@123
-    volumes:
-      - sspurchasedata:/var/lib/postgresql/data
-  
-  grpcserviceuser:
-    container_name: grpc-service-user
-    image: ${DOCKER_REGISTRY-}grpcserviceuser
-    networks:
-        - backend
-    ports:
-        - "15000:8080"
+        - "8000:8081"
+        - "8081:8080"
     build:
       context: .
-      dockerfile: GrpcServiceUser/Dockerfile
+      dockerfile: StiktifyShop/Dockerfile
+    restart: unless-stopped
     depends_on:
-        - ssuserdata
-
-  grpcserviceproduct:
-    container_name: grpc-service-product
-    image: ${DOCKER_REGISTRY-}grpcserviceproduct
+        - ssdb
     networks:
         - backend
-    ports:
-        - "15001:8080"
-    build:
-      context: .
-      dockerfile: GrpcServiceProduct/Dockerfile
-    depends_on:
-        - ssproductdata
-
-
-  grpcserviceorder:
-    container_name: grpc-service-order
-    image: ${DOCKER_REGISTRY-}grpcserviceorder
-    ports:
-        - "15002:8080"
-    networks:
-        - backend
-    build:
-      context: .
-      dockerfile: GrpcServiceOrder/Dockerfile
-    depends_on:
-        - ssorderdata
-
-
-  grpcservicepurchase:
-    container_name: grpc-service-purchase
-    image: ${DOCKER_REGISTRY-}grpcservicepurchase
-    ports:
-        - "15003:8080"
-    networks:
-        - backend
-    build:
-      context: .
-      dockerfile: GrpcServicePurchase/Dockerfile
-    depends_on:
-        - sspurchasedata
 
