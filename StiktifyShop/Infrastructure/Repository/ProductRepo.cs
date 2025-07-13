@@ -118,6 +118,7 @@ namespace StiktifyShop.Infrastructure.Repository
             try
             {
                 var product = await _context.Products
+                    .Include(p=> p.Category)
                     .Include(p => p.Shop)
                     .FirstOrDefaultAsync(p => p.Id == productId);
                 if (product == null)
@@ -143,6 +144,8 @@ namespace StiktifyShop.Infrastructure.Repository
             {
                 var list = _context.Products
                     .Include(p => p.Shop)
+                    .Include(p => p.Category)
+                    .Include(p => p.ProductRatings)
                     .Select(product => MapperSingleton<MapperProduct>.Instance.MapResponse(product))
                     .ToList();
                 return list.Select(product

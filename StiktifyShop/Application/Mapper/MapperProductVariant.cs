@@ -37,7 +37,7 @@ namespace StiktifyShop.Application.Mapper
                 },
                 Size = new ResponseProductSize
                 {
-                    Size = productVariant.Size.Size,
+                    Size = productVariant.Size?.Size,
                 },
                 CreateAt = productVariant.CreatedAt,
                 UpdateAt = productVariant.UpdatedAt

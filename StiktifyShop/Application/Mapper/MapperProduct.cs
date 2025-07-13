@@ -53,6 +53,11 @@ namespace StiktifyShop.Application.Mapper
                     ShopType = product.Shop.ShopType,
                     UpdateAt = product.Shop.UpdatedAt,
                 },
+                Category = new ResponseCategory
+                {
+                    Id = product.CategoryId,
+                    Name = product.Category.Name,
+                },
                 CreateAt = product.CreatedAt,
                 UpdateAt = product.UpdatedAt,
             };
