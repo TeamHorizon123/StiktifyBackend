@@ -263,7 +263,7 @@ export class ShortVideosService {
       return null;
     }
   }
-    async checkVideoByIdCanDelete(id: string) {
+  async checkVideoByIdCanDelete(id: string) {
     try {
       const result = await this.videoModel
         .findById(id)
@@ -341,15 +341,15 @@ export class ShortVideosService {
             trendingVideos,
             data.userId,
           );
-          if(trendingVideoChoose&&trendingVideoChoose.length>0){  
-            videos.push(trendingVideoChoose);
-         
-        const index = trendingVideos.findIndex((video) =>
-          video._id.equals(trendingVideoChoose._id),
-        );
-        if (index !== -1) trendingVideos.splice(index, 1);
-              countVideo += resetScore.trending;
-      }
+        if (trendingVideoChoose && trendingVideoChoose.length > 0) {
+          videos.push(trendingVideoChoose);
+
+          const index = trendingVideos.findIndex((video) =>
+            video._id.equals(trendingVideoChoose._id),
+          );
+          if (index !== -1) trendingVideos.splice(index, 1);
+          countVideo += resetScore.trending;
+        }
       }
     }
     if (resetScore.random > 0 || countVideo < 10) {
@@ -363,7 +363,7 @@ export class ShortVideosService {
             },
           },
         },
-        { $sample: { size: sampleSize * 2 } }, 
+        { $sample: { size: sampleSize * 2 } },
       ]);
 
       const legitRandomVideos = [];
@@ -371,7 +371,7 @@ export class ShortVideosService {
       for (const video of randomCandidates) {
         const isLegit = await this.isVideoLegit(video._id, data.userId);
         if (isLegit) legitRandomVideos.push(video);
-        if (legitRandomVideos.length >= sampleSize) break; 
+        if (legitRandomVideos.length >= sampleSize) break;
       }
 
       const populatedVideos = await this.videoModel.populate(legitRandomVideos, [
@@ -395,81 +395,81 @@ export class ShortVideosService {
     // console.log(videos.length)
     return videos;
   }
-async getTrendingVideosByGuest(data: TrendingVideoDto) {
-  const MAX_COUNT = 10;
-  let videos: any[] = [];
+  async getTrendingVideosByGuest(data: TrendingVideoDto) {
+    const MAX_COUNT = 10;
+    let videos: any[] = [];
 
-  if (data.videoId && data.videoId.length > 0) {
-    const videoFound = await this.videoModel
-      .find({
-        _id: { $in: data.videoId },
-        $or: [{ isDelete: false }, { isDelete: { $exists: false } }],
-      })
-      .populate('userId')
-      .populate('musicId');
-
-    for (const video of videoFound) {
-      if (await this.isVideoLegit(video._id+"", data.userId)) {
-        videos.push(video);
-        if (videos.length >= MAX_COUNT) return videos;
-      }
-    }
-  }
-
-  const triedIds = new Set(videos.map((v) => v._id.toString()));
-  const SAFE_LIMIT = 10; 
-  let attempt = 0;
-
-  while (videos.length < MAX_COUNT && attempt < SAFE_LIMIT) {
-    const needCount = MAX_COUNT - videos.length;
-
-    const randomVideos = await this.videoModel.aggregate([
-      {
-        $match: {
-          _id: { $nin: Array.from(triedIds) },
+    if (data.videoId && data.videoId.length > 0) {
+      const videoFound = await this.videoModel
+        .find({
+          _id: { $in: data.videoId },
           $or: [{ isDelete: false }, { isDelete: { $exists: false } }],
-        },
-      },
-      { $sample: { size: needCount + 5 } }, 
-    ]);
+        })
+        .populate('userId')
+        .populate('musicId');
 
-    const populated = await this.videoModel.populate(randomVideos, [
-      { path: 'userId' },
-      { path: 'musicId' },
-    ]);
-
-    for (const video of populated) {
-      if (videos.length >= MAX_COUNT) break;
-
-      if (await this.isVideoLegit(video._id+'', data.userId)) {
-        const idStr = video._id.toString();
-        if (!triedIds.has(idStr)) {
+      for (const video of videoFound) {
+        if (await this.isVideoLegit(video._id + "", data.userId)) {
           videos.push(video);
-          triedIds.add(idStr);
+          if (videos.length >= MAX_COUNT) return videos;
         }
-      } else {
-        triedIds.add(video._id.toString());
       }
     }
 
-    attempt++;
+    const triedIds = new Set(videos.map((v) => v._id.toString()));
+    const SAFE_LIMIT = 10;
+    let attempt = 0;
+
+    while (videos.length < MAX_COUNT && attempt < SAFE_LIMIT) {
+      const needCount = MAX_COUNT - videos.length;
+
+      const randomVideos = await this.videoModel.aggregate([
+        {
+          $match: {
+            _id: { $nin: Array.from(triedIds) },
+            $or: [{ isDelete: false }, { isDelete: { $exists: false } }],
+          },
+        },
+        { $sample: { size: needCount + 5 } },
+      ]);
+
+      const populated = await this.videoModel.populate(randomVideos, [
+        { path: 'userId' },
+        { path: 'musicId' },
+      ]);
+
+      for (const video of populated) {
+        if (videos.length >= MAX_COUNT) break;
+
+        if (await this.isVideoLegit(video._id + '', data.userId)) {
+          const idStr = video._id.toString();
+          if (!triedIds.has(idStr)) {
+            videos.push(video);
+            triedIds.add(idStr);
+          }
+        } else {
+          triedIds.add(video._id.toString());
+        }
+      }
+
+      attempt++;
+    }
+
+    return videos;
   }
 
-  return videos;
-}
 
+  async isVideoLegit(videoId: string, userId: string) {
+    const video: any = await this.videoModel.findById(videoId).populate('userId');
+    if (!video) return false;
 
-async isVideoLegit(videoId: string, userId: string) {
-  const video: any = await this.videoModel.findById(videoId).populate('userId');
-  if (!video) return false;
+    const isDeleted = video.isDelete === true;
+    const isUserBanned = video.userId?.isBan === true;
+    const isUserBlocked = video?.isBlock === true;
+    const isSameUser = video.userId?._id?.toString() === userId;
 
-  const isDeleted = video.isDelete === true;
-  const isUserBanned = video.userId?.isBan === true;
-  const isUserBlocked = video?.isBlock === true;
-  const isSameUser = video.userId?._id?.toString() === userId;
-
-  return !isDeleted && !isUserBanned && !isUserBlocked && !isSameUser;
-}
+    return !isDeleted && !isUserBanned && !isUserBlocked && !isSameUser;
+  }
 
 
 
@@ -587,102 +587,102 @@ async isVideoLegit(videoId: string, userId: string) {
   }
 
   async handleFilterSearchVideo(
-  query: string,
-  current: number,
-  pageSize: number,
-) {
-  const { filter, sort: rawSort } = aqp(query);
+    query: string,
+    current: number,
+    pageSize: number,
+  ) {
+    const { filter, sort: rawSort } = aqp(query);
 
-  if (filter.current) delete filter.current;
-  if (filter.pageSize) delete filter.pageSize;
+    if (filter.current) delete filter.current;
+    if (filter.pageSize) delete filter.pageSize;
 
-  if (!current) current = 1;
-  if (!pageSize) pageSize = 10;
+    if (!current) current = 1;
+    if (!pageSize) pageSize = 10;
 
-  const skip = (+current - 1) * +pageSize;
-  const rawSearch = String(filter.search || '').trim();
-  const searchRegex = new RegExp(rawSearch, 'i');
+    const skip = (+current - 1) * +pageSize;
+    const rawSearch = String(filter.search || '').trim();
+    const searchRegex = new RegExp(rawSearch, 'i');
 
-  const sort: any = rawSort || {};
-  const andConditions: any[] = [];
+    const sort: any = rawSort || {};
+    const andConditions: any[] = [];
 
-  switch (filter.filterReq) {
-    case 'recent':
-      sort.createdAt = -1;
-      break;
-    case 'oldest':
-      sort.createdAt = 1;
-      break;
-    case 'blocked':
-      andConditions.push({ isBlock: true });
-      break;
-    case 'flagged':
-      andConditions.push({ flag: true });
-      break;
-    case 'mostViews':
-      sort.totalViews = -1;
-      break;
-    default:
-       sort.createdAt = -1;
-      break;
-  }
+    switch (filter.filterReq) {
+      case 'recent':
+        sort.createdAt = -1;
+        break;
+      case 'oldest':
+        sort.createdAt = 1;
+        break;
+      case 'blocked':
+        andConditions.push({ isBlock: true });
+        break;
+      case 'flagged':
+        andConditions.push({ flag: true });
+        break;
+      case 'mostViews':
+        sort.totalViews = -1;
+        break;
+      default:
+        sort.createdAt = -1;
+        break;
+    }
 
 
-  if (rawSearch.length > 0) {
-    andConditions.push({
-      $or: [
-        { videoDescription: { $regex: searchRegex } },
-        { 'userId.userName': { $regex: searchRegex } },
-      ],
-    });
-  }
+    if (rawSearch.length > 0) {
+      andConditions.push({
+        $or: [
+          { videoDescription: { $regex: searchRegex } },
+          { 'userId.userName': { $regex: searchRegex } },
+        ],
+      });
+    }
 
- 
-  const matchStage = andConditions.length > 0 ? { $and: andConditions } : {};
 
-  const aggregatePipeline: any = [
-  {
-    $lookup: {
-      from: 'users',
-      localField: 'userId',
-      foreignField: '_id',
-      as: 'userId',
-    },
-  },
-  { $unwind: '$userId' },
-  { $match: matchStage },
-  { $sort: Object.keys(sort).length > 0 ? sort : { createdAt: -1 } },
-  {
-    $facet: {
-      data: [
-        { $skip: skip },
-        { $limit: pageSize },
-        {
-          $project: {
-            'userId.password': 0,
-          },
+    const matchStage = andConditions.length > 0 ? { $and: andConditions } : {};
+
+    const aggregatePipeline: any = [
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'userId',
         },
-      ],
-      total: [{ $count: 'count' }],
-    },
-  },
-];
+      },
+      { $unwind: '$userId' },
+      { $match: matchStage },
+      { $sort: Object.keys(sort).length > 0 ? sort : { createdAt: -1 } },
+      {
+        $facet: {
+          data: [
+            { $skip: skip },
+            { $limit: pageSize },
+            {
+              $project: {
+                'userId.password': 0,
+              },
+            },
+          ],
+          total: [{ $count: 'count' }],
+        },
+      },
+    ];
 
 
-  const [resultData] = await this.videoModel.aggregate(aggregatePipeline);
-  const totalItems = resultData?.total?.[0]?.count || 0;
-  const totalPages = Math.ceil(totalItems / pageSize);
+    const [resultData] = await this.videoModel.aggregate(aggregatePipeline);
+    const totalItems = resultData?.total?.[0]?.count || 0;
+    const totalPages = Math.ceil(totalItems / pageSize);
 
-  return {
-    meta: {
-      current,
-      pageSize,
-      total: totalItems,
-      pages: totalPages,
-    },
-    result: resultData?.data || [],
-  };
-}
+    return {
+      meta: {
+        current,
+        pageSize,
+        total: totalItems,
+        pages: totalPages,
+      },
+      result: resultData?.data || [],
+    };
+  }
 
 
 
@@ -913,12 +913,12 @@ async isVideoLegit(videoId: string, userId: string) {
         { userId, tagName, score },
       )
       .run();
-  
+
     console.log(result); // Kiểm tra dữ liệu trả về
     return result;
   }
-  
-  
+
+
   async addMusicToUser(userId: string, musicId: string, score: number) {
     return this.queryRepository
       .initQuery()
@@ -933,7 +933,7 @@ async isVideoLegit(videoId: string, userId: string) {
       )
       .run();
   }
-  
+
   async addCreatorToUser(userId: string, creatorId: string, score: number) {
     return this.queryRepository
       .initQuery()
@@ -948,7 +948,7 @@ async isVideoLegit(videoId: string, userId: string) {
       )
       .run();
   }
-  
+
   async addCategoryToUser(userId: string, categoryName: string, score: number) {
     return this.queryRepository
       .initQuery()
@@ -963,7 +963,7 @@ async isVideoLegit(videoId: string, userId: string) {
       )
       .run();
   }
-  
+
   async addTagToVideo(videoId: string, tagName: string, score: number) {
     return this.queryRepository
       .initQuery()
@@ -981,7 +981,7 @@ async isVideoLegit(videoId: string, userId: string) {
       )
       .run();
   }
-  
+
   async addMusicToVideo(videoId: string, musicId: string, score: number) {
     return this.queryRepository
       .initQuery()
@@ -999,7 +999,7 @@ async isVideoLegit(videoId: string, userId: string) {
       )
       .run();
   }
-  
+
   async addCreatorToVideo(videoId: string, creatorId: string, score: number) {
     return this.queryRepository
       .initQuery()
@@ -1017,7 +1017,7 @@ async isVideoLegit(videoId: string, userId: string) {
       )
       .run();
   }
-  
+
 
   async addCategoryToVideo(videoId: string, categoryName: string, score: number) {
     return this.queryRepository
@@ -1036,7 +1036,7 @@ async isVideoLegit(videoId: string, userId: string) {
       )
       .run();
   }
-  
+
   async getVideoDetails(videoId: string) {
     return this.queryRepository
       .initQuery()
@@ -1134,21 +1134,21 @@ RETURN u2.id AS otherUser,
     if (totalSimilarity === 0) return [];
 
     const rawRecommendedScores = similarities[0]?.allVideos.map((video, index) => {
-    const weightedSum = similarities.reduce(
-      (sum, user) => sum + user.similarity * user.otherUserScores[index],
-      0,
-    );
-    return {
-      videoId: video,
-      score: weightedSum / totalSimilarity,
-    };
-  }) || [];
+      const weightedSum = similarities.reduce(
+        (sum, user) => sum + user.similarity * user.otherUserScores[index],
+        0,
+      );
+      return {
+        videoId: video,
+        score: weightedSum / totalSimilarity,
+      };
+    }) || [];
 
-  const recommendedScores = [];
-  for (const item of rawRecommendedScores) {
-    const isLegit = await this.isVideoLegit(item.videoId, userId);
-    if (isLegit) recommendedScores.push(item);
-  }
+    const recommendedScores = [];
+    for (const item of rawRecommendedScores) {
+      const isLegit = await this.isVideoLegit(item.videoId, userId);
+      if (isLegit) recommendedScores.push(item);
+    }
 
 
     return recommendedScores

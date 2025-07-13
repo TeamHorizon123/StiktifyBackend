@@ -45,13 +45,13 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     private videoCategoriesService: VideoCategoriesService,
     private shortVideoService: ShortVideosService,
     private categoryService: CategoriesService,
-    private musicCategoriesService: MusicCategoriesService, 
+    private musicCategoriesService: MusicCategoriesService,
     private musicService: MusicsService,
   ) {
     this.kafka = new Kafka({
       clientId: 'nestjs-app',
-      // brokers: ['localhost:9092'],
-      brokers: ['kafka:9092'],
+      brokers: ['localhost:9092'],
+      // brokers: ['kafka:9092'],
     });
     this.producer = this.kafka.producer();
     this.consumer = this.kafka.consumer({ groupId: 'user-action-group' });
@@ -78,7 +78,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
           action.action === 'listen' &&
           (action.category || action.tags)
         ) {
-          this.musicMetadata.push(action); 
+          this.musicMetadata.push(action);
         }
       },
     });
@@ -87,7 +87,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
       () => {
         this.saveDailyLog();
         this.saveVideoMetadataLog();
-        this.saveMusicMetadataLog(); 
+        this.saveMusicMetadataLog();
       },
       60 * 60 * 24 * 1000,
     );
@@ -226,7 +226,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
       .filter((line) => line);
 
     const actions: UserAction[] = lines.map((line) => {
-      const [userId, action, timestamp] = line.split(',', 3); 
+      const [userId, action, timestamp] = line.split(',', 3);
       return { userId, action, timestamp };
     });
 
@@ -236,7 +236,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
 
     const hourlyMap = new Map<string, Map<string, UserStats>>();
     filteredActions.forEach(({ userId, action, timestamp }) => {
-      const hour = timestamp.slice(0, 13); 
+      const hour = timestamp.slice(0, 13);
 
       if (!hourlyMap.has(hour)) {
         hourlyMap.set(hour, new Map<string, UserStats>());
