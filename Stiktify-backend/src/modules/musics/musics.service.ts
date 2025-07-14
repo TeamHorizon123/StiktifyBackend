@@ -393,7 +393,7 @@ export class MusicsService {
     }
   }
 
-  async handleFlagVideo(_id: string, flag: boolean) {
+  async handleFlagMusic(_id: string, flag: boolean) {
     const checkId = await this.isIdExist(_id);
     if (checkId === false) {
       throw new BadRequestException(`Music not found with ID: ${_id}`);
@@ -406,6 +406,19 @@ export class MusicsService {
     }
   }
 
+  
+  async handleBlockMusic(_id: string, isBlock: boolean) {
+    const checkId = await this.isIdExist(_id);
+    if (checkId === false) {
+      throw new BadRequestException(`Music not found with ID: ${_id}`);
+    } else {
+      const result = await this.musicModel.findByIdAndUpdate(_id, {
+        isBlock: isBlock,
+      });
+      // await this.reportService.remove(_id)
+      return result._id;
+    }
+  }
 
   async handleRecommendMusic(userId: string) {
     const similarUsers = await this.queryRepository

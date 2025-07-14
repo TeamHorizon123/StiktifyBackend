@@ -17,6 +17,7 @@ import { CreateNeo4j } from './dto/create-neo4j.dto';
 import { UpdateMusicDto } from './dto/update-music.dto';
 import { Types } from 'mongoose';
 import { TrackRelatedDto } from './dto/track-related.dto';
+import { blockMusicDto } from './dto/block-music-dto';
 
 @Controller('musics')
 export class MusicsController {
@@ -104,8 +105,15 @@ export class MusicsController {
   @Post('flag-music')
   @ResponseMessage('Updated successfully')
   findOne(@Body() req: flagMusicDto) {
-    return this.musicsService.handleFlagVideo(req._id, req.flag);
+    return this.musicsService.handleFlagMusic(req._id, req.flag);
   }
+
+  @Post('block-music')
+  @ResponseMessage('Updated successfully')
+  blockMusic(@Body() req: blockMusicDto) {
+    return this.musicsService.handleBlockMusic(req._id, req.isBlock);
+  }
+
   // Delete
   @Delete(':id')
   remove(@Param('id') id: string) {
