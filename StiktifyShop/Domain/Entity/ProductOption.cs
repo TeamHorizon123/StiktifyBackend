@@ -23,5 +23,6 @@ namespace StiktifyShop.Domain.Entity
 
         public int? Quantity { get; set; }
         public virtual ICollection<ProductVariant> ProductVariants { get; set; } = default!;
+        public virtual ICollection<Cart> Carts { get; set; } = default!;
     }
 }

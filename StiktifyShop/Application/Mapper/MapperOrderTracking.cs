@@ -13,7 +13,7 @@ namespace StiktifyShop.Application.Mapper
                 CourierInfo = orderTracking.CourierInfo,
                 Location = orderTracking.Location,
                 Message = orderTracking.Message,
-                OrderId = orderTracking.OrderId,
+                OrderId = orderTracking.OrderId!,
                 Status = orderTracking.Status,
                 TimeTracking = orderTracking.TimeTracking,
             };

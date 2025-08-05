@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection.Metadata.Ecma335;
 
 namespace StiktifyShop.Domain.Entity
 {
@@ -14,16 +15,6 @@ namespace StiktifyShop.Domain.Entity
         public required string ShopId { get; set; }
         [ForeignKey(nameof(ShopId))]
         public virtual Shop Shop { get; set; } = default!;
-        [Required]
-        [StringLength(32)]
-        public required string ProductId { get; set; }
-        [ForeignKey(nameof(ProductId))]
-        public virtual Product Product { get; set; } = default!;
-        [Required]
-        [StringLength(32)]
-        public required string ProductItemId { get; set; }
-        [ForeignKey(nameof(ProductItemId))]
-        public virtual ProductItem ProductItem { get; set; } = default!;
 
         [Required]
         [StringLength(32)]
@@ -36,17 +27,21 @@ namespace StiktifyShop.Domain.Entity
         [DefaultValue("Pending")]
         public required string Status { get; set; }
 
-        [DefaultValue(1)]
-        public int Quantity { get; set; }
-
         [Required]
         [Column(TypeName = "money")]
-        public double Price { get; set; }
+        public double TotalAmount { get; set; }
 
         [Required]
         [Column(TypeName = "money")]
         public double ShippingFee { get; set; }
 
-        public virtual ICollection<OrderTracking> OrderTrackings { get; set; } = default!;
+        [StringLength(150)]
+        public string? Note { get; set; }
+
+        //public virtual ICollection<OrderTracking> OrderTrackings { get; set; } = default!;
+        //public virtual OrderDetail OrderDetail { get; set; } = default!;
+        public virtual ICollection<OrderItem> OrderItems { get; set; } = default!;
+        public virtual ProductRating? Rating { get; set; }
+        public virtual Payment Payment { get; set; } = default!;
     }
 }

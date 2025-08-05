@@ -26,7 +26,7 @@ namespace StiktifyShop.Infrastructure.Repository
 
         private int CountOrder(string productId)
         {
-            return _context.Orders.Count(o => o.ProductId == productId);
+            return _context.OrderItems.Count(o => o.ProductId == productId);
         }
 
         private int CountRating(string productId)
@@ -118,7 +118,7 @@ namespace StiktifyShop.Infrastructure.Repository
             try
             {
                 var product = await _context.Products
-                    .Include(p=> p.Category)
+                    .Include(p => p.Category)
                     .Include(p => p.Shop)
                     .FirstOrDefaultAsync(p => p.Id == productId);
                 if (product == null)
@@ -146,6 +146,7 @@ namespace StiktifyShop.Infrastructure.Repository
                     .Include(p => p.Shop)
                     .Include(p => p.Category)
                     .Include(p => p.ProductRatings)
+                    .Include(p => p.ProductOptions)
                     .Select(product => MapperSingleton<MapperProduct>.Instance.MapResponse(product))
                     .ToList();
                 return list.Select(product
@@ -192,7 +193,7 @@ namespace StiktifyShop.Infrastructure.Repository
                 {
                     StatusCode = 200,
                     Message = "Product updated successfully.",
-                    Data = new { value = MapperSingleton<MapperProduct>.Instance.MapResponse(existProduct) }
+                    Data = new { value = existProduct }
                 };
             }
             catch (Exception err)

@@ -10,11 +10,12 @@ namespace StiktifyShop.Application.Mapper
         {
             return new ProductOption
             {
+                ProductId = createOption.ProductId!,
                 Image = createOption.Image,
                 Price = createOption.Price,
-                Color = createOption.Color,
+                Color = createOption.Color ?? "",
                 Quantity = createOption.Quantity,
-                Type = createOption.Type,
+                Type = createOption.Type ?? "",
                 ProductVariants = createOption.ProductVariants?.Select(v => new ProductVariant
                 {
                     SizeId = v.SizeId,

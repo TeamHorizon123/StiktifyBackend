@@ -32,8 +32,8 @@ namespace StiktifyShop.Application.Mapper
                     MethodId = paymentRefund.Payment.MethodId,
                     TxnRef = paymentRefund.Payment.TxnRef,
                     UserId = paymentRefund.Payment.UserId,
-                    OrderId = paymentRefund.Payment.OrderId,
                     Status = paymentRefund.Payment.Status,
+                    
                 },
                 CreateAt = paymentRefund.CreatedAt,
                 UpdateAt = paymentRefund.UpdatedAt

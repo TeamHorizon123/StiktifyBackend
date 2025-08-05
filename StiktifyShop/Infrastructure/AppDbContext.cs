@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StiktifyShop.Domain.Entity;
-using System.Reflection.Metadata.Ecma335;
 
 namespace StiktifyShop.Infrastructure
 {
@@ -14,6 +13,7 @@ namespace StiktifyShop.Infrastructure
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<OrderTracking> OrderTrackings { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<PaymentRefund> PaymentRefunds { get; set; }
         public DbSet<PaymentMethod> PaymentMethods { get; set; }
@@ -31,6 +31,21 @@ namespace StiktifyShop.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Cart>().ToTable("Carts");
+            modelBuilder.Entity<Cart>()
+                .HasOne(c => c.Variant)
+                .WithMany(pv => pv.Carts)
+                .HasForeignKey(c => c.VariantId)
+                .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<Cart>()
+                .HasOne(c => c.Option)
+                .WithMany(po => po.Carts)
+                .HasForeignKey(c => c.OptionId)
+                .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<Cart>()
+                .HasOne(c => c.Product)
+                .WithMany(p => p.Carts)
+                .HasForeignKey(c => c.ProductId)
+                .OnDelete(DeleteBehavior.SetNull);
             #region model builder category
             modelBuilder.Entity<Category>().ToTable("Categories");
             modelBuilder.Entity<Category>()
@@ -40,18 +55,44 @@ namespace StiktifyShop.Infrastructure
                 .OnDelete(DeleteBehavior.SetNull);
             #endregion
             modelBuilder.Entity<Order>().ToTable("Orders");
+            //modelBuilder.Entity<Order>()
+            //    .HasMany(o => o.OrderTrackings)
+            //    .WithOne(ot => ot.Order)
+            //    .HasForeignKey(ot => ot.OrderId)
+            //    .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Order>()
-                .HasMany(o => o.OrderTrackings)
-                .WithOne(ot => ot.Order)
-                .HasForeignKey(ot => ot.OrderId)
+                .HasOne(o => o.Payment)
+                .WithOne(p => p.Order)
+                .HasForeignKey<Payment>(p => p.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<OrderDetail>().ToTable("OrderDetails");
-            modelBuilder.Entity<OrderDetail>()
-                .HasOne(od => od.Order)
-                .WithOne()
-                .HasForeignKey<OrderDetail>(od => od.Id)
-                .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<OrderTracking>().ToTable("OrderTrackings");
+            //modelBuilder.Entity<OrderDetail>().ToTable("OrderDetails");
+            //modelBuilder.Entity<OrderDetail>()
+            //    .HasOne(od => od.Order)
+            //    .WithOne(o => o.OrderDetail)
+            //    .HasForeignKey<OrderDetail>(od => od.Id)
+            //    .OnDelete(DeleteBehavior.Cascade);
+            //modelBuilder.Entity<OrderTracking>().ToTable("OrderTrackings");
+            //modelBuilder.Entity<OrderTracking>()
+            //    .HasOne(ot => ot.Order)
+            //    .WithMany(o => o.OrderTrackings)
+            //    .HasForeignKey(ot => ot.OrderId)
+            //    .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<OrderItem>().ToTable("OrderItems");
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.Product)
+                .WithMany(p => p.OrderItems)
+                .HasForeignKey(oi => oi.ProductId)
+                .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.ProductVariant)
+                .WithMany(pv => pv.OrderItems)
+                .HasForeignKey(oi => oi.ProductVariantId)
+                .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.Order)
+                .WithMany(c => c.OrderItems)
+                .HasForeignKey(oi => oi.OrderId)
+                .OnDelete(DeleteBehavior.SetNull);
             modelBuilder.Entity<Payment>().ToTable("Payments");
             modelBuilder.Entity<PaymentMethod>().ToTable("PaymentMethods");
             modelBuilder.Entity<PaymentMethod>()
@@ -64,7 +105,7 @@ namespace StiktifyShop.Infrastructure
             #region model builder product
             modelBuilder.Entity<Product>().ToTable("Products");
             modelBuilder.Entity<Product>()
-                .HasMany(p=>p.ProductOptions)
+                .HasMany(p => p.ProductOptions)
                 .WithOne(po => po.Product)
                 .HasForeignKey(po => po.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -88,20 +129,33 @@ namespace StiktifyShop.Infrastructure
                 .WithOne(pv => pv.ProductOption)
                 .HasForeignKey(pv => pv.ProductOptionId)
                 .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<ProductOption>()
-                .HasMany(po => po.ProductVariants)
-                .WithOne(ps => ps.ProductOption)
-                .HasForeignKey(ps => ps.ProductOptionId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ProductRating>().ToTable("ProductRatings");
+            modelBuilder.Entity<ProductRating>()
+                .HasOne(pr => pr.Product)
+                .WithMany(p => p.ProductRatings)
+                .HasForeignKey(pr => pr.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<ProductRating>()
+                .HasOne(pr => pr.Order)
+                .WithOne(o => o.Rating)
+                .HasForeignKey<ProductRating>(pr => pr.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ProductSize>().ToTable("ProductSizes");
+
             modelBuilder.Entity<ProductSize>()
-                .HasMany<ProductSize>()
-                .WithOne()
-                .HasForeignKey(pv => pv.Id)
+                .HasOne(ps => ps.Category)
+                .WithMany(c => c.ProductSizes)
+                .HasForeignKey(ps => ps.CategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProductSize>()
+                .HasMany(ps => ps.Variants)
+                .WithOne(v => v.ProductSize)
+                .HasForeignKey(v => v.SizeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
 
             modelBuilder.Entity<ProductVariant>().ToTable("ProductVariants");
 

@@ -18,7 +18,6 @@ namespace StiktifyShop.Domain.Entity
         [StringLength(50)]
         public string? Type { get; set; }
 
-        public int Quantity { get; set; }
         [Column(TypeName = "money")]
         public double Price { get; set; }
         [Column(TypeName = "text")]

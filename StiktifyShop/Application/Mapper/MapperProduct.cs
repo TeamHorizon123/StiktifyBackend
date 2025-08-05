@@ -20,9 +20,9 @@ namespace StiktifyShop.Application.Mapper
                 {
                     Image = po.Image,
                     Price = po.Price,
-                    Color = po.Color,
+                    Color = po.Color ?? "",
                     Quantity = po.Quantity,
-                    Type = po.Type,
+                    Type = po.Type ?? "",
                     ProductVariants = po.ProductVariants?.Select(v => new ProductVariant
                     {
                         SizeId = v.SizeId,
@@ -51,7 +51,7 @@ namespace StiktifyShop.Application.Mapper
                     Description = product.Shop.Description,
                     AvatarUri = product.Shop.AvatarUri,
                     ShopType = product.Shop.ShopType,
-                    UpdateAt = product.Shop.UpdatedAt,
+                    CreateAt = product.Shop.CreatedAt,
                 },
                 Category = new ResponseCategory
                 {

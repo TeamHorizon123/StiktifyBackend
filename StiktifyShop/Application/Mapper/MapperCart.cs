@@ -10,7 +10,10 @@ namespace StiktifyShop.Application.Mapper
         {
             return new Cart
             {
-                ProductItemId = createCart.ProductItemId,
+                ImageUri = createCart.ImageUri,
+                OptionId = createCart.OptionId,
+                ProductId = createCart.ProductId,
+                VariantId = createCart.VariantId,
                 Quantity = createCart.Quantity,
                 UserId = createCart.UserId,
             };
@@ -21,21 +24,33 @@ namespace StiktifyShop.Application.Mapper
             return new ResponseCart
             {
                 Id = cart.Id,
-                ProductItemId = cart.ProductItemId,
+                ProductId = cart.ProductId,
+                ImageUri = cart.ImageUri,
+                OptionId = cart.OptionId,
+                VariantId = cart.VariantId,
                 UserId = cart.UserId,
                 Quantity = cart.Quantity,
-                ProductItem = new ResponseProductItem
+                Product = new ResponseProduct
                 {
-                    Id = cart.ProductItem.Id,
-                    Image = cart.ProductItem.Image,
-                    ProductId = cart.ProductItem.ProductId,
-                    Price = cart.ProductItem.Price,
-                    Quantity = cart.ProductItem.Quantity,
-                    Size = cart.ProductItem.Size,
-                    Type = cart.ProductItem.Type,
-                    Color = cart.ProductItem.Color,
-                    CreateAt = cart.ProductItem.CreatedAt,
-                    UpdateAt = cart.ProductItem.UpdatedAt,
+                    Id = cart.Product?.Id,
+                    ShopId = cart.Product?.ShopId,
+                    Name = cart.Product?.Name
+                },
+                Option = new ResponseProductOption
+                {
+                    Id = cart.Option?.Id,
+                    Color = cart.Option?.Color,
+                    Type = cart.Option?.Type,
+                    Quantity = cart.Option?.Quantity,
+                    Image = cart.Option?.Image,
+                    Price = cart.Option?.Price,
+                },
+                Variant = new ResponseProductVariant
+                {
+                    Id = cart.Variant?.Id,
+                    SizeId = cart.Variant?.SizeId,
+                    Price = cart.Variant!.Price,
+                    Quantity = cart.Variant.Quantity,
                 },
                 CreateAt = cart.CreatedAt,
                 UpdateAt = cart.UpdatedAt,

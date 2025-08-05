@@ -13,10 +13,15 @@ namespace StiktifyShop.Domain.Entity
 
         [Required]
         [StringLength(32)]
-        public string ProductItemId { get; set; } = default!;
+        public string OptionId { get; set; } = default!;
+        [ForeignKey(nameof(OptionId))]
+        public virtual ProductOption Option { get; set; } = default!;
 
-        [ForeignKey(nameof(ProductItemId))]
-        public virtual ProductItem ProductItem { get; set; } = default!;
+        [Required]
+        [StringLength(32)]
+        public string VariantId { get; set; } = default!;
+        [ForeignKey(nameof(VariantId))]
+        public virtual ProductVariant Variant { get; set; } = default!;
 
         [Required]
         [StringLength(32)]
@@ -29,5 +34,11 @@ namespace StiktifyShop.Domain.Entity
 
         [Column(TypeName = "text[]")]
         public List<string>? Files { get; set; }
+
+        [Required]
+        [StringLength(32)]
+        public string OrderId { get; set; } = default!;
+        [ForeignKey(nameof(OrderId))]
+        public virtual Order Order { get; set; } = default!;
     }
 }

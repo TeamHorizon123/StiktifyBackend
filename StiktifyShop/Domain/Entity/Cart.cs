@@ -7,9 +7,21 @@ namespace StiktifyShop.Domain.Entity
     {
         [Required]
         [StringLength(32)]
-        public required string ProductItemId { get; set; }
-        [ForeignKey(nameof(ProductItemId))]
-        public virtual ProductItem ProductItem { get; set; } = default!;
+        public required string ProductId { get; set; }
+        [ForeignKey(nameof(ProductId))]
+        public virtual Product Product { get; set; } = default!;
+        [Required]
+        [StringLength(32)]
+        public required string OptionId { get; set; }
+        [ForeignKey(nameof(OptionId))]
+        public virtual ProductOption Option { get; set; } = default!;
+        [Required]
+        [StringLength(32)]
+        public required string VariantId { get; set; }
+        [ForeignKey(nameof(VariantId))]
+        public virtual ProductVariant Variant { get; set; } = default!;
+        [Required]
+        public required string ImageUri { get; set; }
 
         [Required]
         [StringLength(32)]

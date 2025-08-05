@@ -113,6 +113,7 @@ namespace StiktifyShop.Infrastructure.Repository
             try
             {
                 var list = _context.Shops
+                    .Include(s => s.ShopRatings)
                     .Select(shop => MapperSingleton<MapperShop>.Instance.MapResponse(shop))
                     .ToList();
                 return list.Select(shop =>

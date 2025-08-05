@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
+using StiktifyShop.Application.DTOs.Requests;
 using StiktifyShop.Application.DTOs.Responses;
 using StiktifyShop.Application.Interfaces;
 
@@ -18,15 +19,15 @@ namespace StiktifyShop.Controllers
             _repo = repo ?? throw new ArgumentNullException(nameof(repo));
         }
 
-        [HttpGet("{id}")]
+        [HttpGet]
         [EnableQuery]
-        public ActionResult<IEnumerable<ResponseProductRating>> GetAll([FromRoute] string id)
+        public ActionResult<IEnumerable<ResponseProductRating>> GetAll()
         {
-            var listRating = _repo.GetAll(id).AsQueryable();
+            var listRating = _repo.GetAll().AsQueryable();
             return Ok(listRating);
         }
 
-        [HttpGet("{id}/get")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetOne([FromRoute] string id)
         {
             var productRating = await _repo.Get(id);
@@ -38,6 +39,16 @@ namespace StiktifyShop.Controllers
         {
             var response = await _repo.Delete(id);
             return StatusCode(response.StatusCode, response.Message);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CreateProducRating producRating)
+        {
+            var response = await _repo.Create(producRating);
+            if (response.StatusCode != 201)
+                return StatusCode(response.StatusCode, response.Message);
+            return StatusCode(response.StatusCode, response.Data);
         }
 
     }

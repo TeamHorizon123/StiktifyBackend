@@ -11,12 +11,6 @@ namespace StiktifyShop.Application.DTOs.Requests
         [Required]
         [StringLength(32)]
         public string ShopId { get; set; } = default!;
-        [Required]
-        [StringLength(32)]
-        public string ProductId { get; set; } = default!;
-        [Required]
-        [StringLength(32)]
-        public string ProductItemId { get; set; } = default!;
 
         [Required]
         [StringLength(32)]
@@ -24,20 +18,19 @@ namespace StiktifyShop.Application.DTOs.Requests
 
         [Required]
         [StringLength(50)]
-        [DefaultValue("Pending")]
+        [DefaultValue("pending")]
         public string Status { get; set; } = default!;
 
-        [DefaultValue(1)]
-        [Range(1, int.MaxValue, ErrorMessage = "Quantity must be greater than or equal 1.")]
-        public int Quantity { get; set; }
-
         [Required]
-        [Range(0, double.MaxValue, ErrorMessage = "Price must be greater than or equal zero.")]
-        public double Price { get; set; }
+        [Range(0, double.MaxValue, ErrorMessage = "TotalAmount must be greater than or equal zero.")]
+        public double TotalAmount { get; set; }
 
         [Required]
         [Range(0, double.MaxValue, ErrorMessage = "Shipping fee must be greater than or equal zero.")]
         public double ShippingFee { get; set; }
+        [StringLength(150)]
+        public string? Note { get; set; }
+        public ICollection<CreateOrderItem> OrderItems { get; set; } = default!;
     }
 
     public class UpdateOrder : CreateOrder

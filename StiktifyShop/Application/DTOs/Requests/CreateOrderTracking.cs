@@ -4,9 +4,8 @@ namespace StiktifyShop.Application.DTOs.Requests
 {
     public class CreateOrderTracking
     {
-        [Required]
         [StringLength(32)]
-        public string OrderId { get; set; } = default!;
+        public string? OrderId { get; set; }
 
         [Required]
         [StringLength(50)]

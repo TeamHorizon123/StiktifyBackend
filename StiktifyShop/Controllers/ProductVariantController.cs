@@ -27,12 +27,12 @@ namespace StiktifyShop.Controllers
             return Ok(listVariant);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetOne([FromRoute] string id)
-        {
-            var productVariant = await _repo.Get(id);
-            return productVariant == null ? NotFound() : Ok(new { value = productVariant });
-        }
+        //[HttpGet("{id}")]
+        //public async Task<IActionResult> GetOne([FromRoute] string id)
+        //{
+        //    var productVariant = await _repo.Get(id);
+        //    return productVariant == null ? NotFound() : Ok(new { value = productVariant });
+        //}
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateProductVariant variant)

@@ -5,7 +5,7 @@ namespace StiktifyShop.Application.Interfaces
 {
     public interface IProductRatingRepo
     {
-        IQueryable<ResponseProductRating> GetAll(string productId);
+        IQueryable<ResponseProductRating> GetAll();
         Task<ResponseProductRating?> Get(string ratingId);
         Task<Response> Create(CreateProducRating rating);
         Task<Response> Delete(string ratingId);

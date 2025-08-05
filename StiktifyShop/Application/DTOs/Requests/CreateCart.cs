@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Reflection.Metadata.Ecma335;
 
 namespace StiktifyShop.Application.DTOs.Requests
 {
@@ -7,7 +6,16 @@ namespace StiktifyShop.Application.DTOs.Requests
     {
         [Required]
         [StringLength(32)]
-        public required string ProductItemId { get; set; }
+        public required string ProductId { get; set; }
+        [Required]
+        [StringLength(32)]
+
+        public required string OptionId { get; set; }
+        [Required]
+        [StringLength(32)]
+        public required string VariantId { get; set; }
+        [Required]
+        public required string ImageUri { get; set; }
 
         [Required]
         [StringLength(32)]
@@ -18,7 +26,14 @@ namespace StiktifyShop.Application.DTOs.Requests
         public int Quantity { get; set; }
     }
 
-    public class UpdateCart: CreateCart
+    public class UpdateCart : CreateCart
+    {
+        [Required]
+        [StringLength(32)]
+        public string Id { get; set; } = default!;
+    }
+
+    public class DeleteCart 
     {
         [Required]
         [StringLength(32)]

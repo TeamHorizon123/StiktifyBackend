@@ -8,7 +8,7 @@ namespace StiktifyShop.Domain.Entity
         [StringLength(32)]
         public string SizeId { get; set; } = default!;
         [ForeignKey(nameof(SizeId))]
-        public virtual ProductSize Size { get; set; } = default!;
+        public virtual ProductSize ProductSize { get; set; } = default!;
 
         [Required]
         [StringLength(32)]
@@ -22,5 +22,8 @@ namespace StiktifyShop.Domain.Entity
         [Required]
         [Column(TypeName = "money")]
         public double Price { get; set; }
+
+        public virtual ICollection<Cart> Carts { get; set; } = default!;
+        public virtual ICollection<OrderItem> OrderItems { get; set; } = default!;
     }
 }
