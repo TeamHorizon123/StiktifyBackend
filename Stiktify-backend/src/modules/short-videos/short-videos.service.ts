@@ -496,6 +496,20 @@ export class ShortVideosService {
     }
   }
 
+  
+  async handleBlockVideo(_id: string, isBlock: boolean) {
+    const checkId = await this.isIdExist(_id);
+    if (checkId === false) {
+      throw new BadRequestException(`Short video not found with ID: ${_id}`);
+    } else {
+      const result = await this.videoModel.findByIdAndUpdate(_id, {
+        isBlock: isBlock,
+      });
+      // await this.reportService.remove(_id)
+      return result._id;
+    }
+  }
+
   async ViewVideoPosted(userId: string, current: number, pageSize: number) {
     const filter = { userId: new mongoose.Types.ObjectId(userId) };
     const result = await this.videoModel

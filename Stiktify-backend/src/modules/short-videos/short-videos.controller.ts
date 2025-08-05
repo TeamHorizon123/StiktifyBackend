@@ -24,6 +24,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import multer from 'multer';
+import { blockShortVideoDto } from './dto/block-short-video-dto';
 
 @Controller('short-videos')
 export class ShortVideosController {
@@ -76,6 +77,11 @@ export class ShortVideosController {
   @ResponseMessage('Updated successfully')
   findOne(@Body() req: flagShortVideoDto) {
     return this.shortVideosService.handleFlagVideo(req._id, req.flag);
+  }
+  @Post('block-video')
+  @ResponseMessage('Updated successfully')
+  blockVideo(@Body() req: blockShortVideoDto) {
+    return this.shortVideosService.handleBlockVideo(req._id, req.isBlock);
   }
   @Post('trending-guest-videos')
   @Public()
