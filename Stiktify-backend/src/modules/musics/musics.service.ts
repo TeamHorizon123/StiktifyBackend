@@ -286,60 +286,82 @@ export class MusicsService {
     return category ? { categoryId: category._id } : {};
   }
 
-  async handleFilterAndSearchMusic(
-    query: any,
-    current: number,
-    pageSize: number,
-  ) {
-    const { filter = {}, sort = {} } = aqp(query);
-    current = current && !isNaN(Number(current)) ? Number(current) : 1;
-    pageSize = pageSize && !isNaN(Number(pageSize)) ? Number(pageSize) : 10;
-    if (isNaN(current) || isNaN(pageSize)) {
-      return { statusCode: 400, message: 'Invalid pagination parameters' };
-    }
-    const handleFilter = filter.filterReq
-      ? await this.checkFilterMusic(filter.filterReq)
-      : {};
-    let handleSearch = [];
-    if (
-      filter.search &&
-      typeof filter.search === 'string' &&
-      filter.search.trim().length > 0
-    ) {
-      const rawSearch = String(filter.search).trim();
-      const searchRegex = new RegExp(`${rawSearch}`, 'i');
-      handleSearch = [{ musicDescription: searchRegex }];
-    }
-    let musicCategory = [];
-    if (handleFilter.categoryId) {
-      musicCategory = await this.musicCategoryModel.find({
-        categoryId: handleFilter.categoryId,
-      });
-    }
-    const musicIds = musicCategory.map((item) => item.musicId);
-    const filterQuery = {
-      ...(handleSearch.length > 0 ? { $or: handleSearch } : {}),
-      ...(handleFilter.categoryId ? { _id: { $in: musicIds } } : {}),
-    };
-    const totalItems = await this.musicModel.countDocuments(filterQuery);
-    const totalPages = Math.ceil(totalItems / pageSize);
-    const skip = (current - 1) * pageSize;
-    const result = await this.musicModel
-      .find(filterQuery)
-      .limit(pageSize)
-      .skip(skip)
-      .sort(sort as any);
+async handleFilterAndSearchMusic(
+  query: any,
+  current: number,
+  pageSize: number,
+  search: string,
+  filterReq: string,
+) {
+  const { filter = {}, sort = {} } = aqp(query);
 
-    return {
-      meta: {
-        current,
-        pageSize,
-        total: totalItems,
-        pages: totalPages,
-      },
-      result,
-    };
+  current = current && !isNaN(Number(current)) ? Number(current) : 1;
+  pageSize = pageSize && !isNaN(Number(pageSize)) ? Number(pageSize) : 10;
+  console.log(filter)
+  if (isNaN(current) || isNaN(pageSize)) {
+    return { statusCode: 400, message: 'Invalid pagination parameters' };
   }
+
+  const handleFilter = filterReq
+    ? await this.checkFilterMusic(filterReq)
+    : {};
+
+  // Tạo mảng search query
+  let handleSearch = [];
+  if (
+   search &&
+    typeof search === 'string' &&
+    search.trim().length > 0
+  ) {
+    const rawSearch = String(search).trim();
+    const searchRegex = new RegExp(`${rawSearch}`, 'i');
+    handleSearch = [{ musicDescription: searchRegex }];
+  }
+
+  // Tìm theo category nếu có
+  let musicIds: any[] = [];
+  if (handleFilter.categoryId) {
+    const musicCategory = await this.musicCategoryModel.find({
+      categoryId: handleFilter.categoryId,
+    });
+    musicIds = musicCategory.map((item) => item.musicId);
+  }
+  console.log(`handleSearch.length: ${handleSearch.length}`);
+  // Tạo query tìm kiếm chính xác
+  const filterQuery: any = {};
+  if (handleSearch.length > 0 && handleFilter.categoryId) {
+    filterQuery.$and = [
+      { $or: handleSearch },
+      { _id: { $in: musicIds } },
+    ];
+  } else if (handleSearch.length > 0) {
+    filterQuery.$or = handleSearch;
+  } else if (handleFilter.categoryId) {
+    filterQuery._id = { $in: musicIds };
+  }
+
+  // Phân trang và truy vấn dữ liệu
+  const totalItems = await this.musicModel.countDocuments(filterQuery);
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const skip = (current - 1) * pageSize;
+  console.log(`Current: ${current}, PageSize: ${pageSize}, Skip: ${skip}`);
+  console.log(`Filter Query: ${JSON.stringify(filterQuery)}`);
+  const result = await this.musicModel
+    .find(filterQuery)
+    .limit(pageSize)
+    .skip(skip)
+    .sort(sort as any);
+
+  return {
+    meta: {
+      current,
+      pageSize,
+      total: totalItems,
+      pages: totalPages,
+    },
+    result,
+  };
+}
 
   async handleDisplayMusic(id: string) {
     console.log(id);

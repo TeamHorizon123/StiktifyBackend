@@ -53,11 +53,15 @@ export class MusicsController {
     @Query() query: any,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
+    @Query('search') search: string,
+    @Query('filterReq') filterReq: string,
   ) {
     return this.musicsService.handleFilterAndSearchMusic(
       query,
       +current,
       +pageSize,
+      search,
+      filterReq,
     );
   }
 
