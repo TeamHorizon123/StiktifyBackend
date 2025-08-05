@@ -20,7 +20,7 @@ import { TrackRelatedDto } from './dto/track-related.dto';
 
 @Controller('musics')
 export class MusicsController {
-  constructor(private readonly musicsService: MusicsService) {}
+  constructor(private readonly musicsService: MusicsService) { }
 
   @Post('upload-music')
   uploadMusic(@Body() createMusicDto: CreateMusicDto) {
@@ -74,9 +74,9 @@ export class MusicsController {
   listHotMusic() {
     return this.musicsService.getMusicHotInWeek();
   }
-  
+
   @Public()
-  @Get('getTopMusic/:title') 
+  @Get('getTopMusic/:title')
   getTopMusic(@Param('title') title: string) {
     return this.musicsService.getTop50Music(title);
   }
@@ -109,7 +109,7 @@ export class MusicsController {
   // Delete
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.musicsService.remove(+id);
+    return this.musicsService.remove(id);
   }
 
   // Share a music - ThangLH
@@ -134,7 +134,7 @@ export class MusicsController {
   listenMusicInUser(@Body() req: CreateNeo4j) {
     return this.musicsService.handleListenMusicNeo4j(req.userId, req.musicId);
   }
-  
+
   @Public()
   @Post('track-related')
   trackRelated(@Body() req: TrackRelatedDto) {

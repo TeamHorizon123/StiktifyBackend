@@ -20,6 +20,7 @@ import { TrackRelatedDto } from './dto/track-related.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { FriendRequestService } from '../friend-request/friend-request.service';
+import { StringExpressionOperator } from 'mongoose';
 
 @Injectable()
 export class MusicsService {
@@ -230,12 +231,24 @@ export class MusicsService {
     return result;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} music`;
+  async remove(musicId: string): Promise<{ message: string }> {
+    // Tìm bài nhạc theo ID
+    const music = await this.musicModel.findById(musicId);
+    if (!music) {
+      throw new BadRequestException('Music not found');
+    }
+    // Đánh dấu đã xóa (soft delete)
+    music.isDelete = true;
+    await music.save();
+
+    return { message: 'Music marked as deleted successfully' };
   }
 
   async handleMyMusic(userId: string, current: number, pageSize: number) {
-    const filter = { userId: new mongoose.Types.ObjectId(userId) };
+    const filter = {
+      userId: new mongoose.Types.ObjectId(userId),
+      isDelete: { $ne: true },
+    };
     const result = await this.musicModel
       .find(filter)
       .skip((current - 1) * pageSize)
@@ -492,9 +505,9 @@ export class MusicsService {
   }
 
   async handleUpdateMusic(updateMusicDto: UpdateMusicDto) {
-    const { musicDescription, musicTag, musicThumbnail, musicId } = updateMusicDto
+    const { musicDescription, musicThumbnail, musicId } = updateMusicDto
 
-    const result = await this.musicModel.findByIdAndUpdate(musicId, { musicDescription, musicTag, musicThumbnail })
+    const result = await this.musicModel.findByIdAndUpdate(musicId, { musicDescription, musicThumbnail })
 
     return result
   }
@@ -671,7 +684,7 @@ export class MusicsService {
   async getMusicById(id: string) {
     return await this.musicModel.findById(id);
   }
-   async handleFilterAndSearch(
+  async handleFilterAndSearch(
     query: string,
     current: number,
     pageSize: number,
@@ -679,92 +692,92 @@ export class MusicsService {
     const { filter, sort: rawSort } = aqp(query);
 
 
-  if (filter.current) delete filter.current;
-  if (filter.pageSize) delete filter.pageSize;
+    if (filter.current) delete filter.current;
+    if (filter.pageSize) delete filter.pageSize;
 
-  if (!current) current = 1;
-  if (!pageSize) pageSize = 10;
+    if (!current) current = 1;
+    if (!pageSize) pageSize = 10;
 
-  const skip = (+current - 1) * +pageSize;
-  const rawSearch = String(filter.search || '').trim();
-  const searchRegex = new RegExp(rawSearch, 'i');
+    const skip = (+current - 1) * +pageSize;
+    const rawSearch = String(filter.search || '').trim();
+    const searchRegex = new RegExp(rawSearch, 'i');
 
-  const sort: any = rawSort || {};
-  const andConditions: any[] = [];
+    const sort: any = rawSort || {};
+    const andConditions: any[] = [];
 
-  switch (filter.filterReq) {
-    case 'recent':
-      sort.createdAt = -1;
-      break;
-    case 'oldest':
-      sort.createdAt = 1;
-      break;
-    case 'blocked':
-      andConditions.push({ isBlock: true });
-      break;
-    case 'flagged':
-      andConditions.push({ flag: true });
-      break;
-    case 'mostViews':
-    case 'mostListened': // hỗ trợ cả 2 key nếu muốn
-      sort.totalListened = -1;
-      break;
-    default:
-      sort.createdAt = -1;
-      break;
-  }
+    switch (filter.filterReq) {
+      case 'recent':
+        sort.createdAt = -1;
+        break;
+      case 'oldest':
+        sort.createdAt = 1;
+        break;
+      case 'blocked':
+        andConditions.push({ isBlock: true });
+        break;
+      case 'flagged':
+        andConditions.push({ flag: true });
+        break;
+      case 'mostViews':
+      case 'mostListened': // hỗ trợ cả 2 key nếu muốn
+        sort.totalListened = -1;
+        break;
+      default:
+        sort.createdAt = -1;
+        break;
+    }
 
-  if (rawSearch.length > 0) {
-    andConditions.push({
-      $or: [
-        { musicDescription: { $regex: searchRegex } },
-        { 'userId.userName': { $regex: searchRegex } },
-      ],
-    });
-  }
-
-  const matchStage = andConditions.length > 0 ? { $and: andConditions } : {};
-
-  const aggregatePipeline: any = [
-    {
-      $lookup: {
-        from: 'users',
-        localField: 'userId',
-        foreignField: '_id',
-        as: 'userId',
-      },
-    },
-    { $unwind: '$userId' },
-    { $match: matchStage },
-    { $sort: Object.keys(sort).length > 0 ? sort : { createdAt: -1 } },
-    {
-      $facet: {
-        data: [
-          { $skip: skip },
-          { $limit: pageSize },
-          {
-            $project: {
-              'userId.password': 0,
-            },
-          },
+    if (rawSearch.length > 0) {
+      andConditions.push({
+        $or: [
+          { musicDescription: { $regex: searchRegex } },
+          { 'userId.userName': { $regex: searchRegex } },
         ],
-        total: [{ $count: 'count' }],
+      });
+    }
+
+    const matchStage = andConditions.length > 0 ? { $and: andConditions } : {};
+
+    const aggregatePipeline: any = [
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'userId',
+        },
       },
-    },
-  ];
+      { $unwind: '$userId' },
+      { $match: matchStage },
+      { $sort: Object.keys(sort).length > 0 ? sort : { createdAt: -1 } },
+      {
+        $facet: {
+          data: [
+            { $skip: skip },
+            { $limit: pageSize },
+            {
+              $project: {
+                'userId.password': 0,
+              },
+            },
+          ],
+          total: [{ $count: 'count' }],
+        },
+      },
+    ];
 
-  const [resultData] = await this.musicModel.aggregate(aggregatePipeline);
-  const totalItems = resultData?.total?.[0]?.count || 0;
-  const totalPages = Math.ceil(totalItems / pageSize);
+    const [resultData] = await this.musicModel.aggregate(aggregatePipeline);
+    const totalItems = resultData?.total?.[0]?.count || 0;
+    const totalPages = Math.ceil(totalItems / pageSize);
 
-  return {
-    meta: {
-      current,
-      pageSize,
-      total: totalItems,
-      pages: totalPages,
-    },
-    result: resultData?.data || [],
-  };
+    return {
+      meta: {
+        current,
+        pageSize,
+        total: totalItems,
+        pages: totalPages,
+      },
+      result: resultData?.data || [],
+    };
   }
 }
