@@ -10,7 +10,7 @@ namespace StiktifyShop.Controllers
 {
     [Route("odata/product-size")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class ProductSizeController : ODataController
     {
         private IProductSizeRepo _repo;

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using StiktifyShop.Application.DTOs.Requests;
 using StiktifyShop.Application.DTOs.Responses;
 using StiktifyShop.Application.Interfaces;
@@ -11,7 +10,7 @@ namespace StiktifyShop.Controllers
 {
     [Route("odata/product")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class ProductController : ODataController
     {
         private IProductRepo _repo;

@@ -10,7 +10,7 @@ namespace StiktifyShop.Controllers
 {
     [Route("odata/category")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class CategoryController : ODataController
     {
         private ICategoryRepo _repo;

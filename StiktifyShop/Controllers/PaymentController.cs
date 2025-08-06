@@ -11,7 +11,7 @@ namespace StiktifyShop.Controllers
 {
     [Route("odata/payment")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class PaymentController : ODataController
     {
         private IPaymentRepo repo;
