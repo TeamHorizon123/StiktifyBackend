@@ -10,7 +10,7 @@ namespace StiktifyShop.Controllers
 {
     [Route("odata/product-variant")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class ProductVariantController : ODataController
     {
         private IProductVariantRepo _repo;

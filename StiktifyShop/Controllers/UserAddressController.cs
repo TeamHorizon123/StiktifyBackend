@@ -10,7 +10,7 @@ namespace StiktifyShop.Controllers
 {
     [Route("odata/user-address")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class UserAddressController : ODataController
     {
         private IUserAddressRepo _repo;

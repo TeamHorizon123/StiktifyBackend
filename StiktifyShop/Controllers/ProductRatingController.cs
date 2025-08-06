@@ -10,7 +10,7 @@ namespace StiktifyShop.Controllers
 {
     [Route("odata/product-rating")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class ProductRatingController : ODataController
     {
         private IProductRatingRepo _repo;
