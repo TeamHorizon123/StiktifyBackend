@@ -13,5 +13,7 @@ namespace StiktifyShop.Domain.Entity
         [Required]
         [StringLength(50)]
         public required string Size { get; set; }
+
+        public virtual ICollection<ProductVariant> Variants { get; set; } = default!;
     }
 }

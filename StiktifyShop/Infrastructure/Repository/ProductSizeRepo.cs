@@ -96,7 +96,10 @@ namespace StiktifyShop.Infrastructure.Repository
         {
             try
             {
-                var listSize = _context.ProductSizes.ToList();
+                var listSize = _context.ProductSizes
+                    .Include(s => s.Category)
+                    .Include(s => s.Variants)
+                    .ToList();
                 return listSize.Select(size
                     => MapperSingleton<MapperProductSize>.Instance.MapResponse(size)
                 ).AsQueryable();

@@ -10,10 +10,10 @@ namespace StiktifyShop.Application.Mapper
         {
             return new OrderDetail
             {
-                Id = orderDetail.Id,
-                DateOfDelivery = orderDetail.DateOfDelivery,
-                DateOfPurchase = orderDetail.DateOfPurchase,
-                DateOfShipping = orderDetail.DateOfShipping,
+                Id = orderDetail.Id ?? "",
+                DateOfDelivery = orderDetail.DateOfDelivery ?? DateTime.MinValue,
+                DateOfPurchase = orderDetail.DateOfPurchase ?? DateTime.MinValue,
+                DateOfShipping = orderDetail.DateOfShipping ?? DateTime.MinValue,
                 PurchaseMethod = orderDetail.PurchaseMethod,
             };
         }

@@ -3,7 +3,6 @@
     public class ResponsePayment : BaseResponse
     {
         public string? OrderId { get; set; } 
-        public virtual ResponseOrder? Order { get; set; } 
         public string? UserId { get; set; }
         public double Amount { get; set; }
         public string? Status { get; set; } 

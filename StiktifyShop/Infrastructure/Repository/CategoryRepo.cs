@@ -87,8 +87,10 @@ namespace StiktifyShop.Infrastructure.Repository
         {
             try
             {
-                var list = _context.Categories.
-                    Select(category
+                var list = _context.Categories
+                    .Include(c => c.Children)
+                    .Include(c => c.Parent)
+                    .Select(category
                     => MapperSingleton<MapperCategory>.Instance.MapResponse(category)
                     )
                     .ToList();

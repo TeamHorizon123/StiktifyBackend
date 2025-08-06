@@ -10,7 +10,13 @@ namespace StiktifyShop.Application.DTOs.Requests
 
         [Required]
         [StringLength(32)]
-        public string ProductItemId { get; set; } = default!;
+        public string OptionId { get; set; } = default!;
+        [Required]
+        [StringLength(32)]
+        public string VariantId { get; set; } = default!;
+        [Required]
+        [StringLength(32)]
+        public string OrderId { get; set; } = default!;
 
         [Required]
         [StringLength(32)]

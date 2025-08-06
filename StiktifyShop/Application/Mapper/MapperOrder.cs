@@ -11,13 +11,18 @@ namespace StiktifyShop.Application.Mapper
             return new Order
             {
                 UserId = createOrder.UserId,
-                AddressId = createOrder.AddressId,
-                ProductId = createOrder.ProductId,
                 ShopId = createOrder.ShopId,
-                Price = createOrder.Price,
-                Quantity = createOrder.Quantity,
+                AddressId = createOrder.AddressId,
+                TotalAmount = createOrder.TotalAmount,
+                OrderItems = createOrder.OrderItems.Select(item => new OrderItem
+                {
+                    ImageUri = item.ImageUri,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    ProductVariantId = item.ProductVariantId,
+                }).ToList(),
                 ShippingFee = createOrder.ShippingFee,
-                ProductItemId = createOrder.ProductItemId,
                 Status = createOrder.Status,
             };
         }
@@ -39,30 +44,6 @@ namespace StiktifyShop.Application.Mapper
                     CreateAt = order.Shop.CreatedAt,
                     UpdateAt = order.Shop.UpdatedAt
                 },
-                ProductId = order.ProductId,
-                Product = new ResponseProduct
-                {
-                    Id = order.Product.Id,
-                    Name = order.Product.Name,
-                    Description = order.Product.Description,
-                    ImageUri = order.Product.ImageUri,
-                    CategoryId = order.Product.CategoryId,
-                    CreateAt = order.Product.CreatedAt,
-                    UpdateAt = order.Product.UpdatedAt
-                },
-                ProductItemId = order.ProductItemId,
-                ProductItem = new ResponseProductItem
-                {
-                    Id = order.ProductItem.Id,
-                    Image = order.ProductItem.Image,
-                    ProductId = order.ProductItem.ProductId,
-                    Price = order.ProductItem.Price,
-                    Size = order.ProductItem.Size,
-                    Type = order.ProductItem.Type,
-                    Color = order.ProductItem.Color,
-                    CreateAt = order.ProductItem.CreatedAt,
-                    UpdateAt = order.ProductItem.UpdatedAt
-                },
                 AddressId = order.AddressId,
                 Address = new ResponseUserAddress
                 {
@@ -75,9 +56,34 @@ namespace StiktifyShop.Application.Mapper
                     UpdateAt = order.Address.UpdatedAt
                 },
                 Status = order.Status,
-                Quantity = order.Quantity,
-                Price = order.Price,
+                Total = order.TotalAmount,
                 ShippingFee = order.ShippingFee,
+                OrderItems = order.OrderItems.Select(item => new ResponseOrderItem
+                {
+                    Id = item.Id,
+                    ImageURI = item.ImageUri,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    ProductVariantId = item.ProductVariantId,
+                    Product = item.Product != null ? new ResponseProduct
+                    {
+                        Id = item.Product.Id,
+                        Name = item.Product.Name,
+                        ImageUri = item.Product.ImageUri,
+                    } : null,
+                    ProductVariant = item.ProductVariant != null ? new ResponseProductVariant
+                    {
+                        Id = item.ProductVariant.Id,
+                        Price = item.ProductVariant.Price,
+                        ProductOptionId = item.ProductVariant.ProductOptionId,
+                        Quantity = item.ProductVariant.Quantity,
+                        SizeId = item.ProductVariant.SizeId,
+                    } : null
+                }).ToList() ?? [],
+                Note = order.Note,
+                CreateAt = order.CreatedAt,
+                UpdateAt = order.UpdatedAt,
             };
         }
     }

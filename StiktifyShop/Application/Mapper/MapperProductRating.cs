@@ -14,7 +14,9 @@ namespace StiktifyShop.Application.Mapper
                 UserId = createRating.UserId,
                 Point = createRating.Point,
                 Files = createRating.Files,
-                ProductItemId = createRating.ProductItemId,
+                OptionId = createRating.OptionId,
+                VariantId = createRating.VariantId,
+                OrderId = createRating.OrderId,
                 Content = createRating.Content,
             };
         }
@@ -28,20 +30,28 @@ namespace StiktifyShop.Application.Mapper
                 UserId = productRating.UserId,
                 Point = productRating.Point,
                 Files = productRating.Files,
-                ProductItemId = productRating.ProductItemId,
+                OptionId = productRating.OptionId,
+                VariantId = productRating.VariantId,
                 Content = productRating.Content,
                 Product = new ResponseProduct
                 {
                     Name = productRating.Product.Name,
                 },
-                ProductItem = new ResponseProductItem
+                Option = new ResponseProductOption
                 {
-                    Id = productRating.ProductItem.Id,
-                    Size = productRating.ProductItem.Size,
-                    Color = productRating.ProductItem.Color,
-                    Type = productRating.ProductItem.Type,
-                    Image = productRating.ProductItem.Image,
+                    Id = productRating.Option.Id,
+                    Color = productRating.Option.Color,
+                    Type = productRating.Option.Type,
+                    Price = productRating.Option.Price,
+                    Image = productRating.Option.Image
                 },
+                Variant = new ResponseProductVariant
+                {
+                    Id = productRating.Variant.Id,
+                    Price = productRating.Variant.Price,
+                    SizeId = productRating.Variant.SizeId,
+                },
+                OrderId = productRating.OrderId,
                 CreateAt = productRating.CreatedAt,
                 UpdateAt = productRating.UpdatedAt
             };

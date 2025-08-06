@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace StiktifyShop.Application.DTOs.Requests
 {
@@ -8,6 +9,7 @@ namespace StiktifyShop.Application.DTOs.Requests
         [StringLength(100)]
         public string Name { get; set; } = default!;
 
+        [DefaultValue(true)]
         public bool Enable { get; set; }
     }
 

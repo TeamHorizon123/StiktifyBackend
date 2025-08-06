@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OData.ModelBuilder;
 using StiktifyShop.Application.DTOs.Responses;
+using StiktifyShop.Application.Helper;
 using StiktifyShop.Application.Interfaces;
 using StiktifyShop.Infrastructure;
 using StiktifyShop.Infrastructure.Repository;
@@ -112,7 +113,7 @@ builder.Services.AddScoped<IProductItemRepo, ProductItemRepo>();
 builder.Services.AddScoped<IShopRepo, ShopRepo>();
 builder.Services.AddScoped<IShopRatingRepo, ShopRatingRepo>();
 builder.Services.AddScoped<IUserAddressRepo, UserAddressRepo>();
-
+builder.Services.AddScoped<IVNPayHelper, VNPayHelper>();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
@@ -120,7 +121,7 @@ using (var scope = app.Services.CreateScope())
     var service = scope.ServiceProvider;
     var context = service.GetRequiredService<AppDbContext>();
     //context.Database.EnsureDeleted();
-    context.Database.EnsureCreated();
+    context.Database.Migrate();
 }
 
 // Configure the HTTP request pipeline.

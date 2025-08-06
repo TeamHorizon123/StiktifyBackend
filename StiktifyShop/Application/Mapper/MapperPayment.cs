@@ -32,16 +32,12 @@ namespace StiktifyShop.Application.Mapper
                 UserId = payment.UserId,
                 OrderId = payment.OrderId,
                 Status = payment.Status,
-                Order = new ResponseOrder
+                PaymentMethod = new ResponsePaymentMethod
                 {
-                    Id = payment.Order.Id,
-                    UserId = payment.Order.UserId,
-                    Price = payment.Order.Price,
-                    Quantity = payment.Order.Quantity,
-                    ShippingFee = payment.Order.ShippingFee,
-                    ProductId = payment.Order.ProductId,
-                    ProductItemId = payment.Order.ProductItemId,
-                    Status = payment.Order.Status
+                    Id = payment.PaymentMethod.Id,
+                    Name = payment.PaymentMethod.Name,
+                    CreateAt = payment.PaymentMethod.CreatedAt,
+                    UpdateAt = payment.PaymentMethod.UpdatedAt
                 },
                 CreateAt = payment.CreatedAt,
                 UpdateAt = payment.UpdatedAt

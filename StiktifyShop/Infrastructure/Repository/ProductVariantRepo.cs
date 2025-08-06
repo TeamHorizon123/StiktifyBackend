@@ -81,7 +81,7 @@ namespace StiktifyShop.Infrastructure.Repository
             try
             {
                 return await _context.ProductVariants
-                    .Include(v => v.Size)
+                    .Include(v => v.ProductSize)
                     .Include(v => v.ProductOption)
                     .Where(v => v.Id == variantId)
                     .Select(v => MapperSingleton<MapperProductVariant>.Instance.MapResponse(v))
@@ -99,9 +99,10 @@ namespace StiktifyShop.Infrastructure.Repository
             try
             {
                 var listVariant = _context.ProductVariants
-                    .Include(v => v.Size)
+                    .Include(v => v.ProductSize)
                     .Include(v => v.ProductOption)
-                    .Select(v => MapperSingleton<MapperProductVariant>.Instance.MapResponse(v));
+                    .Select(v => MapperSingleton<MapperProductVariant>.Instance.MapResponse(v))
+                    .ToList();
                 return listVariant.AsQueryable();
             }
             catch (Exception err)
@@ -133,7 +134,7 @@ namespace StiktifyShop.Infrastructure.Repository
                 {
                     StatusCode = 200,
                     Message = "Product variant updated successfully.",
-                    Data = new { value = MapperSingleton<MapperProductVariant>.Instance.MapResponse(existingVariant) }
+                    Data = new { value = existingVariant }
                 };
             }
             catch (Exception err)
@@ -141,7 +142,7 @@ namespace StiktifyShop.Infrastructure.Repository
                 return new Response
                 {
                     StatusCode = 500,
-                    Message = err.Message
+                    Message = err.ToString()
                 };
             }
         }

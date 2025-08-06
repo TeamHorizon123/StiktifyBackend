@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using StiktifyShop.Application.DTOs.Requests;
 using StiktifyShop.Application.DTOs.Responses;
 using StiktifyShop.Application.Interfaces;
@@ -12,6 +13,15 @@ namespace StiktifyShop.Infrastructure.Repository
         public OrderRepo(AppDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
+
+        private double CalculateTotalAmount(string orderId)
+        {
+            var total = _context.OrderItems
+                .Where(oi => oi.OrderId == orderId)
+                .ToList()
+                .Sum(oi => (int)oi.Quantity * (double)oi.UnitPrice);
+            return total;
         }
         public async Task<Response> Create(CreateOrder order)
         {
@@ -51,12 +61,16 @@ namespace StiktifyShop.Infrastructure.Repository
                         Message = "Order not found."
                     };
                 }
+
+                existOrder.Status = order.Status;
+
                 _context.Orders.Update(existOrder);
                 await _context.SaveChangesAsync();
                 return new Response
                 {
-                    StatusCode = 204,
-                    Message = "Order updated successfully."
+                    StatusCode = 200,
+                    Message = "Order updated successfully.",
+                    Data = new { statusCode = 200, message = "Order updated successfully." }
                 };
             }
             catch (Exception err)
@@ -74,9 +88,9 @@ namespace StiktifyShop.Infrastructure.Repository
             try
             {
                 var order = await _context.Orders
-                    .Include(o => o.OrderTrackings)
-                    .Include(o => o.Product)
+                    .Include(o => o.OrderItems)
                     .Include(o => o.Address)
+                    .Include(o => o.Shop)
                     .FirstOrDefaultAsync(o => o.Id == orderId);
                 return order == null
                     ? null
@@ -94,11 +108,22 @@ namespace StiktifyShop.Infrastructure.Repository
             try
             {
                 var listOrder = _context.Orders
-                    .Include(o => o.OrderTrackings)
+                    .Include(o => o.Address)
+                    .Include(o => o.Shop)
+                    .Include(o => o.OrderItems)
+                        .ThenInclude(oi => oi.Product)
+                    .Include(o => o.OrderItems)
+                        .ThenInclude(oi => oi.ProductVariant)
                     .Select(order
                     => MapperSingleton<MapperOrder>.Instance.MapResponse(order))
                     .ToList();
-                return listOrder.AsQueryable();
+                return listOrder
+                    .Select(i =>
+                    {
+                        i.Total = CalculateTotalAmount(i?.Id);
+                        return i;
+                    })
+                    .AsQueryable();
             }
             catch (Exception err)
             {

@@ -14,8 +14,6 @@ namespace StiktifyShop.Application.DTOs.Requests
         public string? Color { get; set; }
         [StringLength(50)]
         public string? Type { get; set; }
-        [Range(1, int.MaxValue)]
-        public int Quantity { get; set; }
         [Range(0, double.MaxValue)]
         public double Price { get; set; }
         public string Image { get; set; } = default!;

@@ -90,6 +90,7 @@ namespace StiktifyShop.Infrastructure.Repository
             try
             {
                 var listOption = _context.ProductOptions
+                    .Include(o => o.Product)
                     .Include(o => o.ProductVariants)
                     .Select(option
                     => MapperSingleton<MapperProductOption>.Instance.MapResponse(option))

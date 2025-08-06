@@ -18,7 +18,7 @@ namespace StiktifyShop.Infrastructure.Repository
             try
             {
                 var existingRating = await _context.ProductRatings
-                    .FirstOrDefaultAsync(r => r.ProductId == rating.ProductId && r.UserId == rating.UserId);
+                    .FirstOrDefaultAsync(r => r.OrderId == rating.OrderId);
                 if (existingRating != null)
                     return new Response
                     {
@@ -91,12 +91,16 @@ namespace StiktifyShop.Infrastructure.Repository
             }
         }
 
-        public IQueryable<ResponseProductRating> GetAll(string productId)
+        public IQueryable<ResponseProductRating> GetAll()
         {
             try
             {
-                return _context.ProductRatings
-                    .Where(r => r.ProductId == productId)
+                var list = _context.ProductRatings
+                    .Include(r => r.Product)
+                    .Include(r => r.Variant)
+                    .Include(r => r.Option)
+                    .ToList();
+                return list
                     .Select(r => MapperSingleton<MapperProductRating>.Instance.MapResponse(r))
                     .AsQueryable();
             }

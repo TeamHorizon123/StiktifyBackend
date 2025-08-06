@@ -7,12 +7,6 @@ namespace StiktifyShop.Domain.Entity
     {
         [Required]
         [StringLength(32)]
-        public string OrderId { get; set; } = default!;
-        [ForeignKey(nameof(OrderId))]
-        public virtual Order Order { get; set; } = default!;
-
-        [Required]
-        [StringLength(32)]
         public string UserId { get; set; } = default!;
 
         [Column(TypeName = "money")]
@@ -33,5 +27,10 @@ namespace StiktifyShop.Domain.Entity
 
         [ForeignKey(nameof(MethodId))]
         public virtual PaymentMethod PaymentMethod { get; set; } = default!;
+        [Required]
+        [StringLength(32)]
+        public string OrderId { get; set; } = default!;
+        [ForeignKey(nameof(OrderId))]
+        public virtual Order Order { get; set; } = default!;
     }
 }

@@ -19,11 +19,11 @@ namespace StiktifyShop.Controllers
             _repo = repo ?? throw new ArgumentNullException(nameof(repo));
         }
 
-        [HttpGet("{id}")]
+        [HttpGet]
         [EnableQuery]
-        public ActionResult<IEnumerable<ResponseCart>> GetAll([FromRoute] string id)
+        public ActionResult<IEnumerable<ResponseCart>> GetAll()
         {
-            var listCart = _repo.GetAll(id).AsQueryable();
+            var listCart = _repo.GetAll().AsQueryable();
             return Ok(listCart);
         }
 
@@ -31,9 +31,7 @@ namespace StiktifyShop.Controllers
         public async Task<IActionResult> Create([FromBody] CreateCart cart)
         {
             var response = await _repo.Create(cart);
-            if (response.StatusCode != 201)
-                return StatusCode(response.StatusCode, response.Message);
-            return StatusCode(response.StatusCode, response.Data);
+            return StatusCode(response.StatusCode, response.Message);
         }
 
         [HttpPut("{id}")]
@@ -42,15 +40,22 @@ namespace StiktifyShop.Controllers
             if (id != cart.Id)
                 return BadRequest("Cart ID mismatch.");
             var response = await _repo.Update(cart);
-            if (response.StatusCode != 200)
-                return StatusCode(response.StatusCode, response.Message);
-            return StatusCode(response.StatusCode, response.Data);
+            return StatusCode(response.StatusCode, response.Message);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] string id)
         {
             var response = await _repo.Delete(id);
+            return StatusCode(response.StatusCode, response.Message);
+        }
+
+        [HttpDelete("delete-many")]
+        public async Task<IActionResult> DeleteItem([FromBody] ICollection<DeleteCart> cartIds)
+        {
+            if (cartIds == null || !cartIds.Any())
+                return BadRequest("No cart IDs provided.");
+            var response = await _repo.DeleteMany(cartIds);
             return StatusCode(response.StatusCode, response.Message);
         }
 
