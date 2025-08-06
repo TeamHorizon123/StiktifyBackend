@@ -10,6 +10,7 @@ namespace StiktifyShop.Application.Mapper
         {
             return new Shop
             {
+                Id = createShop.UserId,
                 Address = createShop.Address,
                 Description = createShop.Description,
                 AvatarUri = createShop.AvatarUri,
