@@ -24,7 +24,7 @@ export class CommentsService {
     @InjectModel(Music.name) private MusicModal: Model<Music>,
     private notificationsService: NotificationsService,
     private notificationsGateway: NotificationsGateway,
-  ) {}
+  ) { }
   async getCommentsByVideoId(videoId: Types.ObjectId): Promise<any[]> {
     const thisVideoComments = await this.commentModel
       .find({ videoId, parentId: null })
@@ -109,6 +109,7 @@ export class CommentsService {
       videoId: comment.videoId,
       parentId: comment.parentId,
       CommentDescription: comment.CommentDescription,
+      userId: comment.userId,
     }));
   }
 

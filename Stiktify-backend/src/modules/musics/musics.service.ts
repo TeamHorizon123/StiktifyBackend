@@ -75,7 +75,7 @@ export class MusicsService {
   }
   async handleUploadMusic(createMusicDto: CreateMusicDto) {
     const { musicTag, categoryId, musicDescription, musicThumbnail,
-      musicUrl, userId, musicSeparate, musicLyric } = createMusicDto;
+      musicUrl, userId, musicSeparate, musicLyric, isKaraoke } = createMusicDto;
 
     for (const e of categoryId) {
       if (typeof e !== 'string') {
@@ -96,8 +96,8 @@ export class MusicsService {
       listeningAt: new Date(),
       musicSeparate: musicSeparate,
       musicLyric: musicLyric,
-      musicTag: musicTag
-
+      musicTag: musicTag,
+      isKaraoke: isKaraoke,
     });
     await this.musicCategoryService.handleCreateCategoryMusic(
       categoryId,
@@ -148,7 +148,12 @@ export class MusicsService {
     const allItems = await this.musicModel
       .find(filter)
       .sort({ totalListener: -1 })
-      .limit(maxLimit);
+      .limit(maxLimit)
+      .populate({
+        path: 'userId',
+        select: '_id userName fullname email',
+        match: { isBan: false },
+      });
     const totalItems = allItems.length;
     const totalPages = Math.ceil(totalItems / limit);
 
@@ -192,6 +197,7 @@ export class MusicsService {
         match: { isBan: false },
       })
       .sort({ totalListener: -1 });
+
 
     const configData = result.filter((x) => x.userId !== null);
     return {
@@ -532,11 +538,21 @@ async handleFilterAndSearchMusic(
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    const musicHot = await this.musicModel
+    const allMusic = await this.musicModel
       .find({ listeningAt: { $gte: sevenDaysAgo } })
-      .limit(10)
       .sort({ totalListeningOnWeek: -1 })
-    return musicHot
+      .populate({
+        path: 'userId',
+        select: '_id userName fullname email',
+        match: { isBan: false },
+      });
+
+    // ✅ Loại bỏ các bài có user bị ban (userId === null)
+    const validMusic = allMusic
+      .filter((item) => item.userId !== null)
+      .slice(0, 10); // chỉ lấy 10 bài sau lọc
+
+    return validMusic;
   }
 
   async handleUpdateMusic(updateMusicDto: UpdateMusicDto) {

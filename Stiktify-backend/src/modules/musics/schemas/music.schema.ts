@@ -43,6 +43,9 @@ export class Music {
   musicLyric: { start: number, end: number, text: string }[];
 
   @Prop({ default: false })
+  isKaraoke: boolean;
+
+  @Prop({ default: false })
   flag: boolean;
 
   @Prop({ default: false })
