@@ -790,6 +790,7 @@ export class ShortVideosService {
         select:
           '_id userName fullname email image totalFollowers totalFollowings',
       })
+      .populate('musicId')
       .sort({ createdAt: -1 });
 
     return {
