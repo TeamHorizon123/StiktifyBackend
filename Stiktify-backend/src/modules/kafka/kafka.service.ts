@@ -50,8 +50,8 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
   ) {
     this.kafka = new Kafka({
       clientId: 'nestjs-app',
-      brokers: ['localhost:9092'],
-      // brokers: ['kafka:9092'],
+      // brokers: ['localhost:9092'],
+      brokers: ['kafka:9092'],
     });
     this.producer = this.kafka.producer();
     this.consumer = this.kafka.consumer({ groupId: 'user-action-group' });
