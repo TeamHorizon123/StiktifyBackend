@@ -64,98 +64,6 @@ export class ReportService {
     return await newReport.save();
   }
 
-  async findAll(query: string, current: number, pageSize: number) {
-    const { filter, sort } = aqp(query);
-
-    if (filter.current) delete filter.current;
-    if (filter.pageSize) delete filter.pageSize;
-
-    if (!current) current = 1;
-    if (!pageSize) pageSize = 10;
-
-    const itemData = (
-      await this.reportModel.find(filter).populate({
-        path: 'videoId',
-        select: 'isDelete',
-        match: { isDelete: false },
-      })
-    ).filter((item) => item.musicId === null);
-
-    const totalItems = new Set(itemData.map((item: any) => item.videoId._id)).size;
-
-    const totalPages = Math.ceil(totalItems / pageSize);
-
-    const skip = (+current - 1) * +pageSize;
-
-    const resultReport = (await this.reportModel.aggregate([
-      {
-        $group: {
-          _id: '$videoId',
-          report: {
-            $push: {
-              _id: '$_id',
-              userId: '$userId',
-              reasons: '$reasons',
-            },
-          },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          videoId: '$_id',
-          report: 1,
-        },
-      },
-      { $skip: skip },
-      { $limit: pageSize },
-    ])) as IReportResult[];
-
-    const result = [];
-    for (const element of resultReport) {
-      const item = await this.shortVideosService.checkVideoById(
-        element.videoId,
-      );
-      const report = element.report;
-
-      if (item) {
-        const dataReport = [];
-        for (const element of report) {
-          const item = await this.usersService.checkUserById(element.userId);
-
-          if (item) {
-            const data = {
-              ...item.toObject(),
-              reasons: element.reasons,
-            };
-            dataReport.push(data);
-          }
-          continue;
-        }
-
-        const data = {
-          dataVideo: item,
-          dataReport: dataReport,
-          total: element.report.length,
-        };
-        result.push(data);
-      }
-      continue;
-    }
-
-    result.sort((a, b) => b.total - a.total);
-
-    return {
-      meta: {
-        current: current,
-        pageSize: pageSize,
-        pages: totalPages,
-        total: totalItems,
-      },
-      result: result,
-    };
-  }
-
   findOne(id: number) {
     return `This action returns a #${id} report`;
   }
@@ -178,8 +86,22 @@ export class ReportService {
       return false;
     }
   }
+async checkReportMusicId(id: string) {
+    try {
+      const result = await this.reportModel.find({
+        musicId: new Types.ObjectId(id),
+      });
 
-  async remove(id: string): Promise<any> {
+      if (result) {
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async removeVideoReport(id: string): Promise<any> {
     const check = await this.checkReportVideoId(id);
     if (!check) {
       return '';
@@ -191,159 +113,244 @@ export class ReportService {
     return result;
   }
 
-
-  async handleListMusicReport(query: string, current: number, pageSize: number) {
-    const { filter, sort } = aqp(query);
-
-    if (filter.current) delete filter.current;
-    if (filter.pageSize) delete filter.pageSize;
-
-    if (!current) current = 1;
-    if (!pageSize) pageSize = 10;
-
-    const itemData = (
-      await this.reportModel.find({ ...filter, videoId: null }).populate({
-        path: 'musicId',
-        select: 'isDelete',
-        match: { isDelete: false },
-      })
-    )
-    console.log(itemData);
-
-    const totalItems = new Set(itemData.map((item: any) => item.musicId._id)).size
-    const totalPages = Math.ceil(totalItems / pageSize);
-
-    const skip = (+current - 1) * +pageSize;
-
-    const resultReport = (await this.reportModel.aggregate([
-      {
-        $group: {
-          _id: '$musicId',
-          report: {
-            $push: {
-              _id: '$_id',
-              userId: '$userId',
-              reasons: '$reasons',
-            },
-          },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          musicId: '$_id',
-          report: 1,
-        },
-      },
-      { $skip: skip },
-      { $limit: pageSize },
-    ])) as IReportResult[];
-
-    const result = [];
-    for (const element of resultReport) {
-      const item = await this.musicsService.checkMusicRById(
-        element.musicId,
-      );
-      const report = element.report;
-
-      if (item) {
-        const dataReport = [];
-        for (const element of report) {
-          const item = await this.usersService.checkUserById(element.userId);
-
-          if (item) {
-            const data = {
-              ...item.toObject(),
-              reasons: element.reasons,
-            };
-            dataReport.push(data);
-          }
-          continue;
-        }
-
-        const data = {
-          dataMusic: item,
-          dataReport: dataReport,
-          total: element.report.length,
-        };
-        result.push(data);
-      }
-      continue;
+  async removeMusicReport(id: string): Promise<any> {
+    const check = await this.checkReportMusicId(id);
+    if (!check) {
+      return '';
     }
 
-    result.sort((a, b) => b.total - a.total);
+    const result = await this.reportModel.deleteMany({
+      musicId: new Types.ObjectId(id),
+    });
+    return result;
+  }
 
+ async handleListMusicReport(query: string, current: number, pageSize: number) {
+  const { filter = {}, sort = {} } = aqp(query);
+  delete filter.current;
+  delete filter.pageSize;
+  current = Number(current) || 1;
+  pageSize = Number(pageSize) || 10;
+
+  const rawSearch = String(filter.search || '').trim();
+  const searchRegex = new RegExp(rawSearch, 'i');
+
+  // Tìm music theo mô tả
+  const musicIds = await this.musicModel.find({
+    musicDescription: { $regex: searchRegex },
+  }).select('_id');
+
+  if (musicIds.length === 0) {
     return {
-      meta: {
-        current: current,
-        pageSize: pageSize,
-        pages: totalPages,
-        total: totalItems,
-      },
-      result: result,
-    }
+      message: "No music found for the search term!",
+      result: [],
+      meta: { current, pageSize, pages: 0, total: 0 },
+    };
   }
 
-  async searchReportMusic(search: string, startDate?: string, endDate?: string) {
-    const searchRegex = new RegExp(search, 'i'); 
-    const musicIds = await this.musicModel.find({
-      musicDescription: { $regex: searchRegex },
-    }).select('_id');
-    if (musicIds.length === 0) {
-      return { message: "No music found for the search term!" };
+  // Lấy tất cả report liên quan music
+  const reportDocs = await this.reportModel.find({
+    musicId: { $in: musicIds.map(m => m._id) },
+  }).populate({
+    path: 'musicId',
+    select: 'musicDescription musicUrl musicThumbnail isDelete flag userId isBlock',
+    populate: {
+      path: 'userId',
+      select: 'userName',
+    },
+  });
+
+  // Lọc theo filterReq
+  const filteredReports = reportDocs.filter((report) => {
+    const music: any = report.musicId;
+    if (!music || music.isDelete) return false;
+
+    const flag = music.flag ?? false;
+    const isBlocked = music.isBlock ?? false;
+
+    switch (filter.filterReq) {
+      case 'flagged':
+        return flag === true;
+      case 'not_flagged':
+        return flag !== true;
+      case 'blocked':
+        return isBlocked === true;
+      case 'not_blocked':
+        return isBlocked !== true;
+      default:
+        return true;
     }
-    let dateFilter: any = {};
-    if (startDate) {
-      dateFilter = { ...dateFilter, createdAt: { $gte: new Date(startDate) } };
-    }
-    const result = await this.reportModel
-      .find({
-        musicId: { $in: musicIds.map(item => item._id) },
-        ...dateFilter, 
-      })
-      .populate({
-        path: 'musicId',
-        select: 'musicDescription musicUrl musicThumbnail',
-        populate: {
-          path: 'userId',
-          select: 'userName', 
-        },
-      })
-      .populate('userId', 'userName fullname email')
-      .sort({ updatedAt: -1 }) 
-      .limit(10);
-  
-    return { result };
+  });
+
+  // Gom nhóm report theo musicId
+  const groupedMap = new Map<string, any[]>();
+  for (const report of filteredReports) {
+    const key = (report.musicId as any)._id.toString();
+    if (!groupedMap.has(key)) groupedMap.set(key, []);
+    groupedMap.get(key)?.push(report);
   }
 
-  async searchReportVideo(search: string, startDate?: string) {
-    const searchRegex = new RegExp(search, 'i'); 
-    const videoIds = await this.videoModel.find({
-      videoDescription: { $regex: searchRegex },
-    }).select('_id');
-    if (videoIds.length === 0) {
-      return { message: "No video found for the search term!" };
+  const allResults: any[] = [];
+
+  for (const [musicId, reports] of groupedMap.entries()) {
+    const music = await this.musicsService.checkMusicByIdCanBlockAndBan(musicId);
+    if (!music) continue;
+
+    const dataReport = [];
+    for (const report of reports) {
+      const user = await this.usersService.checkUserById(report.userId);
+      if (user) {
+        dataReport.push({
+          ...user.toObject(),
+          reasons: report.reasons,
+          createdAt: report.createdAt,
+          updatedAt: report.updatedAt,
+        });
+      }
     }
-    let dateFilter: any = {};
-    if (startDate) {
-      dateFilter = { ...dateFilter, createdAt: { $gte: new Date(startDate) } };
-    }
-    const result = await this.reportModel
-      .find({
-        videoId: { $in: videoIds.map(item => item._id) },
-        ...dateFilter, 
-      })
-      .populate({
-        path: 'videoId',
-        select: 'videoDescription videoUrl videoThumbnail',
-        populate: {
-          path: 'userId',
-          select: 'userName', 
-        },
-      }) 
-      .populate('userId', 'userName fullname email')
-      .sort({ updatedAt: -1 }) 
-      .limit(10);
-    return { result }; 
+
+    allResults.push({
+      dataMusic: music,
+      dataReport,
+      total: dataReport.length,
+    });
   }
+
+  // Sort theo số lượng report nếu có yêu cầu
+  if (filter.filterReq === 'report_asc') {
+    allResults.sort((a, b) => a.total - b.total);
+  } else if (filter.filterReq === 'report_desc') {
+    allResults.sort((a, b) => b.total - a.total);
+  }
+
+  const totalItems = allResults.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const paginatedResults = allResults.slice((current - 1) * pageSize, current * pageSize);
+
+  return {
+    meta: {
+      current,
+      pageSize,
+      pages: totalPages,
+      total: totalItems,
+    },
+    result: paginatedResults,
+  };
+}
+
+ async handleListVideoReport(query: string, current: number, pageSize: number) {
+  const { filter = {}, sort = {} } = aqp(query);
+
+  delete filter.current;
+  delete filter.pageSize;
+  current = Number(current) || 1;
+  pageSize = Number(pageSize) || 10;
+
+  const rawSearch = String(filter.search || '').trim();
+  const searchRegex = new RegExp(rawSearch, 'i');
+
+  // Tìm video theo mô tả
+  const videoIds = await this.videoModel.find({
+    videoDescription: { $regex: searchRegex },
+  }).select('_id');
+
+  if (videoIds.length === 0) {
+    return {
+      message: "No video found for the search term!",
+      result: [],
+      meta: { current, pageSize, pages: 0, total: 0 },
+    };
+  }
+
+  // Lấy tất cả report liên quan video
+  const reportDocs = await this.reportModel.find({
+    videoId: { $in: videoIds.map((v) => v._id) },
+  }).populate({
+    path: 'videoId',
+    select: 'videoDescription videoUrl videoThumbnail isDelete flag userId isBlock',
+    populate: {
+      path: 'userId',
+      select: 'userName',
+    },
+  });
+
+  // Lọc theo filterReq
+  const filteredReports = reportDocs.filter((report) => {
+    const video: any = report.videoId;
+    if (!video || video.isDelete) return false;
+
+    const flag = video.flag ?? false;
+    const isBlocked = video.isBlock ?? false;
+
+    switch (filter.filterReq) {
+      case 'flagged':
+        return flag === true;
+      case 'not_flagged':
+        return flag !== true;
+      case 'blocked':
+        return isBlocked === true;
+      case 'not_blocked':
+        return isBlocked !== true;
+      default:
+        return true;
+    }
+  });
+
+  // Gom nhóm report theo videoId
+  const groupedMap = new Map<string, any[]>();
+  for (const report of filteredReports) {
+    const key = (report.videoId as any)._id.toString();
+    if (!groupedMap.has(key)) groupedMap.set(key, []);
+    groupedMap.get(key)?.push(report);
+  }
+
+  const allResults: any[] = [];
+
+  for (const [videoId, reports] of groupedMap.entries()) {
+    const video = await this.shortVideosService.checkVideoByIdCanDelete(videoId);
+    if (!video) continue;
+
+    const dataReport = [];
+    for (const report of reports) {
+      const user = await this.usersService.checkUserById(report.userId);
+      if (user) {
+        dataReport.push({
+          ...user.toObject(),
+          reasons: report.reasons,
+          createdAt: report.createdAt,
+          updatedAt: report.updatedAt,
+        });
+      }
+    }
+
+    allResults.push({
+      dataVideo: video,
+      dataReport,
+      total: dataReport.length,
+    });
+  }
+
+  // Sort theo số lượng report nếu có yêu cầu
+  if (filter.filterReq === 'report_asc') {
+    allResults.sort((a, b) => a.total - b.total);
+  } else if (filter.filterReq === 'report_desc') {
+    allResults.sort((a, b) => b.total - a.total);
+  }
+
+  const totalItems = allResults.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const paginatedResults = allResults.slice((current - 1) * pageSize, current * pageSize);
+
+  return {
+    meta: {
+      current,
+      pageSize,
+      pages: totalPages,
+      total: totalItems,
+    },
+    result: paginatedResults,
+  };
+}
+
+
 }

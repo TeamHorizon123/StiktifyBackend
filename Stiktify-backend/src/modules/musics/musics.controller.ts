@@ -17,10 +17,11 @@ import { CreateNeo4j } from './dto/create-neo4j.dto';
 import { UpdateMusicDto } from './dto/update-music.dto';
 import { Types } from 'mongoose';
 import { TrackRelatedDto } from './dto/track-related.dto';
+import { blockMusicDto } from './dto/block-music-dto';
 
 @Controller('musics')
 export class MusicsController {
-  constructor(private readonly musicsService: MusicsService) {}
+  constructor(private readonly musicsService: MusicsService) { }
 
   @Post('upload-music')
   uploadMusic(@Body() createMusicDto: CreateMusicDto) {
@@ -52,12 +53,25 @@ export class MusicsController {
     @Query() query: any,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
+    @Query('search') search: string,
+    @Query('filterReq') filterReq: string,
   ) {
     return this.musicsService.handleFilterAndSearchMusic(
       query,
       +current,
       +pageSize,
+      search,
+      filterReq,
     );
+  }
+
+  @Get("list-music-admin")
+  findAllUserByFilterAndSearch(
+    @Query() query: string,
+    @Query("current") current: string,
+    @Query("pageSize") pageSize: string,
+  ) {
+    return this.musicsService.handleFilterAndSearch(query, +current, +pageSize)
   }
 
   @Public()
@@ -65,9 +79,9 @@ export class MusicsController {
   listHotMusic() {
     return this.musicsService.getMusicHotInWeek();
   }
-  
+
   @Public()
-  @Get('getTopMusic/:title') 
+  @Get('getTopMusic/:title')
   getTopMusic(@Param('title') title: string) {
     return this.musicsService.getTop50Music(title);
   }
@@ -95,12 +109,19 @@ export class MusicsController {
   @Post('flag-music')
   @ResponseMessage('Updated successfully')
   findOne(@Body() req: flagMusicDto) {
-    return this.musicsService.handleFlagVideo(req._id, req.flag);
+    return this.musicsService.handleFlagMusic(req._id, req.flag);
   }
+
+  @Post('block-music')
+  @ResponseMessage('Updated successfully')
+  blockMusic(@Body() req: blockMusicDto) {
+    return this.musicsService.handleBlockMusic(req._id, req.isBlock);
+  }
+
   // Delete
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.musicsService.remove(+id);
+    return this.musicsService.remove(id);
   }
 
   // Share a music - ThangLH
@@ -116,19 +137,6 @@ export class MusicsController {
     return this.musicsService.getAllMusic();
   }
 
-  @Get('list-music-admin')
-  findAll(
-    @Query() query: string,
-    @Query('current') current: string,
-    @Query('pageSize') pageSize: string,
-  ) {
-    return this.musicsService.handleListAllMusicAdmin(
-      query,
-      +current,
-      +pageSize,
-    );
-  }
-
   @Get('recommend-music/:userId')
   recommend(@Param('userId') userId: string) {
     return this.musicsService.handleRecommendMusic(userId);
@@ -138,7 +146,7 @@ export class MusicsController {
   listenMusicInUser(@Body() req: CreateNeo4j) {
     return this.musicsService.handleListenMusicNeo4j(req.userId, req.musicId);
   }
-  
+
   @Public()
   @Post('track-related')
   trackRelated(@Body() req: TrackRelatedDto) {

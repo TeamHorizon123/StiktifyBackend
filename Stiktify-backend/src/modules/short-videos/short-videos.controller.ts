@@ -24,6 +24,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import multer from 'multer';
+import { blockShortVideoDto } from './dto/block-short-video-dto';
 
 @Controller('short-videos')
 export class ShortVideosController {
@@ -66,33 +67,26 @@ export class ShortVideosController {
   getTopVideo(@Param('title') title: string) {
     return this.shortVideosService.getTop50Videos(title);
   }
-  @Get('list-video')
-  findAll(
-    @Query() query: string,
-    @Query('current') current: string,
-    @Query('pageSize') pageSize: string,
-  ) {
-    return this.shortVideosService.findAll(query, +current, +pageSize);
-  }
+
   @Get('get-top-one-videos')
   @Public()
   getTopOneVideos() {
     return this.shortVideosService.getTopVideos();
   }
-  @Get(':videoId')
-  async getVideoById(@Param('videoId') videoId: string) {
-    return this.shortVideosService.findVideoById(videoId);
-  }
-
   @Post('flag-video')
   @ResponseMessage('Updated successfully')
   findOne(@Body() req: flagShortVideoDto) {
     return this.shortVideosService.handleFlagVideo(req._id, req.flag);
   }
+  @Post('block-video')
+  @ResponseMessage('Updated successfully')
+  blockVideo(@Body() req: blockShortVideoDto) {
+    return this.shortVideosService.handleBlockVideo(req._id, req.isBlock);
+  }
   @Post('trending-guest-videos')
   @Public()
-  getTrendingVideosByGuest() {
-    return this.shortVideosService.getTrendingVideosByGuest();
+    getTrendingVideosByGuest(@Body() trendingVideoDto: TrendingVideoDto) {
+    return this.shortVideosService.getTrendingVideosByGuest(trendingVideoDto);
   }
   @Post('update-view-by-viewing')
   @Public()
@@ -129,9 +123,8 @@ export class ShortVideosController {
     );
   }
 
-  @Get('filter-searchVideo')
-  @Get('filter-searchCategory')
-  findAllUserByFilterAndSearch(
+  @Get('list-video')
+  searchVideoInManegement(
     @Query() query: string,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
@@ -142,6 +135,7 @@ export class ShortVideosController {
       +pageSize,
     );
   }
+
   @Post('get-tag-by-ai')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -161,6 +155,10 @@ export class ShortVideosController {
   async getTagByAI(@UploadedFile() file: Express.Multer.File) {
     if (!file) throw new BadRequestException('No file uploaded');
     return this.shortVideosService.getTagVideoByAi(file);
+  }
+    @Get(':videoId')
+  async getVideoById(@Param('videoId') videoId: string) {
+    return this.shortVideosService.findVideoById(videoId);
   }
 
   // Update video

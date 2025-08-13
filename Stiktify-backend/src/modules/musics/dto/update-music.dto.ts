@@ -14,7 +14,4 @@ export class UpdateMusicDto {
     @IsNotEmpty({ message: 'musicTag must not be empty' })
     musicThumbnail: string;
 
-    @IsNotEmpty({ message: 'musicTag must not be empty' })
-    @IsArray({ message: 'musicTag must be array' })
-    musicTag: { _id: string, fullname: string }[];
 }

@@ -13,16 +13,6 @@ export class MusicCategoriesController {
     return this.musicCategoriesService.handleCreateCategoryMusic(createMusicCategoryDto.categoryId, createMusicCategoryDto.musicId);
   }
 
-  @Get("filter-search")
-  findAllUserByFilterAndSearch(
-    @Query() query: string,
-    @Query("current") current: string,
-    @Query("pageSize") pageSize: string,
-  ) {
-    return this.musicCategoriesService.handleFilterAndSearch(query, +current, +pageSize)
-  }
-
-
 
   @Get(':id')
   findOne(@Param('id') id: string) {

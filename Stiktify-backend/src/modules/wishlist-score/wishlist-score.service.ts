@@ -73,9 +73,10 @@ export class WishlistScoreService {
       suggest.musicId = null;
       suggest.categoryId = [];
     }
-    if (suggest?.tags?.length) {
+      if (suggest?.tags?.length) {
       for (const tag of suggest.tags) {
-        await this.triggerWishListScoretag(
+
+           await this.triggerWishListScoretag(
           tag,
           triggerWishlistScoreDto.userId,
           scoreIncrease,
@@ -105,13 +106,18 @@ export class WishlistScoreService {
         );
       }
     }
+    
     return suggest;
   }
   async triggerWishListScoretag(tag: string, userId: string, scoreBonus) {
     const setting = await this.settingsService.findAll();
     const wishListScoreCount =
       setting.algorithmConfig.numberOfCount.wishListScoreCount;
-    await this.videoService.addTagToUser(userId + "", tag + "", scoreBonus);
+      try {
+        await this.videoService.addTagToUser(userId + "", tag + "", scoreBonus);
+      } catch (error) {
+        console.log('Neo4j error');
+      }
     const existingTag = await this.wishListScoreModel.findOne({ tag, userId });
 
     if (existingTag) {
@@ -147,7 +153,11 @@ export class WishlistScoreService {
       musicId,
       userId,
     });
-    await this.videoService.addMusicToUser(userId + "", musicId + "", scoreBonus);
+    try {
+      await this.videoService.addMusicToUser(userId + "", musicId + "", scoreBonus);
+    } catch (error) {
+      
+    }
     if (existingMusic) {
       await this.wishListScoreModel.updateOne(
         { musicId, userId },
@@ -181,7 +191,11 @@ export class WishlistScoreService {
     const setting = await this.settingsService.findAll();
     const wishListScoreCount =
       setting.algorithmConfig.numberOfCount.wishListScoreCount;
-    await this.videoService.addCreatorToUser(userId + "", creatorId + "", scoreBonus);
+      try {
+        await this.videoService.addCreatorToUser(userId + "", creatorId + "", scoreBonus);
+      } catch (error) {
+        console.log('Neo4j error');
+      }
     const existingCreator = await this.wishListScoreModel.findOne({
       creatorId,
       userId,
@@ -220,8 +234,11 @@ export class WishlistScoreService {
     const setting = await this.settingsService.findAll();
     const wishListScoreCount =
       setting.algorithmConfig.numberOfCount.wishListScoreCount;
-
-    await this.videoService.addCategoryToUser(userId + "", categoryId + "", scoreBonus);
+    try {
+      await this.videoService.addCategoryToUser(userId + "", categoryId + "", scoreBonus);
+    } catch (error) {
+      console.log('Neo4j error');
+    }
 
     const existingCategory = await this.wishListScoreModel.findOne({
       categoryId,
@@ -319,6 +336,7 @@ export class WishlistScoreService {
     videoId: string,
     current: number,
     currentGrop: number,
+    userId: string,
   ) {
     // console.log(wishlistScores)
     // console.log(scoreChecks.every(check => !check))
@@ -338,17 +356,23 @@ export class WishlistScoreService {
         }
       }
     }
-
     const videoListFound = await this.videoService.findVideoBySuggest(
       suggest,
       videoId,
     );
-    // console.log(videoListFound);
-    if (videoListFound.length > 0) return videoListFound;
+    const legitVideos = [];
+      for (const video of videoListFound) {
+        if (await this.videoService.isVideoLegit(video, userId)) {
+          legitVideos.push(video);
+        }
+      }
+
+      // Nếu có ít nhất 1 video hợp lệ thì return
+      if (legitVideos.length > 0) return legitVideos;
     if (scoreChecks.every((check) => check)) {
       scoreChecks[0] = false;
       // console.log(scoreChecks);
-      return this.findBestVideo(wishlistScores, scoreChecks, videoId, 0, 1);
+      return this.findBestVideo(wishlistScores, scoreChecks, videoId, 0, 1,userId);
     } else {
       const indexLargeFalse = scoreChecks.lastIndexOf(false);
       if (
@@ -363,6 +387,7 @@ export class WishlistScoreService {
           videoId,
           current + 1,
           currentGrop,
+          userId
         );
       } else {
         const countFalseFromRight = this.countFalseFromRight(scoreChecks);
@@ -382,6 +407,7 @@ export class WishlistScoreService {
             videoId,
             current,
             currentGrop,
+            userId
           );
         } else {
           const smallFalseIndex = scoreChecks.findIndex((val) => val === false);
@@ -398,6 +424,7 @@ export class WishlistScoreService {
             videoId,
             current,
             currentGrop,
+            userId
           );
         }
       }

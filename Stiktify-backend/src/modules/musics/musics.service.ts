@@ -20,6 +20,7 @@ import { TrackRelatedDto } from './dto/track-related.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { FriendRequestService } from '../friend-request/friend-request.service';
+import { StringExpressionOperator } from 'mongoose';
 
 @Injectable()
 export class MusicsService {
@@ -55,10 +56,26 @@ export class MusicsService {
       return null;
     }
   }
+  async checkMusicByIdCanBlockAndBan(id: string) {
+    try {
+      const result = await this.musicModel
+        .findById(id)
+        .populate({
+          path: 'userId',
+          select: '_id userName fullname email',
+        })
 
+      if (result) {
+        return result;
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
   async handleUploadMusic(createMusicDto: CreateMusicDto) {
     const { musicTag, categoryId, musicDescription, musicThumbnail,
-      musicUrl, userId, musicSeparate, musicLyric } = createMusicDto;
+      musicUrl, userId, musicSeparate, musicLyric, isKaraoke } = createMusicDto;
 
     for (const e of categoryId) {
       if (typeof e !== 'string') {
@@ -79,8 +96,8 @@ export class MusicsService {
       listeningAt: new Date(),
       musicSeparate: musicSeparate,
       musicLyric: musicLyric,
-      musicTag: musicTag
-
+      musicTag: musicTag,
+      isKaraoke: isKaraoke,
     });
     await this.musicCategoryService.handleCreateCategoryMusic(
       categoryId,
@@ -131,7 +148,11 @@ export class MusicsService {
     const allItems = await this.musicModel
       .find(filter)
       .sort({ totalListener: -1 })
-      .limit(maxLimit);
+      .limit(maxLimit)
+      .populate({
+        path: 'userId',
+        select: '_id userName fullname email',
+      });
     const totalItems = allItems.length;
     const totalPages = Math.ceil(totalItems / limit);
 
@@ -172,9 +193,9 @@ export class MusicsService {
       .populate({
         path: 'userId',
         select: '_id userName fullname email',
-        match: { isBan: false },
       })
       .sort({ totalListener: -1 });
+
 
     const configData = result.filter((x) => x.userId !== null);
     return {
@@ -214,18 +235,33 @@ export class MusicsService {
     return result;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} music`;
+  async remove(musicId: string): Promise<{ message: string }> {
+    // Tìm bài nhạc theo ID
+    const music = await this.musicModel.findById(musicId);
+    if (!music) {
+      throw new BadRequestException('Music not found');
+    }
+    // Đánh dấu đã xóa (soft delete)
+    music.isDelete = true;
+    await music.save();
+
+    return { message: 'Music marked as deleted successfully' };
   }
 
   async handleMyMusic(userId: string, current: number, pageSize: number) {
-    const filter = { userId: new mongoose.Types.ObjectId(userId) };
+    const filter = {
+      userId: new mongoose.Types.ObjectId(userId),
+      isDelete: { $ne: true },
+    };
     const result = await this.musicModel
       .find(filter)
       .skip((current - 1) * pageSize)
       .limit(pageSize)
       .sort({ createdAt: -1 })
-      .populate('userId', 'musicId');
+      .populate({
+        path: 'userId',
+        select: '_id userName fullname email',
+      });
     if (result.length == 0) {
       return {
         meta: {
@@ -257,59 +293,86 @@ export class MusicsService {
     return category ? { categoryId: category._id } : {};
   }
 
-  async handleFilterAndSearchMusic(
-    query: any,
-    current: number,
-    pageSize: number,
-  ) {
-    const { filter = {}, sort = {} } = aqp(query);
-    current = current && !isNaN(Number(current)) ? Number(current) : 1;
-    pageSize = pageSize && !isNaN(Number(pageSize)) ? Number(pageSize) : 10;
-    if (isNaN(current) || isNaN(pageSize)) {
-      return { statusCode: 400, message: 'Invalid pagination parameters' };
-    }
-    const handleFilter = filter.filterReq
-      ? await this.checkFilterMusic(filter.filterReq)
-      : {};
-    let handleSearch = [];
-    if (
-      filter.search &&
-      typeof filter.search === 'string' &&
-      filter.search.trim().length > 0
-    ) {
-      const searchRegex = new RegExp(filter.search, 'i');
-      handleSearch = [{ musicDescription: searchRegex }];
-    }
-    let musicCategory = [];
-    if (handleFilter.categoryId) {
-      musicCategory = await this.musicCategoryModel.find({
-        categoryId: handleFilter.categoryId,
-      });
-    }
-    const musicIds = musicCategory.map((item) => item.musicId);
-    const filterQuery = {
-      ...(handleSearch.length > 0 ? { $or: handleSearch } : {}),
-      ...(handleFilter.categoryId ? { _id: { $in: musicIds } } : {}),
-    };
-    const totalItems = await this.musicModel.countDocuments(filterQuery);
-    const totalPages = Math.ceil(totalItems / pageSize);
-    const skip = (current - 1) * pageSize;
-    const result = await this.musicModel
-      .find(filterQuery)
-      .limit(pageSize)
-      .skip(skip)
-      .sort(sort as any);
+async handleFilterAndSearchMusic(
+  query: any,
+  current: number,
+  pageSize: number,
+  search: string,
+  filterReq: string,
+) {
+  const { filter = {}, sort = {} } = aqp(query);
 
-    return {
-      meta: {
-        current,
-        pageSize,
-        total: totalItems,
-        pages: totalPages,
-      },
-      result,
-    };
+  current = current && !isNaN(Number(current)) ? Number(current) : 1;
+  pageSize = pageSize && !isNaN(Number(pageSize)) ? Number(pageSize) : 10;
+  console.log(filter)
+  if (isNaN(current) || isNaN(pageSize)) {
+    return { statusCode: 400, message: 'Invalid pagination parameters' };
   }
+
+  const handleFilter = filterReq
+    ? await this.checkFilterMusic(filterReq)
+    : {};
+
+  // Tạo mảng search query
+  let handleSearch = [];
+  if (
+   search &&
+    typeof search === 'string' &&
+    search.trim().length > 0
+  ) {
+    const rawSearch = String(search).trim();
+    const searchRegex = new RegExp(`${rawSearch}`, 'i');
+    handleSearch = [{ musicDescription: searchRegex }];
+  }
+
+  // Tìm theo category nếu có
+  let musicIds: any[] = [];
+  if (handleFilter.categoryId) {
+    const musicCategory = await this.musicCategoryModel.find({
+      categoryId: handleFilter.categoryId,
+    });
+    musicIds = musicCategory.map((item) => item.musicId);
+  }
+  console.log(`handleSearch.length: ${handleSearch.length}`);
+  // Tạo query tìm kiếm chính xác
+  const filterQuery: any = {};
+  if (handleSearch.length > 0 && handleFilter.categoryId) {
+    filterQuery.$and = [
+      { $or: handleSearch },
+      { _id: { $in: musicIds } },
+    ];
+  } else if (handleSearch.length > 0) {
+    filterQuery.$or = handleSearch;
+  } else if (handleFilter.categoryId) {
+    filterQuery._id = { $in: musicIds };
+  }
+
+  // Phân trang và truy vấn dữ liệu
+  const totalItems = await this.musicModel.countDocuments(filterQuery);
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const skip = (current - 1) * pageSize;
+  console.log(`Current: ${current}, PageSize: ${pageSize}, Skip: ${skip}`);
+  console.log(`Filter Query: ${JSON.stringify(filterQuery)}`);
+  const result = await this.musicModel
+    .find(filterQuery)
+    .limit(pageSize)
+    .skip(skip)
+    .populate({
+        path: 'userId',
+        select: '_id userName fullname email',
+      })
+    .sort(sort as any);
+
+  return {
+    meta: {
+      current,
+      pageSize,
+      total: totalItems,
+      pages: totalPages,
+    },
+    result,
+  };
+}
 
   async handleDisplayMusic(id: string) {
     console.log(id);
@@ -376,7 +439,7 @@ export class MusicsService {
     }
   }
 
-  async handleFlagVideo(_id: string, flag: boolean) {
+  async handleFlagMusic(_id: string, flag: boolean) {
     const checkId = await this.isIdExist(_id);
     if (checkId === false) {
       throw new BadRequestException(`Music not found with ID: ${_id}`);
@@ -389,38 +452,17 @@ export class MusicsService {
     }
   }
 
-  async handleListAllMusicAdmin(
-    query: string,
-    current: number,
-    pageSize: number,
-  ) {
-    try {
-      const { filter, sort } = aqp(query);
-      if (filter.current) delete filter.current;
-      if (filter.pageSize) delete filter.pageSize;
-      if (!current) current = 1;
-      if (!pageSize) pageSize = 10;
-      const totalItems = (await this.musicModel.find(filter)).length;
-      const totalPages = Math.ceil(totalItems / pageSize);
-      const skip = (+current - 1) * +pageSize;
-      const result = await this.musicModel
-        .find(filter)
-        .limit(pageSize)
-        .skip(skip)
-        .sort(sort as any)
-        .populate('userId');
-      return {
-        meta: {
-          current: current, // trang hien tai
-          pageSize: pageSize, // so luong ban ghi
-          pages: totalPages, // tong so trang voi dieu kien query
-          total: totalItems, // tong so ban ghi
-        },
-        result: result,
-      };
-    } catch (error) {
-      console.log(error);
-      return null;
+  
+  async handleBlockMusic(_id: string, isBlock: boolean) {
+    const checkId = await this.isIdExist(_id);
+    if (checkId === false) {
+      throw new BadRequestException(`Music not found with ID: ${_id}`);
+    } else {
+      const result = await this.musicModel.findByIdAndUpdate(_id, {
+        isBlock: isBlock,
+      });
+      // await this.reportService.remove(_id)
+      return result._id;
     }
   }
 
@@ -501,17 +543,27 @@ export class MusicsService {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    const musicHot = await this.musicModel
+    const allMusic = await this.musicModel
       .find({ listeningAt: { $gte: sevenDaysAgo } })
-      .limit(10)
       .sort({ totalListeningOnWeek: -1 })
-    return musicHot
+      .populate({
+        path: 'userId',
+        select: '_id userName fullname email',
+        match: { isBan: false },
+      });
+
+    // ✅ Loại bỏ các bài có user bị ban (userId === null)
+    const validMusic = allMusic
+      .filter((item) => item.userId !== null)
+      .slice(0, 10); // chỉ lấy 10 bài sau lọc
+
+    return validMusic;
   }
 
   async handleUpdateMusic(updateMusicDto: UpdateMusicDto) {
-    const { musicDescription, musicTag, musicThumbnail, musicId } = updateMusicDto
+    const { musicDescription, musicThumbnail, musicId } = updateMusicDto
 
-    const result = await this.musicModel.findByIdAndUpdate(musicId, { musicDescription, musicTag, musicThumbnail })
+    const result = await this.musicModel.findByIdAndUpdate(musicId, { musicDescription, musicThumbnail })
 
     return result
   }
@@ -687,5 +739,101 @@ export class MusicsService {
 
   async getMusicById(id: string) {
     return await this.musicModel.findById(id);
+  }
+  async handleFilterAndSearch(
+    query: string,
+    current: number,
+    pageSize: number,
+  ) {
+    const { filter, sort: rawSort } = aqp(query);
+
+
+    if (filter.current) delete filter.current;
+    if (filter.pageSize) delete filter.pageSize;
+
+    if (!current) current = 1;
+    if (!pageSize) pageSize = 10;
+
+    const skip = (+current - 1) * +pageSize;
+    const rawSearch = String(filter.search || '').trim();
+    const searchRegex = new RegExp(rawSearch, 'i');
+
+    const sort: any = rawSort || {};
+    const andConditions: any[] = [];
+
+    switch (filter.filterReq) {
+      case 'recent':
+        sort.createdAt = -1;
+        break;
+      case 'oldest':
+        sort.createdAt = 1;
+        break;
+      case 'blocked':
+        andConditions.push({ isBlock: true });
+        break;
+      case 'flagged':
+        andConditions.push({ flag: true });
+        break;
+      case 'mostViews':
+      case 'mostListened': // hỗ trợ cả 2 key nếu muốn
+        sort.totalListened = -1;
+        break;
+      default:
+        sort.createdAt = -1;
+        break;
+    }
+
+    if (rawSearch.length > 0) {
+      andConditions.push({
+        $or: [
+          { musicDescription: { $regex: searchRegex } },
+          { 'userId.userName': { $regex: searchRegex } },
+        ],
+      });
+    }
+
+    const matchStage = andConditions.length > 0 ? { $and: andConditions } : {};
+
+    const aggregatePipeline: any = [
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'userId',
+        },
+      },
+      { $unwind: '$userId' },
+      { $match: matchStage },
+      { $sort: Object.keys(sort).length > 0 ? sort : { createdAt: -1 } },
+      {
+        $facet: {
+          data: [
+            { $skip: skip },
+            { $limit: pageSize },
+            {
+              $project: {
+                'userId.password': 0,
+              },
+            },
+          ],
+          total: [{ $count: 'count' }],
+        },
+      },
+    ];
+
+    const [resultData] = await this.musicModel.aggregate(aggregatePipeline);
+    const totalItems = resultData?.total?.[0]?.count || 0;
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    return {
+      meta: {
+        current,
+        pageSize,
+        total: totalItems,
+        pages: totalPages,
+      },
+      result: resultData?.data || [],
+    };
   }
 }
