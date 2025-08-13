@@ -33,6 +33,7 @@ namespace StiktifyShop.Controllers
         }
 
         [HttpGet("vnpay-return")]
+        [AllowAnonymous]
         public ActionResult VNPayReturn()
         {
             var response = VNPayHelper.PaymentExecute(HttpContext.Request.Query);
@@ -41,6 +42,7 @@ namespace StiktifyShop.Controllers
 
 
         [HttpPost("create-vnpay")]
+        [AllowAnonymous]
         public IActionResult CreateVNPay([FromBody] VNPayRequest request)
         {
             var paymentUrl = VNPayHelper.CreatePaymentUrl(request, HttpContext);
