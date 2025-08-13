@@ -152,7 +152,6 @@ export class MusicsService {
       .populate({
         path: 'userId',
         select: '_id userName fullname email',
-        match: { isBan: false },
       });
     const totalItems = allItems.length;
     const totalPages = Math.ceil(totalItems / limit);
@@ -194,7 +193,6 @@ export class MusicsService {
       .populate({
         path: 'userId',
         select: '_id userName fullname email',
-        match: { isBan: false },
       })
       .sort({ totalListener: -1 });
 
@@ -260,7 +258,10 @@ export class MusicsService {
       .skip((current - 1) * pageSize)
       .limit(pageSize)
       .sort({ createdAt: -1 })
-      .populate('userId', 'musicId');
+      .populate({
+        path: 'userId',
+        select: '_id userName fullname email',
+      });
     if (result.length == 0) {
       return {
         meta: {
@@ -356,6 +357,10 @@ async handleFilterAndSearchMusic(
     .find(filterQuery)
     .limit(pageSize)
     .skip(skip)
+    .populate({
+        path: 'userId',
+        select: '_id userName fullname email',
+      })
     .sort(sort as any);
 
   return {
